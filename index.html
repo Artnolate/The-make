@@ -253,6 +253,22 @@ section.block{padding:40px 0 8px;}
 .btn-main:disabled{opacity:.4;filter:grayscale(.4);box-shadow:none;cursor:not-allowed;}
 .btn-hint{text-align:center;font-size:11.5px;color:var(--muted-2);margin-top:9px;}
 
+/* ---------- LINE-only access gate ---------- */
+#liffGate{
+  position:fixed;inset:0;background:var(--ink);z-index:999;
+  display:none;align-items:center;justify-content:center;padding:28px;text-align:center;
+}
+#liffGate.show{display:flex;}
+.gate-card{max-width:360px;}
+.gate-icon{font-size:44px;margin-bottom:14px;}
+.gate-card h3{font-family:var(--disp);font-size:19px;color:var(--paper);margin-bottom:8px;}
+.gate-card p{color:var(--muted);font-size:13.5px;line-height:1.6;margin-bottom:18px;}
+.gate-btn{
+  display:inline-block;padding:13px 22px;border-radius:14px;background:var(--amber);
+  color:#241706;font-weight:700;font-family:var(--disp);text-decoration:none;font-size:14.5px;
+}
+.gate-hint{margin-top:12px;font-size:11.5px;color:var(--muted-2);}
+
 /* ---------- Registration form (modal sheet) ---------- */
 #regOverlay{
   position:fixed;inset:0;background:rgba(4,8,14,.72);backdrop-filter:blur(3px);
@@ -328,11 +344,14 @@ section.block{padding:40px 0 8px;}
 </head>
 <body>
 
-<!-- ============ LOCK SCREEN (บังคับล็อกอินผ่าน LINE) ============ -->
-<div id="lockScreen" style="display:none;position:fixed;inset:0;background:#0E1826;z-index:999;align-items:center;justify-content:center;text-align:center;padding:24px;color:#F5EFE4;font-family:'IBM Plex Sans Thai',sans-serif;">
-  <div>
-    <p style="font-size:15px;margin-bottom:14px;">กรุณาเปิดลิงก์นี้ผ่านแอป LINE เท่านั้น</p>
-    <a href="https://liff.line.me/2010676580-Iv2WYOTB" style="color:#F5A623;text-decoration:underline;">เปิดผ่าน LINE ที่นี่</a>
+<!-- ============ LINE-only access gate ============ -->
+<div id="liffGate">
+  <div class="gate-card">
+    <div class="gate-icon">🔒</div>
+    <h3>เปิดผ่านแอป LINE เท่านั้น</h3>
+    <p id="gateMessage">หน้านี้เปิดได้เฉพาะผ่านเมนู Rich Menu หรือ ลิงก์ LINE ของ THE MAKE PORTFOLIO เท่านั้น กรุณาปิดหน้านี้แล้วเปิดใหม่จากในแอป LINE</p>
+    <a class="gate-btn" id="gateOpenLink" href="https://liff.line.me/2010676580-Iv2WYOTB">เปิดในแอป LINE</a>
+    <div class="gate-hint">ถ้ากำลังใช้แอป LINE อยู่แล้วและยังเห็นข้อความนี้ ลองปิดแล้วเปิดใหม่อีกครั้ง</div>
   </div>
 </div>
 
@@ -598,7 +617,7 @@ section.block{padding:40px 0 8px;}
    CONFIG — แก้ค่าตรงนี้ก่อน deploy จริง
    ===================================================================== */
 const CONFIG = {
-  LIFF_ID: "2010676580-Iv2WYOTB",                 // จาก LINE Developers Console
+  LIFF_ID: "2010676580-Iv2WYOTB",                       // จาก LINE Developers Console
   APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzFF3iO0WsuEPpI9zyYnKYSZRR2yBalwE9Oc_kcYhQXfOhF_ie7dx0H8oKFASakNO1Z/exec", // /exec URL จาก Apps Script deployment
   BANK_ACCOUNT_TEXT: "ธ.กสิกรไทย 012-3-45678-9 (THE MAKE PORTFOLIO)"
 };
@@ -772,22 +791,33 @@ async function loadOccupiedBeds(){
 }
 loadOccupiedBeds();
 
-/* ---------------- LIFF init ---------------- */
+/* ---------------- LIFF init: บังคับเข้าผ่านแอป LINE เท่านั้น ---------------- */
 let LIFF_USER_ID = "";
+function showGate(message){
+  if(message) document.getElementById('gateMessage').textContent = message;
+  document.getElementById('liffGate').classList.add('show');
+}
 async function initLiff(){
   try{
     await liff.init({ liffId: CONFIG.LIFF_ID });
-    if(!liff.isLoggedIn()){
-      liff.login(); // จะ redirect ไปหน้า LINE login แล้วเด้งกลับมาเอง
-      return; // หยุดไว้ก่อน อย่าปล่อยให้ฟอร์มใช้งานได้ระหว่างรอ redirect
-    }
+  }catch(err){
+    console.warn("LIFF init failed:", err);
+    showGate("ไม่สามารถเชื่อมต่อกับ LINE ได้ กรุณาเปิดผ่านเมนู Rich Menu หรือลิงก์ LINE ของ THE MAKE PORTFOLIO");
+    return;
+  }
+  if(!liff.isInClient()){
+    // เปิดจากเบราว์เซอร์ทั่วไป ไม่ใช่ในแอป LINE — ปิดการใช้งานตามที่ตั้งใจไว้
+    showGate("หน้านี้เปิดได้เฉพาะผ่านเมนู Rich Menu หรือลิงก์ LINE ของ THE MAKE PORTFOLIO เท่านั้น กรุณาเปิดผ่านแอป LINE");
+    return;
+  }
+  if(!liff.isLoggedIn()){ liff.login(); return; }
+  try{
     const profile = await liff.getProfile();
     LIFF_USER_ID = profile.userId;
     document.getElementById('liffTag').textContent = "สวัสดี " + profile.displayName + " 👋";
   }catch(err){
-    // ล็อกอินไม่สำเร็จจริง ๆ (ไม่ใช่กำลัง redirect) -> บล็อกทั้งหน้า ห้ามใช้ฟอร์ม
-    document.getElementById('lockScreen').style.display = 'flex';
-    console.warn("LIFF init failed:", err);
+    console.warn("liff.getProfile failed:", err);
+    showGate("ไม่สามารถดึงข้อมูลบัญชี LINE ได้ กรุณาลองเปิดหน้านี้ใหม่อีกครั้งผ่านแอป LINE");
   }
 }
 initLiff();
@@ -947,6 +977,9 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
   const total = totalPrice();
 
   let ok = true;
+  if(!LIFF_USER_ID){
+    setMsg("ไม่พบข้อมูลบัญชี LINE กรุณาเปิดหน้านี้ผ่านแอป LINE ใหม่อีกครั้ง"); ok=false;
+  }
   if(!nickname || !fullname || !school || !grade || !phone || !parentPhone || !address){
     setMsg("กรุณากรอกข้อมูลให้ครบทุกช่อง"); ok=false;
   }
@@ -964,7 +997,7 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
   document.getElementById('submitBtn').disabled = true;
 
   const payload = {
-    lineUserId: LIFF_USER_ID || "unknown",
+    lineUserId: LIFF_USER_ID,
     nickname, fullname, school, grade, phone, parentPhone, address,
     stayMode: state.stayMode,
     courseName: state.courseName,
