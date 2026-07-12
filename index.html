@@ -157,29 +157,55 @@ section.block{padding:40px 0 8px;}
 .stay-opt.checked{border-color:var(--amber);background:rgba(245,166,35,.10);}
 .stay-opt.checked label{color:var(--amber-2);}
 
-/* ---------- Bunk map cards ---------- */
+/* ---------- Seat-map bed picker ---------- */
 #dormZone{transition:.25s;}
 #dormZone.hidden{display:none;}
-.bunk-card{
-  position:relative;background:var(--ink-2);border:1px solid var(--line);
-  border-radius:var(--radius);padding:15px 15px 13px;margin-bottom:10px;cursor:pointer;
+.dorm-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin-bottom:12px;-webkit-overflow-scrolling:touch;}
+.dorm-tabs::-webkit-scrollbar{display:none;}
+.dorm-tab-btn{
+  flex:0 0 auto;padding:9px 14px;border-radius:11px;border:1px solid var(--line);
+  background:var(--ink-2);color:var(--muted);font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap;
 }
-.bunk-card input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0;}
-.bunk-card.checked{border-color:var(--amber);background:linear-gradient(180deg, rgba(245,166,35,.10), rgba(245,166,35,.03));}
-.bunk-card.disabled{opacity:.45;cursor:not-allowed;}
-.bunk-top{display:flex;justify-content:space-between;align-items:center;gap:10px;}
-.bunk-name{font-weight:600;font-size:14.5px;color:var(--paper);}
-.bunk-gender{font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted-2);}
-.bunk-desc{color:var(--muted);font-size:12.5px;margin-top:5px;}
-.bunk-beds{display:flex;gap:3px;margin-top:9px;flex-wrap:wrap;}
-.bed-dot{width:9px;height:12px;border-radius:2px;background:var(--line);}
-.bunk-cap{font-family:var(--mono);font-size:11px;color:var(--muted-2);margin-top:7px;}
-.bunk-cap b{color:var(--amber-2);}
-.bunk-extra{font-size:11.5px;color:var(--coral);margin-top:5px;font-weight:500;}
-.soon-flag{
-  position:absolute;top:14px;right:14px;font-family:var(--mono);font-size:10px;
-  background:var(--ink-3);color:var(--muted-2);padding:3px 8px;border-radius:999px;
+.dorm-tab-btn.active{background:var(--amber);color:#241706;border-color:var(--amber);}
+.dorm-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;font-size:11.5px;color:var(--muted-2);}
+.dorm-legend span{display:inline-flex;align-items:center;gap:6px;}
+.legend-swatch{width:14px;height:14px;border-radius:4px;display:inline-block;}
+.legend-swatch.lg-open{border:1.5px solid var(--line);background:transparent;}
+.legend-swatch.lg-selected{background:var(--amber);}
+.legend-swatch.lg-taken{background:var(--line);}
+.dorm-panel{display:none;}
+.dorm-panel.active{display:block;}
+.room-card{
+  border-radius:var(--radius);padding:16px 15px 15px;margin-bottom:14px;
+  background:linear-gradient(160deg, var(--room-c1,var(--ink-2)), var(--room-c2,var(--ink-2)));
+  border:1px solid var(--line);
 }
+.room-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:3px;}
+.room-title{font-weight:600;font-size:14.5px;color:var(--paper);}
+.room-gender{font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:999px;background:rgba(0,0,0,.2);color:var(--paper);flex-shrink:0;}
+.room-desc{color:rgba(245,239,228,.72);font-size:12px;margin-bottom:10px;}
+.room-extra{font-size:11.5px;color:#FFE1B0;margin-top:2px;font-weight:500;}
+.room-disabled-note{color:rgba(245,239,228,.75);font-size:13px;padding:6px 2px;}
+.subgroup-label{font-family:var(--mono);font-size:11px;color:rgba(245,239,228,.65);margin:10px 0 6px;text-transform:uppercase;letter-spacing:.06em;}
+.bed-grid{display:flex;flex-wrap:wrap;gap:7px;}
+.bunk-pair{display:flex;flex-direction:column;gap:5px;}
+.seat{
+  min-width:44px;height:40px;border-radius:9px;border:1.5px solid rgba(245,239,228,.35);
+  background:rgba(0,0,0,.15);color:var(--paper);font-family:var(--mono);font-weight:600;font-size:12px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0 6px;transition:.12s;
+}
+.seat:active{transform:scale(.94);}
+.seat.selected{background:var(--amber);border-color:var(--amber);color:#241706;}
+.seat.taken{background:rgba(0,0,0,.35);border-color:transparent;color:rgba(245,239,228,.35);cursor:not-allowed;}
+.dorm-disabled-panel{
+  border-radius:var(--radius);padding:26px 18px;text-align:center;background:var(--ink-2);
+  border:1px dashed var(--line);color:var(--muted);font-size:13.5px;
+}
+.dorm-selected-note{
+  margin-top:10px;background:var(--ink-2);border:1px solid var(--amber);border-radius:12px;
+  padding:11px 13px;font-size:13px;color:var(--amber-2);display:none;
+}
+.dorm-selected-note.show{display:block;}
 
 /* ---------- Note / callout ---------- */
 .callout{
@@ -411,85 +437,17 @@ section.block{padding:40px 0 8px;}
       </div>
     </div>
 
-    <div class="callout">มัดจำก่อน มีสิทธิ์เลือกเตียงก่อน! ระบบจะส่งรหัสจองให้เมื่อแอดมินอนุมัติสลิป</div>
+    <div class="callout">มัดจำก่อน มีสิทธิ์เลือกเตียงก่อน! แตะเลือกเตียงที่ต้องการได้เลย — ช่องสีเทาคือ "ไม่ว่าง" แล้ว</div>
 
     <div id="dormZone" style="margin-top:16px;">
-      <label class="bunk-card" data-dorm="ตึก87 แบบ1 (4เตียง2ชั้น)" data-extra="0">
-        <input type="radio" name="dorm" value="b87-1">
-        <div class="bunk-top">
-          <div class="bunk-name">แบบที่ 1 · ตึก 87 ชั้น 4</div>
-          <span class="bunk-gender">👧 หญิง</span>
-        </div>
-        <div class="bunk-desc">เตียง 2 ชั้น · มีที่นอนให้</div>
-        <div class="bunk-beds" data-cap="16"></div>
-        <div class="bunk-cap">จำนวน <b>16</b> ตำแหน่ง</div>
-      </label>
-
-      <label class="bunk-card" data-dorm="ตึก87 แบบ2 (มีฟูกให้)" data-extra="0">
-        <input type="radio" name="dorm" value="b87-2">
-        <div class="bunk-top">
-          <div class="bunk-name">แบบที่ 2 · ตึก 87 ชั้น 3</div>
-          <span class="bunk-gender">👧 หญิง</span>
-        </div>
-        <div class="bunk-desc">มีฟูกให้</div>
-        <div class="bunk-beds" data-cap="11"></div>
-        <div class="bunk-cap">จำนวน <b>11</b> ตำแหน่ง</div>
-      </label>
-
-      <label class="bunk-card" data-dorm="ตึก87 แบบ3 (พกที่นอนเอง)" data-extra="0">
-        <input type="radio" name="dorm" value="b87-3">
-        <div class="bunk-top">
-          <div class="bunk-name">แบบที่ 3 · ตึก 87 ชั้น 2</div>
-          <span class="bunk-gender">👧 หญิง</span>
-        </div>
-        <div class="bunk-desc">ห้องเสริม · พกที่นอนมาเอง</div>
-        <div class="bunk-beds" data-cap="10"></div>
-        <div class="bunk-cap">จำนวน <b>10</b> ตำแหน่ง</div>
-      </label>
-
-      <label class="bunk-card" data-dorm="ตึก88 แบบ2 (มีฟูกให้)" data-extra="0">
-        <input type="radio" name="dorm" value="b88-2">
-        <div class="bunk-top">
-          <div class="bunk-name">แบบที่ 2 · ตึก 88 ชั้น 4</div>
-          <span class="bunk-gender">👦 ชาย</span>
-        </div>
-        <div class="bunk-desc">มีฟูกให้</div>
-        <div class="bunk-beds" data-cap="15"></div>
-        <div class="bunk-cap">จำนวน <b>15</b> ตำแหน่ง</div>
-      </label>
-
-      <label class="bunk-card" data-dorm="ตึก88 แบบ3 (พกที่นอนเอง)" data-extra="0">
-        <input type="radio" name="dorm" value="b88-3">
-        <div class="bunk-top">
-          <div class="bunk-name">แบบที่ 3 · ตึก 88 ชั้น 3</div>
-          <span class="bunk-gender">👦 ชาย</span>
-        </div>
-        <div class="bunk-desc">ห้องเสริม · พกที่นอนมาเอง</div>
-        <div class="bunk-beds" data-cap="8"></div>
-        <div class="bunk-cap">จำนวน <b>8</b> ตำแหน่ง</div>
-      </label>
-
-      <label class="bunk-card" data-dorm="หอพักโคซี่" data-extra="2130">
-        <input type="radio" name="dorm" value="cozy">
-        <div class="bunk-top">
-          <div class="bunk-name">แบบที่ 4 · หอพักโคซี่</div>
-          <span class="bunk-gender">👧 หญิง</span>
-        </div>
-        <div class="bunk-desc">ชั้น 3: เตียง 2 ชั้น มีห้องน้ำในตัว (4 ที่) · ชั้น 4: ห้องเดี่ยว/ห้องคู่/ห้อง 3 คน มีห้องน้ำในตัว</div>
-        <div class="bunk-beds" data-cap="10"></div>
-        <div class="bunk-cap">จำนวน <b>10</b> ตำแหน่ง</div>
-        <div class="bunk-extra">+2,130 บาท (รวมค่าน้ำ-ค่าไฟ) ชำระเพิ่มจากค่าคอร์ส</div>
-      </label>
-
-      <label class="bunk-card disabled" data-dorm="หอพักสบายเพลส" data-extra="0">
-        <input type="radio" name="dorm" value="sabai" disabled>
-        <span class="soon-flag">เปิดจองสิงหาคม</span>
-        <div class="bunk-top">
-          <div class="bunk-name">แบบที่ 5 · หอพักสบายเพลส</div>
-          <span class="bunk-gender">คู่/ห้อง</span>
-        </div>
-        <div class="bunk-desc">จับคู่ห้องละ 2 คน · ยังไม่เปิดจองในรอบนี้</div>
-      </label>
+      <div class="dorm-tabs" id="dormTabs"><!-- JS: ปุ่มเลือกอาคาร --></div>
+      <div class="dorm-legend">
+        <span><i class="legend-swatch lg-open"></i>ว่าง</span>
+        <span><i class="legend-swatch lg-selected"></i>เลือกแล้ว</span>
+        <span><i class="legend-swatch lg-taken"></i>ไม่ว่าง</span>
+      </div>
+      <div id="dormPanels"><!-- JS: การ์ดผังเตียงของแต่ละอาคาร --></div>
+      <div class="dorm-selected-note" id="dormSelectedNote"></div>
     </div>
   </section>
 
@@ -637,11 +595,174 @@ const CONFIG = {
   BANK_ACCOUNT_TEXT: "ธ.กสิกรไทย 012-3-45678-9 (THE MAKE PORTFOLIO)"
 };
 
-/* ---------------- Render bunk-map bed dots ---------------- */
-document.querySelectorAll('.bunk-beds[data-cap]').forEach(el=>{
-  const cap = parseInt(el.dataset.cap,10);
-  el.innerHTML = Array.from({length:cap}).map(()=>'<span class="bed-dot"></span>').join('');
-});
+/* ---------------- Seat-map bed picker: data + renderer ---------------- */
+// รหัสเตียงแต่ละอันประกอบจาก roomId + ตำแหน่ง เช่น "87F4-3B" (ตึก87 ชั้น4 เตียง3 บน)
+const DORM_DATA = {
+  b87: {
+    tabLabel: "ตึก 87 · หญิง", buildingLabel: "ตึก 87",
+    rooms: [
+      { id:"87F4", title:"แบบที่ 1 · ชั้น 4", desc:"เตียง 2 ชั้น มีที่นอนให้ · 16 ตำแหน่ง", gender:"👧 หญิง",
+        c1:"#1c3a63", c2:"#12253f", layout:"bunk", bunkCount:8, extra:0 },
+      { id:"87F3", title:"แบบที่ 2 · ชั้น 3", desc:"มีฟูกให้ · 11 ตำแหน่ง", gender:"👧 หญิง",
+        c1:"#0e6e63", c2:"#0a4c44", layout:"single", count:11, extra:0 },
+      { id:"87F2", title:"แบบที่ 3 · ชั้น 2 (ห้องเสริม)", desc:"พกที่นอนมาเอง · 10 ตำแหน่ง", gender:"👧 หญิง",
+        c1:"#1c3a63", c2:"#12253f", layout:"single", count:10, extra:0 }
+    ]
+  },
+  b88: {
+    tabLabel: "ตึก 88 · ชาย", buildingLabel: "ตึก 88",
+    rooms: [
+      { id:"88F4", title:"แบบที่ 2 · ชั้น 4", desc:"มีฟูกให้ · ห้อง C และห้อง D รวม 15 ตำแหน่ง", gender:"👦 ชาย",
+        c1:"#1c3a63", c2:"#12253f", layout:"rooms", groups:[{key:"C",count:7},{key:"D",count:8}], extra:0 },
+      { id:"88F3", title:"แบบที่ 3 · ชั้น 3 (ห้องสำรอง)", desc:"พกที่นอนมาเอง · 8 ตำแหน่ง", gender:"👦 ชาย",
+        c1:"#0e6e63", c2:"#0a4c44", layout:"single", count:8, extra:0 }
+    ]
+  },
+  cozy: {
+    tabLabel: "หอพักโคซี่ · หญิง", buildingLabel: "หอพักโคซี่",
+    rooms: [
+      { id:"COZY3", title:"แบบที่ 4 · ชั้น 3", desc:"เตียง 2 ชั้น มีห้องน้ำในตัว · 4 ตำแหน่ง", gender:"👧 หญิง",
+        c1:"#7a2033", c2:"#4a1420", layout:"bunk", bunkCount:2, extra:2130 },
+      { id:"COZY4C", title:"ชั้น 4 · ห้องเดี่ยว", desc:"มีห้องน้ำในตัว · 1 ตำแหน่ง", gender:"👧 หญิง",
+        c1:"#7a2033", c2:"#4a1420", layout:"single", count:1, prefix:"C", extra:2130 },
+      { id:"COZY4B", title:"ชั้น 4 · ห้องคู่", desc:"มีห้องน้ำในตัว · 2 ตำแหน่ง", gender:"👧 หญิง",
+        c1:"#7a2033", c2:"#4a1420", layout:"single", count:2, prefix:"B", extra:2130 },
+      { id:"COZY4A", title:"ชั้น 4 · ห้อง 3 คน", desc:"มีห้องน้ำในตัว · 3 ตำแหน่ง", gender:"👧 หญิง",
+        c1:"#7a2033", c2:"#4a1420", layout:"single", count:3, prefix:"A", extra:2130 }
+    ]
+  },
+  sabai: { tabLabel: "สบายเพลส", buildingLabel: "หอพักสบายเพลส", disabled:true }
+};
+
+let occupiedBeds = new Set(); // เตียงที่มีคนจองไปแล้ว (โหลดจาก Apps Script)
+
+function buildBedGrid(room){
+  const beds = []; // {id, label}
+  if(room.layout === "single"){
+    for(let i=1;i<=room.count;i++){
+      const suffix = (room.prefix||"") + i;
+      beds.push({ id: room.id+"-"+suffix, label: suffix, group:null });
+    }
+  } else if(room.layout === "bunk"){
+    for(let i=1;i<=room.bunkCount;i++){
+      beds.push({ id: room.id+"-"+i+"B", label: i+" (บน)", group:"bunk"+i, pos:"B" });
+      beds.push({ id: room.id+"-"+i+"A", label: i+" (ล่าง)", group:"bunk"+i, pos:"A" });
+    }
+  } else if(room.layout === "rooms"){
+    room.groups.forEach(g=>{
+      for(let i=1;i<=g.count;i++){
+        beds.push({ id: room.id+"-"+g.key+i, label: g.key+i, group:g.key });
+      }
+    });
+  }
+  return beds;
+}
+
+function seatHtml(bed, roomId){
+  const taken = occupiedBeds.has(bed.id);
+  return '<button type="button" class="seat'+(taken?' taken':'')+'" data-bed-id="'+bed.id+'" '+(taken?'disabled':'')+'>'+bed.label+'</button>';
+}
+
+function renderRoomCard(room){
+  const beds = buildBedGrid(room);
+  let gridHtml = "";
+  if(room.layout === "bunk"){
+    // จัดเป็นคู่บน/ล่างต่อเตียง เหมือนผังเตียง 2 ชั้นจริง
+    const pairs = {};
+    beds.forEach(b=>{ (pairs[b.group] ||= []).push(b); });
+    gridHtml = '<div class="bed-grid">' + Object.values(pairs).map(pair=>{
+      const sorted = pair.sort((a,b)=> a.pos==="B" ? -1 : 1); // บนอยู่บนล่างอยู่ล่าง
+      return '<div class="bunk-pair">' + sorted.map(b=>seatHtml(b, room.id)).join("") + '</div>';
+    }).join("") + '</div>';
+  } else if(room.layout === "rooms"){
+    gridHtml = room.groups.map(g=>{
+      const groupBeds = beds.filter(b=>b.group===g.key);
+      return '<div class="subgroup-label">ห้อง '+g.key+'</div><div class="bed-grid">' +
+        groupBeds.map(b=>seatHtml(b, room.id)).join("") + '</div>';
+    }).join("");
+  } else {
+    gridHtml = '<div class="bed-grid">' + beds.map(b=>seatHtml(b, room.id)).join("") + '</div>';
+  }
+
+  return '<div class="room-card" style="--room-c1:'+room.c1+';--room-c2:'+room.c2+'" data-room-id="'+room.id+'">' +
+    '<div class="room-head"><div class="room-title">'+room.title+'</div><span class="room-gender">'+room.gender+'</span></div>' +
+    '<div class="room-desc">'+room.desc+'</div>' +
+    (room.extra > 0 ? '<div class="room-extra">+'+room.extra.toLocaleString('th-TH')+' บาท ชำระเพิ่มจากค่าคอร์ส</div>' : '') +
+    gridHtml +
+    '</div>';
+}
+
+function renderDorms(){
+  const tabsEl = document.getElementById('dormTabs');
+  const panelsEl = document.getElementById('dormPanels');
+  tabsEl.innerHTML = "";
+  panelsEl.innerHTML = "";
+  const keys = Object.keys(DORM_DATA);
+  keys.forEach((key, idx)=>{
+    const b = DORM_DATA[key];
+    const tabBtn = document.createElement('button');
+    tabBtn.type = "button";
+    tabBtn.className = "dorm-tab-btn" + (idx===0 ? " active" : "");
+    tabBtn.textContent = b.tabLabel;
+    tabBtn.dataset.building = key;
+    tabBtn.addEventListener('click', ()=>{
+      document.querySelectorAll('.dorm-tab-btn').forEach(x=>x.classList.remove('active'));
+      tabBtn.classList.add('active');
+      document.querySelectorAll('.dorm-panel').forEach(p=>p.classList.toggle('active', p.dataset.building===key));
+    });
+    tabsEl.appendChild(tabBtn);
+
+    const panel = document.createElement('div');
+    panel.className = "dorm-panel" + (idx===0 ? " active" : "");
+    panel.dataset.building = key;
+    if(b.disabled){
+      panel.innerHTML = '<div class="dorm-disabled-panel">🚧 หอพักสบายเพลส (จับคู่ห้องละ 2 คน)<br>ยังไม่เปิดจองในรอบนี้ — เปิดจองสิงหาคม 2569</div>';
+    } else {
+      panel.innerHTML = b.rooms.map(renderRoomCard).join("");
+    }
+    panelsEl.appendChild(panel);
+  });
+
+  // ผูก event การเลือกเตียงทั้งหมด (event delegation)
+  panelsEl.addEventListener('click', (e)=>{
+    const seat = e.target.closest('.seat');
+    if(!seat || seat.disabled) return;
+    document.querySelectorAll('.seat.selected').forEach(s=>s.classList.remove('selected'));
+    seat.classList.add('selected');
+    const roomCard = seat.closest('.room-card');
+    const roomId = roomCard.dataset.roomId;
+    const buildingKey = seat.closest('.dorm-panel').dataset.building;
+    const room = DORM_DATA[buildingKey].rooms.find(r=>r.id===roomId);
+    state.dormId = seat.dataset.bedId;
+    state.dormLabel = DORM_DATA[buildingKey].buildingLabel + " · " + room.title + " · เตียง " + seat.textContent.trim();
+    state.dormExtra = room.extra;
+    const note = document.getElementById('dormSelectedNote');
+    note.textContent = "✅ เลือกแล้ว: " + state.dormLabel;
+    note.classList.add('show');
+    updateSummary();
+  });
+}
+renderDorms();
+
+async function loadOccupiedBeds(){
+  if(!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") === 0) return;
+  try{
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=occupied");
+    const data = await res.json();
+    if(data.status === "ok"){
+      occupiedBeds = new Set(data.occupied || []);
+      document.querySelectorAll('.seat').forEach(seatEl=>{
+        const id = seatEl.dataset.bedId;
+        const taken = occupiedBeds.has(id) && !seatEl.classList.contains('selected');
+        seatEl.classList.toggle('taken', taken);
+        seatEl.disabled = taken;
+      });
+    }
+  }catch(err){
+    console.warn("โหลดสถานะเตียงไม่สำเร็จ:", err);
+  }
+}
+loadOccupiedBeds();
 
 /* ---------------- LIFF init ---------------- */
 let LIFF_USER_ID = "";
@@ -670,7 +791,7 @@ tabBtns.forEach(btn=>{
   });
 });
 
-let state = { coursePrice:0, courseName:"", stayMode:"กบดาน", dormName:"", dormExtra:0 };
+let state = { coursePrice:0, courseName:"", stayMode:"กบดาน", dormId:"", dormLabel:"", dormExtra:0 };
 
 document.querySelectorAll('.pkg-card').forEach(card=>{
   card.addEventListener('click', ()=>{
@@ -693,22 +814,9 @@ function setStay(mode){
   document.getElementById('stayHold').checked = mode==='กบดาน';
   document.getElementById('stayGo').checked = mode==='ไป-กลับ';
   document.getElementById('dormZone').classList.toggle('hidden', mode!=='กบดาน');
-  if(mode!=='กบดาน'){ state.dormName=""; state.dormExtra=0; }
+  if(mode!=='กบดาน'){ state.dormId=""; state.dormLabel=""; state.dormExtra=0; }
   updateSummary();
 }
-
-/* ---------------- Dorm selection ---------------- */
-document.querySelectorAll('.bunk-card:not(.disabled)').forEach(card=>{
-  card.addEventListener('click', ()=>{
-    document.querySelectorAll('.bunk-card').forEach(c=>c.classList.remove('checked'));
-    card.classList.add('checked');
-    const input = card.querySelector('input');
-    if(input) input.checked = true;
-    state.dormName = card.dataset.dorm;
-    state.dormExtra = parseInt(card.dataset.extra,10) || 0;
-    updateSummary();
-  });
-});
 
 function money(n){ return n.toLocaleString('th-TH') + " ฿"; }
 
@@ -716,7 +824,7 @@ function updateSummary(){
   const total = state.coursePrice + (state.stayMode==='กบดาน' ? state.dormExtra : 0);
   document.getElementById('sumCourse').textContent = state.courseName || "—";
   document.getElementById('sumStay').textContent = state.stayMode;
-  document.getElementById('sumDorm').textContent = state.stayMode==='กบดาน' ? (state.dormName || "ยังไม่เลือก") : "ไม่พักค้าง";
+  document.getElementById('sumDorm').textContent = state.stayMode==='กบดาน' ? (state.dormLabel || "ยังไม่เลือกเตียง") : "ไม่พักค้าง";
   document.getElementById('sumTotal').textContent = money(total);
   checkReady();
 }
@@ -726,14 +834,22 @@ const agreeBox = document.getElementById('agreeBox');
 const openRegBtn = document.getElementById('openRegBtn');
 function checkReady(){
   const hasCourse = state.coursePrice > 0;
-  const hasDorm = state.stayMode!=='กบดาน' || !!state.dormName;
+  const hasDorm = state.stayMode!=='กบดาน' || !!state.dormId;
   openRegBtn.disabled = !(agreeBox.checked && hasCourse && hasDorm);
 }
 agreeBox.addEventListener('change', checkReady);
 
-openRegBtn.addEventListener('click', ()=>{
+openRegBtn.addEventListener('click', async ()=>{
+  await loadOccupiedBeds(); // เช็คสถานะเตียงล่าสุดอีกครั้งก่อนเปิดฟอร์ม กันเตียงถูกจองไปแล้วระหว่างที่ดูหน้าเว็บ
+  if(state.stayMode==='กบดาน' && state.dormId && occupiedBeds.has(state.dormId)){
+    state.dormId=""; state.dormLabel=""; state.dormExtra=0;
+    document.getElementById('dormSelectedNote').classList.remove('show');
+    updateSummary();
+    alert("เตียงที่เลือกเพิ่งถูกจองไปแล้ว กรุณาเลือกเตียงใหม่อีกครั้ง");
+    return;
+  }
   document.getElementById('fsCourse').textContent = state.courseName;
-  document.getElementById('fsDorm').textContent = state.stayMode==='กบดาน' ? state.dormName : "ไป-กลับ";
+  document.getElementById('fsDorm').textContent = state.stayMode==='กบดาน' ? state.dormLabel : "ไป-กลับ";
   syncPayAmount();
   document.getElementById('regOverlay').classList.add('open');
 });
@@ -840,7 +956,8 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
     nickname, fullname, school, grade, phone, parentPhone, address,
     stayMode: state.stayMode,
     courseName: state.courseName,
-    dormName: state.stayMode==='กบดาน' ? state.dormName : "-",
+    dormName: state.stayMode==='กบดาน' ? state.dormLabel : "-",
+    bedId: state.stayMode==='กบดาน' ? state.dormId : "",
     fullPrice: total,
     payType,
     amountNow: amount,
@@ -858,6 +975,13 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
       document.getElementById('formView').style.display = 'none';
       document.getElementById('successView').classList.add('show');
       document.getElementById('queueCodeShow').textContent = "คิวที่ " + data.queueNumber;
+    }else if(data.status === "bed_taken"){
+      setMsg("เตียงนี้เพิ่งถูกจองไปแล้ว กรุณาปิดหน้าต่างนี้แล้วเลือกเตียงใหม่");
+      state.dormId=""; state.dormLabel=""; state.dormExtra=0;
+      document.getElementById('dormSelectedNote').classList.remove('show');
+      loadOccupiedBeds();
+      updateSummary();
+      document.getElementById('submitBtn').disabled = false;
     }else{
       setMsg("เกิดข้อผิดพลาด: " + (data.message || "กรุณาลองใหม่"));
       document.getElementById('submitBtn').disabled = false;
