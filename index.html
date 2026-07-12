@@ -769,13 +769,17 @@ let LIFF_USER_ID = "";
 async function initLiff(){
   try{
     await liff.init({ liffId: CONFIG.LIFF_ID });
-    if(!liff.isLoggedIn()){ liff.login(); return; }
+    if(!liff.isLoggedIn()){
+      liff.login(); // จะ redirect ไปหน้า LINE login แล้วเด้งกลับมาเอง
+      return; // หยุดไว้ก่อน อย่าปล่อยให้ฟอร์มใช้งานได้ระหว่างรอ redirect
+    }
     const profile = await liff.getProfile();
     LIFF_USER_ID = profile.userId;
     document.getElementById('liffTag').textContent = "สวัสดี " + profile.displayName + " 👋";
   }catch(err){
-    document.getElementById('liffTag').textContent = "เปิดผ่านเบราว์เซอร์ปกติ";
-    console.warn("LIFF init skipped:", err);
+    // ล็อกอินไม่สำเร็จจริง ๆ (ไม่ใช่กำลัง redirect) -> บล็อกทั้งหน้า ห้ามใช้ฟอร์ม
+    document.getElementById('lockScreen').style.display = 'flex';
+    console.warn("LIFF init failed:", err);
   }
 }
 initLiff();
