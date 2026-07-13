@@ -447,34 +447,44 @@ section.block{padding:40px 0 8px;}
 
   <!-- ============ 3. ผังที่นอนกบดาน ============ -->
   <section class="block" id="stay">
-    <div class="sec-head">
-      <span class="sec-num">02 · ที่พัก</span>
-      <h2>รูปแบบการเข้าเรียน</h2>
-      <p>เลือก "กบดาน" หากต้องการพักค้างและจองเตียง หรือ "ไป-กลับ" หากไม่ต้องการที่พัก</p>
+    <div id="staySectionOnsite">
+      <div class="sec-head">
+        <span class="sec-num">02 · ที่พัก</span>
+        <h2>รูปแบบการเข้าเรียน</h2>
+        <p>เลือก "กบดาน" หากต้องการพักค้างและจองเตียง หรือ "ไป-กลับ" หากไม่ต้องการที่พัก</p>
+      </div>
+
+      <div class="stay-toggle">
+        <div class="stay-opt checked" id="stayHoldWrap">
+          <input type="radio" name="staymode" value="กบดาน" id="stayHold" checked>
+          <label for="stayHold">🛏️ กบดาน</label>
+        </div>
+        <div class="stay-opt" id="stayGoWrap">
+          <input type="radio" name="staymode" value="ไป-กลับ" id="stayGo">
+          <label for="stayGo">🚶 ไป-กลับ</label>
+        </div>
+      </div>
+
+      <div class="callout">มัดจำก่อน มีสิทธิ์เลือกเตียงก่อน! แตะเลือกเตียงที่ต้องการได้เลย — ช่องสีเทาคือ "ไม่ว่าง" แล้ว</div>
+
+      <div id="dormZone" style="margin-top:16px;">
+        <div class="dorm-tabs" id="dormTabs"><!-- JS: ปุ่มเลือกอาคาร --></div>
+        <div class="dorm-legend">
+          <span><i class="legend-swatch lg-open"></i>ว่าง</span>
+          <span><i class="legend-swatch lg-selected"></i>เลือกแล้ว</span>
+          <span><i class="legend-swatch lg-taken"></i>ไม่ว่าง</span>
+        </div>
+        <div id="dormPanels"><!-- JS: การ์ดผังเตียงของแต่ละอาคาร --></div>
+        <div class="dorm-selected-note" id="dormSelectedNote"></div>
+      </div>
     </div>
 
-    <div class="stay-toggle">
-      <div class="stay-opt checked" id="stayHoldWrap">
-        <input type="radio" name="staymode" value="กบดาน" id="stayHold" checked>
-        <label for="stayHold">🛏️ กบดาน</label>
+    <div id="staySectionOnlineNote" style="display:none;">
+      <div class="sec-head">
+        <span class="sec-num">02 · ที่พัก</span>
+        <h2>รูปแบบการเข้าเรียน</h2>
       </div>
-      <div class="stay-opt" id="stayGoWrap">
-        <input type="radio" name="staymode" value="ไป-กลับ" id="stayGo">
-        <label for="stayGo">🚶 ไป-กลับ</label>
-      </div>
-    </div>
-
-    <div class="callout">มัดจำก่อน มีสิทธิ์เลือกเตียงก่อน! แตะเลือกเตียงที่ต้องการได้เลย — ช่องสีเทาคือ "ไม่ว่าง" แล้ว</div>
-
-    <div id="dormZone" style="margin-top:16px;">
-      <div class="dorm-tabs" id="dormTabs"><!-- JS: ปุ่มเลือกอาคาร --></div>
-      <div class="dorm-legend">
-        <span><i class="legend-swatch lg-open"></i>ว่าง</span>
-        <span><i class="legend-swatch lg-selected"></i>เลือกแล้ว</span>
-        <span><i class="legend-swatch lg-taken"></i>ไม่ว่าง</span>
-      </div>
-      <div id="dormPanels"><!-- JS: การ์ดผังเตียงของแต่ละอาคาร --></div>
-      <div class="dorm-selected-note" id="dormSelectedNote"></div>
+      <div class="callout">💻 คอร์สออนไลน์ผ่าน Discord ไม่ต้องเลือกที่พัก — เรียนจากที่ไหนก็ได้ ไม่มีการจองเตียงหรือกบดานสำหรับแพ็กเกจนี้</div>
     </div>
   </section>
 
