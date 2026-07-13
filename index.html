@@ -543,6 +543,25 @@ section.block{padding:40px 0 8px;}
           </select>
         </div>
       </div>
+      <div class="field">
+        <label for="department">ภาควิชาที่สมัคร</label>
+        <select id="department">
+          <option value="">เลือกภาควิชา</option>
+          <option>จิตรกรรม วิจิตรศิลป์</option>
+          <option>สถาปัตยกรรมหลัก</option>
+          <option>ออกแบบภายใน</option>
+          <option>นิเทศศิลป์</option>
+          <option>ศิลปอุตสาหกรรม จิวเวลรี่</option>
+          <option>แฟชั่น</option>
+          <option>ภาพยนตร์</option>
+          <option>การถ่ายภาพ</option>
+          <option value="อื่นๆ">อื่นๆ (ระบุ)</option>
+        </select>
+      </div>
+      <div class="field" id="departmentOtherWrap" style="display:none;">
+        <label for="departmentOther">ระบุภาควิชา</label>
+        <input type="text" id="departmentOther" placeholder="พิมพ์ภาควิชาที่ต้องการสมัคร">
+      </div>
       <div class="field-2col">
         <div class="field">
           <label for="phone">เบอร์โทรศัพท์</label>
@@ -793,6 +812,8 @@ loadOccupiedBeds();
 
 /* ---------------- LIFF init: บังคับเข้าผ่านแอป LINE เท่านั้น ---------------- */
 let LIFF_USER_ID = "";
+let LIFF_DISPLAY_NAME = "";
+let LIFF_PICTURE_URL = "";
 function showGate(message){
   if(message) document.getElementById('gateMessage').textContent = message;
   document.getElementById('liffGate').classList.add('show');
@@ -814,6 +835,8 @@ async function initLiff(){
   try{
     const profile = await liff.getProfile();
     LIFF_USER_ID = profile.userId;
+    LIFF_DISPLAY_NAME = profile.displayName || "";
+    LIFF_PICTURE_URL = profile.pictureUrl || "";
     document.getElementById('liffTag').textContent = "สวัสดี " + profile.displayName + " 👋";
   }catch(err){
     console.warn("liff.getProfile failed:", err);
@@ -844,6 +867,12 @@ document.querySelectorAll('.pkg-card').forEach(card=>{
     state.courseName = card.dataset.name;
     updateSummary();
   });
+});
+
+/* ---------------- Department "other" toggle ---------------- */
+document.getElementById('department').addEventListener('change', (e)=>{
+  const isOther = e.target.value === 'อื่นๆ';
+  document.getElementById('departmentOtherWrap').style.display = isOther ? 'block' : 'none';
 });
 
 /* ---------------- Stay mode toggle ---------------- */
@@ -969,12 +998,15 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
   const fullname = document.getElementById('fullname').value.trim();
   const school = document.getElementById('school').value.trim();
   const grade = document.getElementById('grade').value;
+  const deptSelect = document.getElementById('department').value;
+  const deptOther = document.getElementById('departmentOther').value.trim();
   const phone = document.getElementById('phone').value.trim();
   const parentPhone = document.getElementById('parentPhone').value.trim();
   const address = document.getElementById('address').value.trim();
   const payType = document.getElementById('payFull').checked ? 'ชำระเต็ม' : 'มัดจำ';
   const amount = parseInt(payAmount.value,10) || 0;
   const total = totalPrice();
+  const department = deptSelect === 'อื่นๆ' ? (deptOther ? ('อื่นๆ: ' + deptOther) : '') : deptSelect;
 
   let ok = true;
   if(!LIFF_USER_ID){
@@ -982,6 +1014,9 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
   }
   if(!nickname || !fullname || !school || !grade || !phone || !parentPhone || !address){
     setMsg("กรุณากรอกข้อมูลให้ครบทุกช่อง"); ok=false;
+  }
+  if(!deptSelect || (deptSelect==='อื่นๆ' && !deptOther)){
+    setMsg("กรุณาเลือก (หรือระบุ) ภาควิชาที่สมัคร"); ok=false;
   }
   if(payType==='มัดจำ' && (amount < 1000 || amount >= total)){
     document.getElementById('payErr').style.display='block'; ok=false;
@@ -998,7 +1033,10 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
 
   const payload = {
     lineUserId: LIFF_USER_ID,
+    lineDisplayName: LIFF_DISPLAY_NAME,
+    linePictureUrl: LIFF_PICTURE_URL,
     nickname, fullname, school, grade, phone, parentPhone, address,
+    department,
     stayMode: state.stayMode,
     courseName: state.courseName,
     dormName: state.stayMode==='กบดาน' ? state.dormLabel : "-",
