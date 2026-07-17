@@ -86,6 +86,7 @@ a{color:inherit;}
 }
 .badge.exclusive{background:rgba(255,107,91,.14);color:var(--coral);border:1px solid rgba(255,107,91,.35);}
 .badge.date{background:rgba(245,166,35,.14);color:var(--amber-2);border:1px solid rgba(245,166,35,.35);}
+.badge.returning{background:rgba(74,222,128,.14);color:var(--green);border:1px solid rgba(74,222,128,.4);}
 .hero h1{
   font-size:30px;font-weight:800;color:var(--paper);line-height:1.15;
 }
@@ -100,6 +101,7 @@ a{color:inherit;}
 
 /* ---------- SECTION shell ---------- */
 section.block{padding:40px 0 8px;}
+section.block.step-hidden{display:none;}
 .sec-head{margin-bottom:18px;}
 .sec-num{
   font-family:var(--mono);font-size:12px;color:var(--muted-2);
@@ -245,6 +247,7 @@ section.block{padding:40px 0 8px;}
   display:flex;gap:12px;background:var(--ink-2);border:1px solid var(--line);
   border-radius:14px;padding:13px 14px;font-size:13.5px;color:var(--muted);
 }
+.rule-list li.rule-hidden{display:none;}
 .rule-num{
   font-family:var(--mono);font-weight:600;color:var(--amber);font-size:13px;
   width:22px;height:22px;border:1px solid var(--line);border-radius:50%;
@@ -258,6 +261,7 @@ section.block{padding:40px 0 8px;}
   padding:16px;margin-top:18px;
 }
 .summary-row{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);padding:5px 0;}
+.summary-row.summary-row-hidden{display:none;}
 .summary-row b{color:var(--paper);font-family:var(--mono);}
 .summary-total{border-top:1px dashed var(--line);margin-top:6px;padding-top:10px;display:flex;justify-content:space-between;align-items:center;}
 .summary-total .lbl{font-size:13px;color:var(--muted);}
@@ -340,6 +344,18 @@ section.block{padding:40px 0 8px;}
 .upload-box.filled{border-style:solid;border-color:var(--amber);color:var(--muted);}
 .err{color:var(--coral);font-size:12px;margin-top:5px;display:none;}
 
+/* ---------- Returning-user autofill note ---------- */
+.autofill-note{
+  display:none;align-items:center;gap:8px;background:rgba(74,222,128,.10);
+  border:1px solid rgba(74,222,128,.35);border-radius:12px;padding:10px 12px;
+  font-size:12.5px;color:var(--green);margin-bottom:14px;
+}
+.autofill-note.show{display:flex;}
+.autofill-note button{
+  margin-left:auto;background:none;border:1px solid rgba(74,222,128,.4);color:var(--green);
+  border-radius:8px;padding:4px 9px;font-size:11.5px;cursor:pointer;flex-shrink:0;
+}
+
 /* ---------- Submit summary (redesigned) ---------- */
 .submit-summary{
   background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:14px 15px;
@@ -350,6 +366,7 @@ section.block{padding:40px 0 8px;}
   text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;
 }
 .ss-row{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--muted);padding:5px 0;}
+.ss-row.ss-row-hidden{display:none;}
 .ss-row b{color:var(--paper);text-align:right;font-weight:600;}
 .ss-divider{border-top:1px dashed var(--line);margin:8px 0;}
 .ss-row.ss-highlight{padding:7px 0;}
@@ -397,7 +414,7 @@ section.block{padding:40px 0 8px;}
   <div class="lamp"></div>
   <div class="wrap">
     <div class="ticket">
-      <div class="badge-row">
+      <div class="badge-row" id="badgeRow">
         <span class="badge exclusive">EXCLUSIVE · เด็กเก่าเท่านั้น</span>
         <span class="badge date">21–31 ก.ค. 69</span>
       </div>
@@ -413,45 +430,12 @@ section.block{padding:40px 0 8px;}
 
 <main class="wrap">
 
-  <!-- ============ 2. เลือกคอร์สเรียน (เดือน) ============ -->
-  <section class="block" id="course-month">
+  <!-- ============ เลือกรูปแบบการเรียน ============ -->
+  <section class="block" id="format-section">
     <div class="sec-head">
-      <span class="sec-num">01 · เลือกคอร์ส</span>
-      <h2>เลือกคอร์สเรียน</h2>
-      <p>เลือกรอบคอร์สที่ต้องการสมัครก่อน แล้วค่อยเลือกรูปแบบการเรียนในขั้นถัดไป</p>
-    </div>
-
-    <div class="month-list">
-      <label class="month-card checked" id="monthOctCard" data-month="oct" data-label="คอร์สปิดเทอมตุลาคม (1-31 ต.ค.)">
-        <input type="radio" name="courseMonth" value="oct" id="monthOctRadio" checked>
-        <div class="month-top">
-          <div>
-            <div class="month-name">คอร์สปิดเทอมตุลาคม</div>
-            <div class="month-sub">1 – 31 ตุลาคม 2569</div>
-          </div>
-          <span class="month-tag tag-open">เปิดรับสมัคร</span>
-        </div>
-        <div class="month-price">มัดจำเริ่มต้น 1,000 บาท</div>
-      </label>
-
-      <div class="month-card disabled" id="monthRushCard" data-month="rush">
-        <div class="month-top">
-          <div>
-            <div class="month-name">คอร์สเร่งด่วน</div>
-            <div class="month-sub">สิงหาคม – กันยายน 2569 · รอประกาศกำหนดการจากศิลปากร</div>
-          </div>
-          <span class="month-tag tag-soon">เร็วๆนี้</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ 3. แพ็กเกจและรูปแบบการเรียน ============ -->
-  <section class="block" id="packages">
-    <div class="sec-head">
-      <span class="sec-num">02 · รูปแบบการเรียน</span>
+      <span class="sec-num" data-label="เลือกรูปแบบการเรียน"></span>
       <h2>เลือกรูปแบบการเรียน</h2>
-      <p>ติวสดที่ตึก ไม่จำกัดวิชา เรียนได้สูงสุด 10 ชม./วัน หรือเรียนออนไลน์สดผ่าน Discord พูดคุยกับพี่ติวได้แบบเรียลไทม์</p>
+      <p>ติวสดที่ตึก ไม่จำกัดวิชา เรียนได้สูงสุด 10 ชม./วัน หรือเรียนออนไลน์สดผ่าน Discord พูดคุยกับพี่ติวได้แบบเรียลไทม์ — เลือกออนไลน์แล้วเริ่มเรียนได้ทันที ไม่ต้องรอรอบ</p>
     </div>
 
     <div class="tabs">
@@ -513,76 +497,100 @@ section.block{padding:40px 0 8px;}
         <div class="radio-dot" style="position:absolute;right:16px;bottom:14px"></div>
       </label>
     </div>
+    <div class="callout" id="onlineStartNote" style="display:none;">💻 เรียนออนไลน์ผ่าน Discord เริ่มเรียนได้ทันที ไม่ต้องเลือกรอบคอร์สหรือที่นอน และชำระเต็มจำนวนในครั้งเดียว</div>
   </section>
 
-  <!-- ============ 4. ผังที่นอนกบดาน ============ -->
+  <!-- ============ เลือกคอร์สเรียน (เดือน) — เฉพาะติวสดที่ตึก ============ -->
+  <section class="block" id="course-month">
+    <div class="sec-head">
+      <span class="sec-num" data-label="เลือกคอร์สเรียน"></span>
+      <h2>เลือกคอร์สเรียน</h2>
+      <p>เลือกรอบคอร์สที่ต้องการสมัครก่อน แล้วค่อยเลือกรูปแบบการเข้าเรียนในขั้นถัดไป</p>
+    </div>
+
+    <div class="month-list">
+      <label class="month-card checked" id="monthOctCard" data-month="oct" data-label="คอร์สปิดเทอมตุลาคม (1-31 ต.ค.)">
+        <input type="radio" name="courseMonth" value="oct" id="monthOctRadio" checked>
+        <div class="month-top">
+          <div>
+            <div class="month-name">คอร์สปิดเทอมตุลาคม</div>
+          </div>
+          <span class="month-tag tag-open">เปิดรับสมัคร</span>
+        </div>
+        <div class="month-price">มัดจำ 1,000 บาท</div>
+      </label>
+
+      <div class="month-card disabled" id="monthRushCard" data-month="rush">
+        <div class="month-top">
+          <div>
+            <div class="month-name">คอร์สเร่งด่วน</div>
+            <div class="month-sub">สิงหาคม – กันยายน 2569 · รอประกาศกำหนดการจากศิลปากร</div>
+          </div>
+          <span class="month-tag tag-soon">เร็วๆนี้</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ผังที่นอนกบดาน — เฉพาะติวสดที่ตึก ============ -->
   <section class="block" id="stay">
-    <div id="staySectionOnsite">
-      <div class="sec-head">
-        <span class="sec-num">03 · รูปแบบการเข้าเรียน</span>
-        <h2>รูปแบบการเข้าเรียน</h2>
-        <p>เลือก "กบดาน" หากต้องการพักค้างและจองเตียง หรือ "ไป-กลับ" หากไม่ต้องการที่พัก</p>
+    <div class="sec-head">
+      <span class="sec-num" data-label="รูปแบบการเข้าเรียน"></span>
+      <h2>รูปแบบการเข้าเรียน</h2>
+      <p>เลือก "กบดาน" หากต้องการพักค้างและจองเตียง หรือ "ไป-กลับ" หากไม่ต้องการที่พัก</p>
+    </div>
+
+    <div class="stay-toggle">
+      <div class="stay-opt checked" id="stayHoldWrap">
+        <input type="radio" name="staymode" value="กบดาน" id="stayHold" checked>
+        <label for="stayHold">🛏️ กบดาน</label>
       </div>
-
-      <div class="stay-toggle">
-        <div class="stay-opt checked" id="stayHoldWrap">
-          <input type="radio" name="staymode" value="กบดาน" id="stayHold" checked>
-          <label for="stayHold">🛏️ กบดาน</label>
-        </div>
-        <div class="stay-opt" id="stayGoWrap">
-          <input type="radio" name="staymode" value="ไป-กลับ" id="stayGo">
-          <label for="stayGo">🚶 ไป-กลับ</label>
-        </div>
-      </div>
-
-      <a class="pdf-link-btn" href="https://github.com/user-attachments/files/30117396/default.pdf" target="_blank" rel="noopener">
-        📄 อ่านกฎระเบียบและข้อบังคับภายในตึก (PDF)
-      </a>
-
-      <div class="callout">มัดจำก่อน มีสิทธิ์เลือกเตียงก่อน! แตะเลือกเตียงที่ต้องการได้เลย — ช่องสีเทาคือ "ไม่ว่าง" แล้ว</div>
-
-      <div id="dormZone" style="margin-top:16px;">
-        <div class="dorm-tabs" id="dormTabs"><!-- JS: ปุ่มเลือกอาคาร --></div>
-        <div class="dorm-legend">
-          <span><i class="legend-swatch lg-open"></i>ว่าง</span>
-          <span><i class="legend-swatch lg-selected"></i>เลือกแล้ว</span>
-          <span><i class="legend-swatch lg-taken"></i>ไม่ว่าง</span>
-        </div>
-        <div id="dormPanels"><!-- JS: การ์ดผังเตียงของแต่ละอาคาร --></div>
-        <div class="dorm-selected-note" id="dormSelectedNote"></div>
+      <div class="stay-opt" id="stayGoWrap">
+        <input type="radio" name="staymode" value="ไป-กลับ" id="stayGo">
+        <label for="stayGo">🚶 ไป-กลับ</label>
       </div>
     </div>
 
-    <div id="staySectionOnlineNote" style="display:none;">
-      <div class="sec-head">
-        <span class="sec-num">03 · รูปแบบการเข้าเรียน</span>
-        <h2>รูปแบบการเข้าเรียน</h2>
+    <a class="pdf-link-btn" href="https://github.com/user-attachments/files/30117396/default.pdf" target="_blank" rel="noopener">
+      📄 อ่านกฎระเบียบและข้อบังคับภายในตึก (PDF)
+    </a>
+
+    <div class="callout">มัดจำก่อน มีสิทธิ์เลือกเตียงก่อน! แตะเลือกเตียงที่ต้องการได้เลย — ช่องสีเทาคือ "ไม่ว่าง" แล้ว</div>
+
+    <div id="dormZone" style="margin-top:16px;">
+      <div class="dorm-tabs" id="dormTabs"><!-- JS: ปุ่มเลือกอาคาร --></div>
+      <div class="dorm-legend">
+        <span><i class="legend-swatch lg-open"></i>ว่าง</span>
+        <span><i class="legend-swatch lg-selected"></i>เลือกแล้ว</span>
+        <span><i class="legend-swatch lg-taken"></i>ไม่ว่าง</span>
       </div>
-      <div class="callout">💻 คอร์สออนไลน์ผ่าน Discord ไม่ต้องเลือกที่พัก — เรียนจากที่ไหนก็ได้ ไม่มีการจองเตียงหรือกบดานสำหรับแพ็กเกจนี้ ข้ามไปสู่การชำระเงินได้เลย</div>
+      <div id="dormPanels"><!-- JS: การ์ดผังเตียงของแต่ละอาคาร --></div>
+      <div class="dorm-selected-note" id="dormSelectedNote"></div>
     </div>
   </section>
 
-  <!-- ============ 5. กติกาการชำระเงิน ============ -->
+  <!-- ============ กติกาการชำระเงิน ============ -->
   <section class="block" id="payment-rules">
     <div class="sec-head">
-      <span class="sec-num">04 · การชำระเงิน</span>
+      <span class="sec-num" data-label="การชำระเงิน"></span>
       <h2>กติกาการชำระเงิน</h2>
     </div>
     <ul class="rule-list">
-      <li><span class="rule-num">1</span><span><b>มัดจำขั้นต่ำ 1,000 บาท</b> เพื่อล็อกที่นั่งหรือที่นอนไว้ก่อน (สำหรับคอร์สออนไลน์ต้องชำระเต็มจำนวน)</span></li>
-      <li><span class="rule-num">2</span><span>ชำระส่วนที่เหลือทั้งหมด <b>ภายในวันที่ 20 กันยายน 2569</b></span></li>
-      <li><span class="rule-num">3</span><span>โอนผ่านบัญชี <b>ธนาคารไทยพาณิชย์</b> — ระบบจะแสดงเลขบัญชีให้อีกครั้งในหน้าลงทะเบียน เตรียมแอปธนาคารให้พร้อม</span></li>
+      <li id="ruleDeposit"><span class="rule-num">1</span><span><b>มัดจำขั้นต่ำ 1,000 บาท</b> เพื่อล็อกที่นั่งหรือที่นอนไว้ก่อน</span></li>
+      <li id="ruleDeadline"><span class="rule-num">2</span><span>ชำระส่วนที่เหลือทั้งหมด <b>ภายในวันที่ 20 กันยายน 2569</b></span></li>
+      <li id="ruleFull" class="rule-hidden"><span class="rule-num">1</span><span><b>ชำระเต็มจำนวนในครั้งเดียว</b> เมื่อสมัครคอร์สออนไลน์ (ไม่มีมัดจำ)</span></li>
+      <li><span class="rule-num" id="ruleBankNum">3</span><span>โอนผ่านบัญชี <b>ธนาคารไทยพาณิชย์</b> — ระบบจะแสดงเลขบัญชีให้อีกครั้งในหน้าลงทะเบียน เตรียมแอปธนาคารให้พร้อม</span></li>
     </ul>
 
     <div class="summary" id="summaryBox">
       <div class="summary-row"><span>คอร์สที่เลือก</span><b id="sumCourse">—</b></div>
       <div class="summary-row"><span>รูปแบบเข้าเรียน</span><b id="sumStay">กบดาน</b></div>
-      <div class="summary-row"><span>ที่นอน</span><b id="sumDorm">—</b></div>
+      <div class="summary-row" id="sumDormRow"><span>ที่นอน</span><b id="sumDorm">—</b></div>
       <div class="summary-total"><span class="lbl">ยอดรวมค่าคอร์ส</span><span class="val" id="sumTotal">0 ฿</span></div>
     </div>
   </section>
 
-  <!-- ============ 6. Call To Action ============ -->
+  <!-- ============ Call To Action ============ -->
   <section class="cta-block">
     <label class="agree">
       <input type="checkbox" id="agreeBox">
@@ -606,6 +614,9 @@ section.block{padding:40px 0 8px;}
 
     <!-- FORM VIEW -->
     <div id="formView">
+      <div class="autofill-note" id="autofillNote">
+        <span>✅ ดึงข้อมูลของคุณจากการสมัครครั้งก่อนมาให้แล้ว ตรวจสอบและแก้ไขได้ตามต้องการ</span>
+      </div>
       <div class="field">
         <label for="nickname">ชื่อเล่น</label>
         <input type="text" id="nickname" placeholder="เช่น ปาล์ม">
@@ -701,8 +712,8 @@ section.block{padding:40px 0 8px;}
         <div class="ss-row"><span>สิทธิ์การจอง</span><b id="fsPrivilege">—</b></div>
         <div class="ss-divider"></div>
         <div class="ss-row ss-highlight"><span id="fsPayNowLabel">ชำระวันนี้ (มัดจำ)</span><b id="fsAmount">0 ฿</b></div>
-        <div class="ss-row"><span>ยอดคงเหลือที่ต้องชำระ</span><b id="fsRemaining" class="ss-remaining">0 ฿</b></div>
-        <div class="ss-row"><span>ชำระยอดสุดท้ายภายใน</span><b id="fsDeadline">20 กันยายน 2569</b></div>
+        <div class="ss-row" id="fsRemainingRow"><span>ยอดคงเหลือที่ต้องชำระ</span><b id="fsRemaining" class="ss-remaining">0 ฿</b></div>
+        <div class="ss-row" id="fsDeadlineRow"><span>ชำระยอดสุดท้ายภายใน</span><b id="fsDeadline">20 กันยายน 2569</b></div>
       </div>
 
       <button class="btn-main" id="submitBtn">ยืนยันการลงทะเบียน</button>
@@ -901,6 +912,75 @@ async function loadOccupiedBeds(){
 }
 loadOccupiedBeds();
 
+/* ---------------- Step numbering: renumber only visible section blocks ---------------- */
+const STEP_ORDER = ['format-section', 'course-month', 'stay', 'payment-rules'];
+function updateStepNumbers(){
+  let n = 0;
+  STEP_ORDER.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const visible = !el.classList.contains('step-hidden');
+    if(visible){
+      n++;
+      const numEl = el.querySelector('.sec-num');
+      if(numEl) numEl.textContent = String(n).padStart(2,'0') + ' · ' + numEl.dataset.label;
+    }
+  });
+}
+updateStepNumbers();
+
+/* ---------------- Returning-user ("เด็กเก่า") lookup by LINE userId ---------------- */
+let returningProfile = null; // เก็บข้อมูลที่เคยกรอกไว้ล่าสุด (ถ้ามี) เพื่อ autofill ฟอร์ม
+let profileApplied = false;  // กันไม่ให้ autofill ทับข้อมูลที่ผู้ใช้แก้ไขเองแล้ว
+
+async function checkReturningUser(){
+  if(!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") === 0 || !LIFF_USER_ID) return;
+  try{
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=checkUser&lineUserId=" + encodeURIComponent(LIFF_USER_ID));
+    const data = await res.json();
+    if(data.status === "ok" && data.found && data.profile){
+      returningProfile = data.profile;
+      document.getElementById('liffTag').textContent = "ยินดีต้อนรับกลับ " + (LIFF_DISPLAY_NAME || "") + " 👋";
+      const badgeRow = document.getElementById('badgeRow');
+      if(badgeRow && !document.getElementById('returningBadge')){
+        const b = document.createElement('span');
+        b.id = 'returningBadge';
+        b.className = 'badge returning';
+        b.textContent = '👋 เด็กเก่า · จำข้อมูลไว้แล้ว';
+        badgeRow.appendChild(b);
+      }
+    }
+  }catch(err){
+    console.warn("เช็คสถานะเด็กเก่าไม่สำเร็จ:", err);
+  }
+}
+
+/** ดึงข้อมูลเดิมของเด็กเก่าใส่ลงในฟอร์มอัตโนมัติ เรียกครั้งเดียวตอนเปิดฟอร์มครั้งแรก */
+function applyReturningProfile(){
+  if(!returningProfile || profileApplied) return;
+  profileApplied = true;
+  const p = returningProfile;
+  if(p.nickname) document.getElementById('nickname').value = p.nickname;
+  if(p.fullname) document.getElementById('fullname').value = p.fullname;
+  if(p.school) document.getElementById('school').value = p.school;
+  if(p.grade) document.getElementById('grade').value = p.grade;
+  if(p.phone) document.getElementById('phone').value = p.phone;
+  if(p.parentPhone) document.getElementById('parentPhone').value = p.parentPhone;
+  if(p.address) document.getElementById('address').value = p.address;
+  if(p.department){
+    const deptSelect = document.getElementById('department');
+    const options = Array.from(deptSelect.options).map(o=>o.value);
+    if(options.includes(p.department)){
+      deptSelect.value = p.department;
+    } else {
+      deptSelect.value = 'อื่นๆ';
+      document.getElementById('departmentOtherWrap').style.display = 'block';
+      document.getElementById('departmentOther').value = p.department;
+    }
+  }
+  document.getElementById('autofillNote').classList.add('show');
+}
+
 /* ---------------- LIFF init: บังคับเข้าผ่านแอป LINE เท่านั้น ---------------- */
 let LIFF_USER_ID = "";
 let LIFF_DISPLAY_NAME = "";
@@ -929,6 +1009,7 @@ async function initLiff(){
     LIFF_DISPLAY_NAME = profile.displayName || "";
     LIFF_PICTURE_URL = profile.pictureUrl || "";
     document.getElementById('liffTag').textContent = "สวัสดี " + profile.displayName + " 👋";
+    checkReturningUser(); // เช็ก "เด็กเก่า/เด็กใหม่" ทันทีตอนโหลดหน้าเว็บ ใช้ LINE UserID เป็นตัวเชื่อมหลัก
   }catch(err){
     console.warn("liff.getProfile failed:", err);
     showGate("ไม่สามารถดึงข้อมูลบัญชี LINE ได้ กรุณาลองเปิดหน้านี้ใหม่อีกครั้งผ่านแอป LINE");
@@ -936,7 +1017,7 @@ async function initLiff(){
 }
 initLiff();
 
-/* ---------------- Course month selection (Step 1) ---------------- */
+/* ---------------- Course month selection ---------------- */
 document.getElementById('monthOctCard').addEventListener('click', ()=>{
   document.querySelectorAll('.month-card').forEach(c=>c.classList.remove('checked'));
   document.getElementById('monthOctCard').classList.add('checked');
@@ -947,7 +1028,7 @@ document.getElementById('monthOctCard').addEventListener('click', ()=>{
 });
 // "คอร์สเร่งด่วน" ยังไม่เปิดรับสมัคร — การ์ดถูก disable ไว้ (ไม่มี event ผูกไว้)
 
-/* ---------------- Package selection (Step 2: onsite/online tabs) ---------------- */
+/* ---------------- Format selection (onsite/online tabs) ---------------- */
 const tabBtns = document.querySelectorAll('.tab-btn');
 tabBtns.forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -978,22 +1059,39 @@ document.querySelectorAll('.pkg-card').forEach(card=>{
 
 /**
  * เมื่อสลับแท็บ ติวสดที่ตึก / ออนไลน์:
- *   - ออนไลน์: ซ่อนขั้นตอน "03 · รูปแบบการเข้าเรียน" ทั้งหมด (ไม่ต้องเลือกที่พัก)
- *     และบังคับ stayMode เป็น "ออนไลน์" (ข้ามไปสู่การชำระเงินได้เลย)
- *   - ติวสดที่ตึก: แสดงขั้นตอน 03 ตามปกติ (กบดาน/ไป-กลับ)
+ *   - ออนไลน์: ซ่อนขั้นตอน "เลือกคอร์สเรียน (เดือน)" และ "รูปแบบการเข้าเรียน/ผังที่นอน"
+ *     ทั้งหมด (ไม่ต้องเลือกรอบเรียน ไม่ต้องเลือกผังที่นอน เริ่มเรียนได้ทันที)
+ *     บังคับ stayMode เป็น "ออนไลน์" และบังคับชำระเต็มจำนวนเท่านั้น (ไม่มีมัดจำ)
+ *   - ติวสดที่ตึก: แสดงขั้นตอนเลือกคอร์สเรียนและรูปแบบการเข้าเรียนตามปกติ
  */
 function setPackageMode(mode){
   const isOnline = mode === 'online';
   state.isOnline = isOnline;
-  document.getElementById('staySectionOnsite').style.display = isOnline ? 'none' : '';
-  document.getElementById('staySectionOnlineNote').style.display = isOnline ? 'block' : 'none';
+
+  document.getElementById('course-month').classList.toggle('step-hidden', isOnline);
+  document.getElementById('stay').classList.toggle('step-hidden', isOnline);
+  document.getElementById('onlineStartNote').style.display = isOnline ? 'block' : 'none';
+
+  // ปรับกติกาการชำระเงินบนหน้าหลักให้ตรงกับรูปแบบที่เลือก
+  document.getElementById('ruleDeposit').classList.toggle('rule-hidden', isOnline);
+  document.getElementById('ruleDeadline').classList.toggle('rule-hidden', isOnline);
+  document.getElementById('ruleFull').classList.toggle('rule-hidden', !isOnline);
+  document.getElementById('ruleBankNum').textContent = isOnline ? '2' : '3';
+
+  document.getElementById('sumDormRow').classList.toggle('summary-row-hidden', isOnline);
+
   if(isOnline){
     state.stayMode = 'ออนไลน์';
+    state.courseMonth = 'online';
+    state.courseMonthLabel = 'เริ่มเรียนได้ทันที (ออนไลน์)';
     state.dormId = ''; state.dormLabel = ''; state.dormExtra = 0;
     document.getElementById('dormSelectedNote').classList.remove('show');
   } else {
+    state.courseMonth = 'oct';
+    state.courseMonthLabel = 'คอร์สปิดเทอมตุลาคม (1-31 ต.ค.)';
     state.stayMode = document.getElementById('stayHold').checked ? 'กบดาน' : 'ไป-กลับ';
   }
+  updateStepNumbers();
   updateSummary();
 }
 
@@ -1044,13 +1142,15 @@ function checkReady(){
 agreeBox.addEventListener('change', checkReady);
 
 openRegBtn.addEventListener('click', async ()=>{
-  await loadOccupiedBeds(); // เช็คสถานะเตียงล่าสุดอีกครั้งก่อนเปิดฟอร์ม กันเตียงถูกจองไปแล้วระหว่างที่ดูหน้าเว็บ
-  if(state.stayMode==='กบดาน' && state.dormId && occupiedBeds.has(state.dormId)){
-    state.dormId=""; state.dormLabel=""; state.dormExtra=0;
-    document.getElementById('dormSelectedNote').classList.remove('show');
-    updateSummary();
-    alert("เตียงที่เลือกเพิ่งถูกจองไปแล้ว กรุณาเลือกเตียงใหม่อีกครั้ง");
-    return;
+  if(!state.isOnline){
+    await loadOccupiedBeds(); // เช็คสถานะเตียงล่าสุดอีกครั้งก่อนเปิดฟอร์ม กันเตียงถูกจองไปแล้วระหว่างที่ดูหน้าเว็บ
+    if(state.stayMode==='กบดาน' && state.dormId && occupiedBeds.has(state.dormId)){
+      state.dormId=""; state.dormLabel=""; state.dormExtra=0;
+      document.getElementById('dormSelectedNote').classList.remove('show');
+      updateSummary();
+      alert("เตียงที่เลือกเพิ่งถูกจองไปแล้ว กรุณาเลือกเตียงใหม่อีกครั้ง");
+      return;
+    }
   }
 
   // บังคับชำระเต็มจำนวนสำหรับคอร์สออนไลน์ (ข้ามตัวเลือกมัดจำ)
@@ -1065,6 +1165,7 @@ openRegBtn.addEventListener('click', async ()=>{
     onlineFullPayNote.style.display = 'none';
   }
 
+  applyReturningProfile(); // ดึงข้อมูลเดิมของเด็กเก่ามาใส่ในฟอร์มให้อัตโนมัติ (ถ้ามี)
   syncPayAmount();
   document.getElementById('regOverlay').classList.add('open');
 });
@@ -1102,13 +1203,15 @@ payAmount.addEventListener('input', updateSubmitSummary);
 
 /**
  * อัปเดต "กล่องสรุปข้อมูลลงทะเบียน" ในฟอร์ม ให้มีคอร์ส/ที่นอน/สิทธิ์การจอง/
- * ชำระวันนี้/ยอดคงเหลือที่ต้องชำระ/กำหนดชำระ ตามภาพตัวอย่าง
+ * ชำระวันนี้/ยอดคงเหลือที่ต้องชำระ/กำหนดชำระ ตามภาพตัวอย่าง — สำหรับคอร์ส
+ * ออนไลน์จะไม่มีมัดจำและไม่มีวันกำหนดชำระ (ชำระเต็มจำนวนในครั้งเดียว)
  */
 function updateSubmitSummary(){
   const isOnline = state.stayMode === 'ออนไลน์';
   const formatLabel = isOnline ? 'ออนไลน์ (Discord)' : 'ติวสดที่ตึก';
-  document.getElementById('fsCourse').textContent =
-    state.courseMonthLabel + ' (' + formatLabel + ')' + (state.courseName ? ' · ' + state.courseName : '');
+  document.getElementById('fsCourse').textContent = isOnline
+    ? (formatLabel + (state.courseName ? ' · ' + state.courseName : ''))
+    : (state.courseMonthLabel + ' (' + formatLabel + ')' + (state.courseName ? ' · ' + state.courseName : ''));
 
   const dormRow = document.getElementById('fsDormRow');
   if(isOnline){
@@ -1119,7 +1222,7 @@ function updateSubmitSummary(){
   }
 
   let privilege;
-  if(isOnline) privilege = 'เรียนออนไลน์ผ่าน Discord ได้ตลอด' + monthDurationText();
+  if(isOnline) privilege = 'เรียนออนไลน์ผ่าน Discord ได้ทันที ไม่ต้องรอรอบ';
   else if(state.stayMode==='กบดาน') privilege = 'เข้าพักได้ตลอด' + monthDurationText();
   else privilege = 'เข้าเรียนได้ตลอด' + monthDurationText() + ' (ไป-กลับ)';
   document.getElementById('fsPrivilege').textContent = privilege;
@@ -1130,8 +1233,14 @@ function updateSubmitSummary(){
   const amt = parseInt(payAmount.value,10) || 0;
   const total = totalPrice();
   document.getElementById('fsAmount').textContent = money(amt);
-  document.getElementById('fsRemaining').textContent = money(Math.max(total - amt, 0));
-  document.getElementById('fsDeadline').textContent = PAYMENT_DEADLINE_TEXT;
+
+  // คอร์สออนไลน์: ชำระเต็มจำนวนเสมอ ไม่มียอดคงเหลือ และไม่มีวันกำหนดชำระ
+  document.getElementById('fsRemainingRow').classList.toggle('ss-row-hidden', isOnline);
+  document.getElementById('fsDeadlineRow').classList.toggle('ss-row-hidden', isOnline);
+  if(!isOnline){
+    document.getElementById('fsRemaining').textContent = money(Math.max(total - amt, 0));
+    document.getElementById('fsDeadline').textContent = PAYMENT_DEADLINE_TEXT;
+  }
 }
 
 /* ---------------- Slip upload (resize + base64) ---------------- */
