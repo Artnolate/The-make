@@ -1023,7 +1023,7 @@ document.getElementById('monthOctCard').addEventListener('click', ()=>{
   document.getElementById('monthOctCard').classList.add('checked');
   document.getElementById('monthOctRadio').checked = true;
   state.courseMonth = 'oct';
-  state.courseMonthLabel = 'คอร์สปิดเทอมตุลาคม (1-31 ต.ค.)';
+  state.courseMonthLabel = 'คอร์สปิดเทอมตุลาคม';
   updateSummary();
 });
 // "คอร์สเร่งด่วน" ยังไม่เปิดรับสมัคร — การ์ดถูก disable ไว้ (ไม่มี event ผูกไว้)
@@ -1041,7 +1041,7 @@ tabBtns.forEach(btn=>{
 });
 
 let state = {
-  courseMonth: 'oct', courseMonthLabel: 'คอร์สปิดเทอมตุลาคม (1-31 ต.ค.)',
+  courseMonth: 'oct', courseMonthLabel: 'คอร์สปิดเทอมตุลาคม',
   coursePrice:0, courseName:"", isOnline:false,
   stayMode:"กบดาน", dormId:"", dormLabel:"", dormExtra:0
 };
@@ -1083,12 +1083,12 @@ function setPackageMode(mode){
   if(isOnline){
     state.stayMode = 'ออนไลน์';
     state.courseMonth = 'online';
-    state.courseMonthLabel = 'เริ่มเรียนได้ทันที (ออนไลน์)';
+    state.courseMonthLabel = 'เริ่มเรียนได้ทันที';
     state.dormId = ''; state.dormLabel = ''; state.dormExtra = 0;
     document.getElementById('dormSelectedNote').classList.remove('show');
   } else {
     state.courseMonth = 'oct';
-    state.courseMonthLabel = 'คอร์สปิดเทอมตุลาคม (1-31 ต.ค.)';
+    state.courseMonthLabel = 'คอร์สปิดเทอมตุลาคม';
     state.stayMode = document.getElementById('stayHold').checked ? 'กบดาน' : 'ไป-กลับ';
   }
   updateStepNumbers();
