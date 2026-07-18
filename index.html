@@ -110,7 +110,7 @@ section.block.step-hidden{display:none;}
 .sec-head h2{font-size:21px;color:var(--paper);font-weight:700;}
 .sec-head p{color:var(--muted);font-size:13.5px;margin:6px 0 0;}
 
-/* ---------- Course month cards ---------- */
+/* ---------- Goal / course month cards ---------- */
 .month-list{display:flex;flex-direction:column;gap:10px;}
 .month-card{
   position:relative;background:var(--ink-2);border:1px solid var(--line);
@@ -128,10 +128,10 @@ section.block.step-hidden{display:none;}
 .month-price{margin-top:10px;font-family:var(--mono);font-size:12.5px;color:var(--amber-2);}
 
 /* ---------- Tabs ---------- */
-.tabs{display:flex;gap:8px;background:var(--ink-2);padding:4px;border-radius:14px;border:1px solid var(--line);margin-bottom:16px;}
+.tabs{display:flex;gap:6px;background:var(--ink-2);padding:4px;border-radius:14px;border:1px solid var(--line);margin-bottom:16px;}
 .tab-btn{
-  flex:1;padding:10px 8px;border:none;border-radius:11px;background:transparent;
-  color:var(--muted);font-weight:600;font-size:13.5px;cursor:pointer;transition:.2s;
+  flex:1;padding:10px 4px;border:none;border-radius:11px;background:transparent;
+  color:var(--muted);font-weight:600;font-size:12.5px;cursor:pointer;transition:.2s;white-space:nowrap;
 }
 .tab-btn.active{background:var(--amber);color:#241706;}
 
@@ -164,6 +164,7 @@ section.block.step-hidden{display:none;}
   border:1px solid var(--line);border-radius:999px;padding:3px 9px;
 }
 .tag-hold{color:var(--coral);border-color:rgba(255,107,91,.4);}
+.tag-mix{color:#c084fc;border-color:rgba(192,132,252,.4);}
 
 /* ---------- Stay mode toggle ---------- */
 .stay-toggle{display:flex;gap:8px;margin-bottom:16px;}
@@ -240,6 +241,7 @@ section.block.step-hidden{display:none;}
   background:var(--ink-2);border:1px solid rgba(245,166,35,.35);border-left:3px solid var(--amber);
   border-radius:12px;padding:13px 14px;font-size:13px;color:var(--amber-2);margin:14px 0 4px;
 }
+.callout.callout-lock{border-color:rgba(74,222,128,.35);border-left-color:var(--green);color:var(--green);}
 
 /* ---------- Payment rules ---------- */
 .rule-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
@@ -430,17 +432,62 @@ section.block.step-hidden{display:none;}
 
 <main class="wrap">
 
-  <!-- ============ เลือกรูปแบบการเรียน ============ -->
+  <!-- ============ Step 1: เลือกเป้าหมาย ============ -->
+  <section class="block" id="goal-section">
+    <div class="sec-head">
+      <span class="sec-num" data-label="เลือกเป้าหมาย"></span>
+      <h2>เลือกเป้าหมายการสมัคร</h2>
+      <p>เลือกว่าต้องการสมัครเรียนแบบปกติ หรือจองสิทธิ์ล่วงหน้าสำหรับคอร์สทำพอร์ตเดือนตุลาคม</p>
+    </div>
+
+    <div class="month-list">
+      <label class="month-card checked" id="goalNormalCard" data-goal="normal">
+        <input type="radio" name="goal" value="normal" id="goalNormalRadio" checked>
+        <div class="month-top">
+          <div>
+            <div class="month-name">สมัครคอร์สปกติ</div>
+            <div class="month-sub">เริ่มเรียนได้ทันที หรือตามรอบเดือนปัจจุบัน</div>
+          </div>
+          <span class="month-tag tag-open">เปิดรับสมัคร</span>
+        </div>
+      </label>
+
+      <label class="month-card" id="goalPreorderCard" data-goal="preorder">
+        <input type="radio" name="goal" value="preorder" id="goalPreorderRadio">
+        <div class="month-top">
+          <div>
+            <div class="month-name">จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)</div>
+            <div class="month-sub">จองสิทธิ์ล็อกเตียง เฉพาะคอร์สเหมา 1 เดือน ราคา 8,900 บาท</div>
+          </div>
+          <span class="month-tag tag-open">เปิดจอง</span>
+        </div>
+        <div class="month-price">มัดจำเริ่มต้น 1,000 บาท · คอร์สติวสดเหมา 1 เดือน 8,900 บาท</div>
+      </label>
+    </div>
+  </section>
+
+  <!-- ============ Step 2: เลือกรูปแบบเรียน (ซ่อนถ้าเป็นจองล่วงหน้า) ============ -->
   <section class="block" id="format-section">
     <div class="sec-head">
-      <span class="sec-num" data-label="เลือกรูปแบบการเรียน"></span>
-      <h2>เลือกรูปแบบการเรียน</h2>
-      <p>ติวสดที่ตึก ไม่จำกัดวิชา เรียนได้สูงสุด 10 ชม./วัน หรือเรียนออนไลน์สดผ่าน Discord พูดคุยกับพี่ติวได้แบบเรียลไทม์ — เลือกออนไลน์แล้วเริ่มเรียนได้ทันที ไม่ต้องรอรอบ</p>
+      <span class="sec-num" data-label="เลือกรูปแบบเรียน"></span>
+      <h2>เลือกรูปแบบเรียน</h2>
+      <p>ติวสดที่ตึก ออนไลน์ผ่าน Discord หรือแบบผสม Mix ทั้งสองรูปแบบ — เลือกออนไลน์แล้วเริ่มเรียนได้ทันที ไม่ต้องรอรอบ</p>
     </div>
 
     <div class="tabs">
-      <button type="button" class="tab-btn active" data-tab="onsite">🏢 ติวสดที่ตึก</button>
-      <button type="button" class="tab-btn" data-tab="online">💻 ออนไลน์ (Discord)</button>
+      <button type="button" class="tab-btn active" data-tab="onsite">🏢 ติวสด</button>
+      <button type="button" class="tab-btn" data-tab="online">💻 ออนไลน์</button>
+      <button type="button" class="tab-btn" data-tab="mix">🎨 Mix</button>
+    </div>
+    <div class="callout" id="onlineStartNote" style="display:none;">💻 เรียนออนไลน์ผ่าน Discord เวลา 18.00-22.00 น. ลงทะเบียนแล้วเริ่มเรียนได้ทันที</div>
+    <div class="callout" id="mixStartNote" style="display:none;">🎨 คอร์ส Mix ผสมผสานติวสดที่ตึกวันเสาร์-อาทิตย์ กับเรียนออนไลน์วันธรรมดา</div>
+  </section>
+
+  <!-- ============ Step 3: เลือกแพ็กเกจ (เปลี่ยนตาม Step 2) ============ -->
+  <section class="block" id="package-section">
+    <div class="sec-head">
+      <span class="sec-num" data-label="เลือกแพ็กเกจ"></span>
+      <h2>เลือกแพ็กเกจ</h2>
     </div>
 
     <div class="pkg active" id="pkg-onsite">
@@ -497,42 +544,30 @@ section.block.step-hidden{display:none;}
         <div class="radio-dot" style="position:absolute;right:16px;bottom:14px"></div>
       </label>
     </div>
-    <div class="callout" id="onlineStartNote" style="display:none;">💻 เรียนออนไลน์ผ่าน Discord เวลา 18.00-22.00 น. ลงทะเบียนแล้วเริ่มเรียนได้ทันที </div>
-  </section>
 
-  <!-- ============ เลือกคอร์สเรียน (เดือน) — เฉพาะติวสดที่ตึก ============ -->
-  <section class="block" id="course-month">
-    <div class="sec-head">
-      <span class="sec-num" data-label="เลือกคอร์สเรียน"></span>
-      <h2>เลือกรอบคอร์สเรียน</h2>
-      <p>เลือกช่วงเวลาในการสมัครลงทะเบียนหรือมัดจำล็อกสิทธิ์ที่นั่ง/ที่นอนล่วงหน้า</p>
-    </div>
-
-    <div class="month-list">
-      <label class="month-card checked" id="monthOctCard" data-month="oct" data-label="คอร์สปิดเทอมตุลาคม">
-        <input type="radio" name="courseMonth" value="oct" id="monthOctRadio" checked>
-        <div class="month-top">
-          <div>
-            <div class="month-name">คอร์สปิดเทอมตุลาคม</div>
-          </div>
-          <span class="month-tag tag-open">เปิดรับสมัคร</span>
+    <div class="pkg" id="pkg-mix">
+      <label class="pkg-card" data-price="5850" data-name="Mix ติวสด 8 ครั้ง (ส-อา) + ออนไลน์ 8 ครั้ง">
+        <input type="radio" name="course" value="mix-8-8">
+        <div class="pkg-top">
+          <div><div class="pkg-name">Mix ติวสด 8 ครั้ง + ออนไลน์ 8 ครั้ง</div><div class="pkg-sub">ติวสดที่ตึกวันเสาร์-อาทิตย์ ผสมกับเรียนออนไลน์</div></div>
+          <div class="pkg-price">5,850<small> บาท</small></div>
         </div>
-        <div class="month-price">มัดจำ 1,000 บาท</div>
+        <div class="pkg-row"><span class="chip tag-mix">คุ้มกว่าซื้อแยก</span></div>
+        <div class="radio-dot" style="position:absolute;right:16px;bottom:14px"></div>
       </label>
-
-      <div class="month-card disabled" id="monthRushCard" data-month="rush">
-        <div class="month-top">
-          <div>
-            <div class="month-name">คอร์สเร่งด่วน</div>
-            <div class="month-sub">สิงหาคม – กันยายน 2569 · รอประกาศกำหนดการจากศิลปากร</div>
-          </div>
-          <span class="month-tag tag-soon">เร็วๆ นี้</span>
+      <label class="pkg-card" data-price="6990" data-name="Mix บุฟเฟ่ต์ 1 เดือน ติวสด(ส-อา)+ออนไลน์(จ-ศ)">
+        <input type="radio" name="course" value="mix-buffet">
+        <div class="pkg-top">
+          <div><div class="pkg-name">Mix บุฟเฟ่ต์ 1 เดือน</div><div class="pkg-sub">ติวสด (ส-อา) + ออนไลน์ (จ-ศ) ไม่จำกัดจำนวนครั้ง</div></div>
+          <div class="pkg-price">6,990<small> บาท</small></div>
         </div>
-      </div>
+        <div class="pkg-row"><span class="chip tag-mix">คุ้มสุดสำหรับสายลุยครบทุกวัน</span></div>
+        <div class="radio-dot" style="position:absolute;right:16px;bottom:14px"></div>
+      </label>
     </div>
   </section>
 
-  <!-- ============ ผังที่นอนกบดาน — เฉพาะติวสดที่ตึก ============ -->
+  <!-- ============ Step 4: รูปแบบการเข้าเรียน/ที่พัก (ซ่อนถ้าเป็นออนไลน์) ============ -->
   <section class="block" id="stay">
     <div class="sec-head">
       <span class="sec-num" data-label="รูปแบบการเข้าเรียน"></span>
@@ -540,7 +575,9 @@ section.block.step-hidden{display:none;}
       <p>เลือก "กบดาน" หากต้องการพักค้างและจองเตียง หรือ "ไป-กลับ" หากไม่ต้องการที่พัก</p>
     </div>
 
-    <div class="stay-toggle">
+    <div class="callout callout-lock" id="preorderStayNote" style="display:none;">🔒 จองล่วงหน้าคอร์สทำพอร์ตต้องล็อกเตียงแบบ "กบดาน" เท่านั้น เพื่อยืนยันสิทธิ์ที่นอนในเดือนตุลาคม</div>
+
+    <div class="stay-toggle" id="stayToggleWrap">
       <div class="stay-opt checked" id="stayHoldWrap">
         <input type="radio" name="staymode" value="กบดาน" id="stayHold" checked>
         <label for="stayHold">🛏️ กบดาน</label>
@@ -569,11 +606,11 @@ section.block.step-hidden{display:none;}
     </div>
   </section>
 
-  <!-- ============ กติกาการชำระเงิน ============ -->
+  <!-- ============ Step 5: สรุปและชำระเงิน ============ -->
   <section class="block" id="payment-rules">
     <div class="sec-head">
-      <span class="sec-num" data-label="การชำระเงิน"></span>
-      <h2>การชำระเงิน</h2>
+      <span class="sec-num" data-label="สรุปและชำระเงิน"></span>
+      <h2>สรุปและชำระเงิน</h2>
     </div>
     <ul class="rule-list">
       <li id="ruleDeposit"><span class="rule-num">1</span><span><b>มัดจำขั้นต่ำ 1,000 บาท</b> เพื่อล็อกที่นั่งหรือที่นอนไว้ก่อน</span></li>
@@ -583,6 +620,7 @@ section.block.step-hidden{display:none;}
     </ul>
 
     <div class="summary" id="summaryBox">
+      <div class="summary-row"><span>เป้าหมาย</span><b id="sumGoal">สมัครคอร์สปกติ</b></div>
       <div class="summary-row"><span>คอร์สที่เลือก</span><b id="sumCourse">—</b></div>
       <div class="summary-row"><span>รูปแบบเข้าเรียน</span><b id="sumStay">กบดาน</b></div>
       <div class="summary-row" id="sumDormRow"><span>ที่นอน</span><b id="sumDorm">—</b></div>
@@ -707,6 +745,7 @@ section.block.step-hidden{display:none;}
 
       <div class="submit-summary">
         <div class="ss-title">📋 กล่องสรุปข้อมูลลงทะเบียน</div>
+        <div class="ss-row"><span>เป้าหมาย</span><b id="fsGoal">—</b></div>
         <div class="ss-row"><span>คอร์สเรียน</span><b id="fsCourse">—</b></div>
         <div class="ss-row" id="fsDormRow"><span>ที่นอนที่จอง</span><b id="fsDorm">—</b></div>
         <div class="ss-row"><span>สิทธิ์การจอง</span><b id="fsPrivilege">—</b></div>
@@ -913,7 +952,7 @@ async function loadOccupiedBeds(){
 loadOccupiedBeds();
 
 /* ---------------- Step numbering: renumber only visible section blocks ---------------- */
-const STEP_ORDER = ['format-section', 'course-month', 'stay', 'payment-rules'];
+const STEP_ORDER = ['goal-section', 'format-section', 'package-section', 'stay', 'payment-rules'];
 function updateStepNumbers(){
   let n = 0;
   STEP_ORDER.forEach(id=>{
@@ -1017,18 +1056,77 @@ async function initLiff(){
 }
 initLiff();
 
-/* ---------------- Course month selection ---------------- */
-document.getElementById('monthOctCard').addEventListener('click', ()=>{
-  document.querySelectorAll('.month-card').forEach(c=>c.classList.remove('checked'));
-  document.getElementById('monthOctCard').classList.add('checked');
-  document.getElementById('monthOctRadio').checked = true;
-  state.courseMonth = 'oct';
-  state.courseMonthLabel = 'คอร์สปิดเทอมตุลาคม';
-  updateSummary();
-});
-// "คอร์สเร่งด่วน" ยังไม่เปิดรับสมัคร — การ์ดถูก disable ไว้ (ไม่มี event ผูกไว้)
+/* ---------------- Application state ---------------- */
+let state = {
+  goal: 'normal',                                    // 'normal' | 'preorder'
+  courseMonthLabel: 'คอร์สปกติ (เริ่มเรียนได้ทันที)', // ข้อความอธิบายรอบ/เป้าหมายที่สมัคร
+  format: 'onsite',                                   // 'onsite' | 'online' | 'mix'
+  coursePrice: 0, courseName: "",
+  stayMode: "กบดาน", dormId: "", dormLabel: "", dormExtra: 0
+};
 
-/* ---------------- Format selection (onsite/online tabs) ---------------- */
+/* ---------------- Step 1: เลือกเป้าหมาย ---------------- */
+document.getElementById('goalNormalCard').addEventListener('click', ()=> setGoal('normal'));
+document.getElementById('goalPreorderCard').addEventListener('click', ()=> setGoal('preorder'));
+
+function setGoal(goal){
+  state.goal = goal;
+  document.getElementById('goalNormalCard').classList.toggle('checked', goal==='normal');
+  document.getElementById('goalPreorderCard').classList.toggle('checked', goal==='preorder');
+  document.getElementById('goalNormalRadio').checked = goal==='normal';
+  document.getElementById('goalPreorderRadio').checked = goal==='preorder';
+  applyGoalMode();
+}
+
+/**
+ * เมื่อเลือก "จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)":
+ *   - ซ่อน Step 2 (รูปแบบเรียน) และ Step 3 (แพ็กเกจ) เพราะกำหนดตายตัวเป็น
+ *     ติวสดเหมา 1 เดือน ราคา 8,900 บาทอยู่แล้ว
+ *   - บังคับรูปแบบการเข้าเรียนเป็น "กบดาน" เท่านั้น (ซ่อนตัวเลือกไป-กลับ)
+ *     เพื่อให้ตรงตามจุดประสงค์ "จองสิทธิ์ล็อกเตียง"
+ * เมื่อกลับไปเลือก "สมัครคอร์สปกติ": คืนค่า Step 2/3 ตามปกติ และให้เลือก
+ * แพ็กเกจใหม่อีกครั้ง (เคลียร์คอร์ส/ราคาที่เคยเลือกไว้ กันข้อมูลเพี้ยน)
+ */
+function applyGoalMode(){
+  const isPreorder = state.goal === 'preorder';
+  document.getElementById('format-section').classList.toggle('step-hidden', isPreorder);
+  document.getElementById('package-section').classList.toggle('step-hidden', isPreorder);
+  document.getElementById('stayToggleWrap').style.display = isPreorder ? 'none' : 'flex';
+  document.getElementById('preorderStayNote').style.display = isPreorder ? 'block' : 'none';
+
+  if(isPreorder){
+    state.format = 'onsite';
+    state.coursePrice = 8900;
+    state.courseName = 'ติวสดเหมา 1 เดือน (จองล่วงหน้า ต.ค.)';
+    state.courseMonthLabel = 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)';
+    state.stayMode = 'กบดาน';
+
+    document.getElementById('stay').classList.remove('step-hidden');
+    document.getElementById('dormZone').classList.remove('hidden');
+    document.getElementById('stayHoldWrap').classList.add('checked');
+    document.getElementById('stayGoWrap').classList.remove('checked');
+    document.getElementById('stayHold').checked = true;
+    document.getElementById('stayGo').checked = false;
+
+    document.getElementById('ruleDeposit').classList.remove('rule-hidden');
+    document.getElementById('ruleDeadline').classList.remove('rule-hidden');
+    document.getElementById('ruleFull').classList.add('rule-hidden');
+    document.getElementById('ruleBankNum').textContent = '3';
+    document.getElementById('sumDormRow').classList.remove('summary-row-hidden');
+  } else {
+    state.coursePrice = 0;
+    state.courseName = "";
+    state.courseMonthLabel = 'คอร์สปกติ (เริ่มเรียนได้ทันที)';
+    document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('checked'));
+    // คืนค่าการมองเห็นของ Step 4/กติกาชำระเงินตามแท็บรูปแบบเรียนที่กำลังเลือกอยู่
+    const activeTab = document.querySelector('.tab-btn.active');
+    setFormatMode(activeTab ? activeTab.dataset.tab : 'onsite');
+  }
+  updateStepNumbers();
+  updateSummary();
+}
+
+/* ---------------- Step 2: เลือกรูปแบบเรียน (ติวสด/ออนไลน์/Mix) ---------------- */
 const tabBtns = document.querySelectorAll('.tab-btn');
 tabBtns.forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -1036,16 +1134,12 @@ tabBtns.forEach(btn=>{
     btn.classList.add('active');
     document.getElementById('pkg-onsite').classList.toggle('active', btn.dataset.tab==='onsite');
     document.getElementById('pkg-online').classList.toggle('active', btn.dataset.tab==='online');
-    setPackageMode(btn.dataset.tab);
+    document.getElementById('pkg-mix').classList.toggle('active', btn.dataset.tab==='mix');
+    setFormatMode(btn.dataset.tab);
   });
 });
 
-let state = {
-  courseMonth: 'oct', courseMonthLabel: 'คอร์สปิดเทอมตุลาคม',
-  coursePrice:0, courseName:"", isOnline:false,
-  stayMode:"กบดาน", dormId:"", dormLabel:"", dormExtra:0
-};
-
+/* ---------------- Step 3: เลือกแพ็กเกจ ---------------- */
 document.querySelectorAll('.pkg-card').forEach(card=>{
   card.addEventListener('click', ()=>{
     document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('checked'));
@@ -1058,37 +1152,37 @@ document.querySelectorAll('.pkg-card').forEach(card=>{
 });
 
 /**
- * เมื่อสลับแท็บ ติวสดที่ตึก / ออนไลน์:
- *   - ออนไลน์: ซ่อนขั้นตอน "เลือกคอร์สเรียน (เดือน)" และ "รูปแบบการเข้าเรียน/ผังที่นอน"
- *     ทั้งหมด (ไม่ต้องเลือกรอบเรียน ไม่ต้องเลือกผังที่นอน เริ่มเรียนได้ทันที)
- *     บังคับ stayMode เป็น "ออนไลน์" และบังคับชำระเต็มจำนวนเท่านั้น (ไม่มีมัดจำ)
- *   - ติวสดที่ตึก: แสดงขั้นตอนเลือกคอร์สเรียนและรูปแบบการเข้าเรียนตามปกติ
+ * เมื่อสลับแท็บรูปแบบเรียน (ติวสด / ออนไลน์ / Mix):
+ *   - ออนไลน์ล้วน: ซ่อนขั้นตอน "รูปแบบการเข้าเรียน/ที่พัก" ทั้งหมด (ไม่ต้อง
+ *     เลือกที่พัก) และบังคับชำระเต็มจำนวนเท่านั้น (ไม่มีมัดจำ)
+ *   - ติวสด / Mix: แสดงขั้นตอนรูปแบบการเข้าเรียนตามปกติ (กบดาน/ไป-กลับ)
+ * ล้างแพ็กเกจที่เคยเลือกไว้ทุกครั้งที่สลับแท็บ กันราคา/ชื่อคอร์สเพี้ยนข้ามรูปแบบ
  */
-function setPackageMode(mode){
-  const isOnline = mode === 'online';
-  state.isOnline = isOnline;
+function setFormatMode(format){
+  state.format = format;
+  state.coursePrice = 0;
+  state.courseName = "";
+  document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('checked'));
 
-  document.getElementById('course-month').classList.toggle('step-hidden', isOnline);
-  document.getElementById('stay').classList.toggle('step-hidden', isOnline);
-  document.getElementById('onlineStartNote').style.display = isOnline ? 'block' : 'none';
+  const isPureOnline = format === 'online';
+  document.getElementById('onlineStartNote').style.display = format==='online' ? 'block' : 'none';
+  document.getElementById('mixStartNote').style.display = format==='mix' ? 'block' : 'none';
 
-  // ปรับกติกาการชำระเงินบนหน้าหลักให้ตรงกับรูปแบบที่เลือก
-  document.getElementById('ruleDeposit').classList.toggle('rule-hidden', isOnline);
-  document.getElementById('ruleDeadline').classList.toggle('rule-hidden', isOnline);
-  document.getElementById('ruleFull').classList.toggle('rule-hidden', !isOnline);
-  document.getElementById('ruleBankNum').textContent = isOnline ? '2' : '3';
+  document.getElementById('stay').classList.toggle('step-hidden', isPureOnline);
 
-  document.getElementById('sumDormRow').classList.toggle('summary-row-hidden', isOnline);
+  // ปรับกติกาการชำระเงินให้ตรงกับรูปแบบที่เลือก
+  document.getElementById('ruleDeposit').classList.toggle('rule-hidden', isPureOnline);
+  document.getElementById('ruleDeadline').classList.toggle('rule-hidden', isPureOnline);
+  document.getElementById('ruleFull').classList.toggle('rule-hidden', !isPureOnline);
+  document.getElementById('ruleBankNum').textContent = isPureOnline ? '2' : '3';
 
-  if(isOnline){
+  document.getElementById('sumDormRow').classList.toggle('summary-row-hidden', isPureOnline);
+
+  if(isPureOnline){
     state.stayMode = 'ออนไลน์';
-    state.courseMonth = 'online';
-    state.courseMonthLabel = 'เริ่มเรียนได้ทันที';
-    state.dormId = ''; state.dormLabel = ''; state.dormExtra = 0;
+    state.dormId=''; state.dormLabel=''; state.dormExtra=0;
     document.getElementById('dormSelectedNote').classList.remove('show');
   } else {
-    state.courseMonth = 'oct';
-    state.courseMonthLabel = 'คอร์สปิดเทอมตุลาคม';
     state.stayMode = document.getElementById('stayHold').checked ? 'กบดาน' : 'ไป-กลับ';
   }
   updateStepNumbers();
@@ -1101,11 +1195,12 @@ document.getElementById('department').addEventListener('change', (e)=>{
   document.getElementById('departmentOtherWrap').style.display = isOther ? 'block' : 'none';
 });
 
-/* ---------------- Stay mode toggle (only relevant for onsite) ---------------- */
+/* ---------------- Step 4: กบดาน / ไป-กลับ (ไม่มีผลถ้าเป็นจองล่วงหน้า ซึ่งบังคับกบดาน) ---------------- */
 document.getElementById('stayHoldWrap').addEventListener('click', ()=>setStay('กบดาน'));
 document.getElementById('stayGoWrap').addEventListener('click', ()=>setStay('ไป-กลับ'));
 function setStay(mode){
-  if(state.isOnline) return; // ออนไลน์ไม่มีการเลือกที่พัก
+  if(state.goal === 'preorder') return; // จองล่วงหน้าบังคับกบดานเท่านั้น
+  if(state.format === 'online') return; // ออนไลน์ล้วนไม่มีการเลือกที่พัก
   state.stayMode = mode;
   document.getElementById('stayHoldWrap').classList.toggle('checked', mode==='กบดาน');
   document.getElementById('stayGoWrap').classList.toggle('checked', mode==='ไป-กลับ');
@@ -1119,12 +1214,21 @@ function setStay(mode){
 function money(n){ return n.toLocaleString('th-TH') + " ฿"; }
 
 function monthDurationText(){
-  return state.courseMonth === 'oct' ? 'เดือนตุลาคม' : 'ช่วงคอร์สที่เลือก';
+  return state.goal === 'preorder' ? 'เดือนตุลาคม' : 'รอบคอร์สที่สมัคร';
 }
 
+/* ---------------- Step 5: สรุป (หน้าเพจหลัก) ---------------- */
 function updateSummary(){
   const total = state.coursePrice + (state.stayMode==='กบดาน' ? state.dormExtra : 0);
-  document.getElementById('sumCourse').textContent = state.courseName ? (state.courseMonthLabel + ' · ' + state.courseName) : (state.courseMonthLabel || "—");
+  document.getElementById('sumGoal').textContent = state.goal === 'preorder' ? 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)' : 'สมัครคอร์สปกติ';
+
+  let courseLabel;
+  if(state.goal === 'preorder'){
+    courseLabel = state.courseMonthLabel + (state.courseName ? ' · ' + state.courseName : '');
+  } else {
+    courseLabel = state.courseName ? (state.courseMonthLabel + ' · ' + state.courseName) : (state.courseMonthLabel || '—');
+  }
+  document.getElementById('sumCourse').textContent = courseLabel;
   document.getElementById('sumStay').textContent = state.stayMode==='ออนไลน์' ? 'เรียนออนไลน์ (ไม่มีที่พัก)' : state.stayMode;
   document.getElementById('sumDorm').textContent = state.stayMode==='กบดาน' ? (state.dormLabel || "ยังไม่เลือกเตียง") : (state.stayMode==='ออนไลน์' ? "ไม่มีที่พัก (เรียนออนไลน์)" : "ไม่พักค้าง");
   document.getElementById('sumTotal').textContent = money(total);
@@ -1142,9 +1246,9 @@ function checkReady(){
 agreeBox.addEventListener('change', checkReady);
 
 openRegBtn.addEventListener('click', async ()=>{
-  if(!state.isOnline){
+  if(state.stayMode === 'กบดาน'){
     await loadOccupiedBeds(); // เช็คสถานะเตียงล่าสุดอีกครั้งก่อนเปิดฟอร์ม กันเตียงถูกจองไปแล้วระหว่างที่ดูหน้าเว็บ
-    if(state.stayMode==='กบดาน' && state.dormId && occupiedBeds.has(state.dormId)){
+    if(state.dormId && occupiedBeds.has(state.dormId)){
       state.dormId=""; state.dormLabel=""; state.dormExtra=0;
       document.getElementById('dormSelectedNote').classList.remove('show');
       updateSummary();
@@ -1153,10 +1257,10 @@ openRegBtn.addEventListener('click', async ()=>{
     }
   }
 
-  // บังคับชำระเต็มจำนวนสำหรับคอร์สออนไลน์ (ข้ามตัวเลือกมัดจำ)
+  // บังคับชำระเต็มจำนวนสำหรับรูปแบบออนไลน์ล้วน (ข้ามตัวเลือกมัดจำ)
   const payToggleWrap = document.getElementById('payToggleWrap');
   const onlineFullPayNote = document.getElementById('onlineFullPayNote');
-  if(state.isOnline){
+  if(state.stayMode === 'ออนไลน์'){
     payToggleWrap.style.display = 'none';
     onlineFullPayNote.style.display = 'block';
     setPayType('ชำระเต็ม');
@@ -1177,7 +1281,7 @@ function closeReg(){ document.getElementById('regOverlay').classList.remove('ope
 const payDepositWrap = document.getElementById('payDepositWrap');
 const payFullWrap = document.getElementById('payFullWrap');
 const payAmount = document.getElementById('payAmount');
-payDepositWrap.addEventListener('click', ()=>{ if(!state.isOnline) setPayType('มัดจำ'); });
+payDepositWrap.addEventListener('click', ()=>{ if(state.stayMode !== 'ออนไลน์') setPayType('มัดจำ'); });
 payFullWrap.addEventListener('click', ()=>setPayType('ชำระเต็ม'));
 function setPayType(type){
   document.getElementById('payDeposit').checked = type==='มัดจำ';
@@ -1202,16 +1306,31 @@ function syncPayAmount(){
 payAmount.addEventListener('input', updateSubmitSummary);
 
 /**
- * อัปเดต "กล่องสรุปข้อมูลลงทะเบียน" ในฟอร์ม ให้มีคอร์ส/ที่นอน/สิทธิ์การจอง/
- * ชำระวันนี้/ยอดคงเหลือที่ต้องชำระ/กำหนดชำระ ตามภาพตัวอย่าง — สำหรับคอร์ส
- * ออนไลน์จะไม่มีมัดจำและไม่มีวันกำหนดชำระ (ชำระเต็มจำนวนในครั้งเดียว)
+ * อัปเดต "กล่องสรุปข้อมูลลงทะเบียน" ในฟอร์ม ให้มีเป้าหมาย/คอร์ส/ที่นอน/
+ * สิทธิ์การจอง/ชำระวันนี้/ยอดคงเหลือที่ต้องชำระ/กำหนดชำระ ตามภาพตัวอย่าง
+ * สำหรับรูปแบบออนไลน์ล้วนจะไม่มีมัดจำและไม่มีวันกำหนดชำระ (ชำระเต็มจำนวน
+ * ในครั้งเดียว) ส่วนโหมดจองล่วงหน้าจะเน้นข้อความ "ล็อกสิทธิ์เตียง"
  */
 function updateSubmitSummary(){
+  const isPreorder = state.goal === 'preorder';
   const isOnline = state.stayMode === 'ออนไลน์';
-  const formatLabel = isOnline ? 'ออนไลน์ (Discord)' : 'ติวสดที่ตึก';
-  document.getElementById('fsCourse').textContent = isOnline
-    ? (formatLabel + (state.courseName ? ' · ' + state.courseName : ''))
-    : (state.courseMonthLabel + ' (' + formatLabel + ')' + (state.courseName ? ' · ' + state.courseName : ''));
+
+  let formatLabel;
+  if(isOnline) formatLabel = 'ออนไลน์ (Discord)';
+  else if(state.format === 'mix') formatLabel = 'Mix (ติวสด+ออนไลน์)';
+  else formatLabel = 'ติวสดที่ตึก';
+
+  document.getElementById('fsGoal').textContent = isPreorder ? 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)' : 'สมัครคอร์สปกติ';
+
+  let fsCourseText;
+  if(isPreorder){
+    fsCourseText = state.courseMonthLabel + (state.courseName ? ' · ' + state.courseName : '');
+  } else if(isOnline){
+    fsCourseText = formatLabel + (state.courseName ? ' · ' + state.courseName : '');
+  } else {
+    fsCourseText = state.courseMonthLabel + ' (' + formatLabel + ')' + (state.courseName ? ' · ' + state.courseName : '');
+  }
+  document.getElementById('fsCourse').textContent = fsCourseText;
 
   const dormRow = document.getElementById('fsDormRow');
   if(isOnline){
@@ -1222,7 +1341,8 @@ function updateSubmitSummary(){
   }
 
   let privilege;
-  if(isOnline) privilege = 'เรียนออนไลน์ผ่าน Discord ได้ทันที ไม่ต้องรอรอบ';
+  if(isPreorder) privilege = '🔒 ล็อกสิทธิ์เตียงคอร์สทำพอร์ตตุลาคมไว้แล้ว';
+  else if(isOnline) privilege = 'เรียนออนไลน์ผ่าน Discord ได้ทันที ไม่ต้องรอรอบ';
   else if(state.stayMode==='กบดาน') privilege = 'เข้าพักได้ตลอด' + monthDurationText();
   else privilege = 'เข้าเรียนได้ตลอด' + monthDurationText() + ' (ไป-กลับ)';
   document.getElementById('fsPrivilege').textContent = privilege;
@@ -1234,7 +1354,7 @@ function updateSubmitSummary(){
   const total = totalPrice();
   document.getElementById('fsAmount').textContent = money(amt);
 
-  // คอร์สออนไลน์: ชำระเต็มจำนวนเสมอ ไม่มียอดคงเหลือ และไม่มีวันกำหนดชำระ
+  // รูปแบบออนไลน์ล้วน: ชำระเต็มจำนวนเสมอ ไม่มียอดคงเหลือ และไม่มีวันกำหนดชำระ
   document.getElementById('fsRemainingRow').classList.toggle('ss-row-hidden', isOnline);
   document.getElementById('fsDeadlineRow').classList.toggle('ss-row-hidden', isOnline);
   if(!isOnline){
@@ -1322,6 +1442,7 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
     linePictureUrl: LIFF_PICTURE_URL,
     nickname, fullname, school, grade, phone, parentPhone, address,
     department,
+    goal: state.goal === 'preorder' ? 'จองล่วงหน้า (ต.ค.)' : 'สมัครปกติ',
     courseMonth: state.courseMonthLabel,
     stayMode: state.stayMode,
     courseName: state.courseName,
