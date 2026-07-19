@@ -523,7 +523,7 @@ section.block.step-hidden{display:none;}
         </div>
         <div class="radio-dot" style="position:absolute;right:16px;bottom:14px"></div>
       </label>
-      <label class="pkg-card" data-price="8900" data-name="ติวสดเหมา 1 เดือน (กบดานได้)">
+      <label class="pkg-card" data-price="8900" data-name="ติวสดเหมา 1 เดือน">
         <input type="radio" name="course" value="onsite-unlimited">
         <div class="pkg-top">
           <div><div class="pkg-name">ติวสดเหมา 1 เดือน</div><div class="pkg-sub">เหมาะสำหรับสายลุย เข้าเรียนได้ทุกวัน</div></div>
@@ -1037,7 +1037,7 @@ async function checkReturningUser(){
     const data = await res.json();
     if(data.status === "ok" && data.found && data.profile){
       returningProfile = data.profile;
-      document.getElementById('liffTag').textContent = "ยินดีต้อนรับกลับ " + (LIFF_DISPLAY_NAME || "") + " 👋";
+      document.getElementById('liffTag').textContent = "ยินดีต้อนรับ" + (LIFF_DISPLAY_NAME || "") + " 👋";
       const badgeRow = document.getElementById('badgeRow');
       if(badgeRow && !document.getElementById('returningBadge')){
         const b = document.createElement('span');
@@ -1170,7 +1170,7 @@ function applyGoalMode(){
   if(isPreorder){
     state.format = 'onsite';
     state.coursePrice = 8900;
-    state.courseName = 'เหมา 1 เดือน';
+    state.courseName = 'จองล่วงหน้า คอร์สเหมา 1 เดือน';
     state.courseMonthLabel = 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)';
     state.stayMode = 'กบดาน';
 
