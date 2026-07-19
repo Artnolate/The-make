@@ -1132,7 +1132,7 @@ initLiff();
 /* ---------------- Application state ---------------- */
 let state = {
   goal: 'normal',                                    // 'normal' | 'preorder'
-  courseMonthLabel: 'คอร์สปกติ (เริ่มเรียนได้ทันที)', // ข้อความอธิบายรอบ/เป้าหมายที่สมัคร
+  courseMonthLabel: 'คอร์สปกติ', // ข้อความอธิบายรอบ/เป้าหมายที่สมัคร
   format: 'onsite',                                   // 'onsite' | 'online' | 'mix'
   coursePrice: 0, courseName: "",
   stayMode: "กบดาน", dormId: "", dormLabel: "", dormExtra: 0
@@ -1170,7 +1170,7 @@ function applyGoalMode(){
   if(isPreorder){
     state.format = 'onsite';
     state.coursePrice = 8900;
-    state.courseName = 'ติวสดเหมา 1 เดือน (จองล่วงหน้า ต.ค.)';
+    state.courseName = 'เหมา 1 เดือน';
     state.courseMonthLabel = 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)';
     state.stayMode = 'กบดาน';
 
@@ -1185,7 +1185,7 @@ function applyGoalMode(){
   } else {
     state.coursePrice = 0;
     state.courseName = "";
-    state.courseMonthLabel = 'คอร์สปกติ (เริ่มเรียนได้ทันที)';
+    state.courseMonthLabel = 'คอร์สปกติ';
     document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('checked'));
     // คืนค่าการมองเห็นของ Step 4/กติกาชำระเงินตามแท็บรูปแบบเรียนที่กำลังเลือกอยู่
     const activeTab = document.querySelector('.tab-btn.active');
