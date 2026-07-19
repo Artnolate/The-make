@@ -523,7 +523,7 @@ section.block.step-hidden{display:none;}
         </div>
         <div class="radio-dot" style="position:absolute;right:16px;bottom:14px"></div>
       </label>
-      <label class="pkg-card" data-price="8900" data-name="ติวสดเหมา 1 เดือน">
+      <label class="pkg-card" data-price="8900" data-name="ติวสดเหมา 1 เดือน (กบดานได้)">
         <input type="radio" name="course" value="onsite-unlimited">
         <div class="pkg-top">
           <div><div class="pkg-name">ติวสดเหมา 1 เดือน</div><div class="pkg-sub">เหมาะสำหรับสายลุย เข้าเรียนได้ทุกวัน</div></div>
@@ -611,6 +611,7 @@ section.block.step-hidden{display:none;}
     <div class="callout">สิทธิ์ในการจองเตียงจะล็อกตำแหน่งตามลำดับการสมัคร</div>
 
     <div id="dormZone" style="margin-top:16px;">
+      <div class="callout" id="dormPeriodNote" style="display:none;"></div>
       <div class="dorm-tabs" id="dormTabs"><!-- JS: ปุ่มเลือกอาคาร --></div>
       <div class="dorm-legend">
         <span><i class="legend-swatch lg-open"></i>ว่าง</span>
@@ -988,13 +989,23 @@ function renderDorms(){
 }
 renderDorms();
 
+/**
+ * โหลดรายชื่อเตียงที่ไม่ว่าง — แยกกันตาม "ช่วงวันที่" ของเป้าหมายที่กำลังเลือก:
+ *   - สมัครคอร์สปกติ  → เช็คเตียงว่างของรอบปัจจุบัน (ช่วงวันที่ CONFIG.NORMAL_PERIOD)
+ *   - จองล่วงหน้า      → เช็คเตียงว่างของรอบตุลาคม (ช่วงวันที่ CONFIG.PREORDER_PERIOD)
+ * เตียงเดียวกันอาจว่างสำหรับรอบหนึ่งแต่ไม่ว่างอีกรอบหนึ่งได้ ถ้าช่วงวันที่ไม่ทับซ้อนกัน
+ */
+let currentBedPeriodLabel = "";
 async function loadOccupiedBeds(){
   if(!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") === 0) return;
   try{
-    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=occupied");
+    const goalParam = state.goal === 'preorder' ? 'preorder' : 'normal';
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=occupied&goal=" + goalParam);
     const data = await res.json();
     if(data.status === "ok"){
       occupiedBeds = new Set(data.occupied || []);
+      currentBedPeriodLabel = data.periodLabel || "";
+      updateDormPeriodLabel();
       document.querySelectorAll('.seat').forEach(seatEl=>{
         const id = seatEl.dataset.bedId;
         const taken = occupiedBeds.has(id) && !seatEl.classList.contains('selected');
@@ -1006,7 +1017,17 @@ async function loadOccupiedBeds(){
     console.warn("โหลดสถานะเตียงไม่สำเร็จ:", err);
   }
 }
-loadOccupiedBeds();
+
+function updateDormPeriodLabel(){
+  const note = document.getElementById('dormPeriodNote');
+  if(!note) return;
+  if(currentBedPeriodLabel){
+    note.textContent = '🗓️ แสดงตำแหน่งเตียงว่างสำหรับช่วง ' + currentBedPeriodLabel;
+    note.style.display = 'block';
+  } else {
+    note.style.display = 'none';
+  }
+}
 
 /* ---------------- Step numbering: renumber only visible section blocks ---------------- */
 const STEP_ORDER = ['goal-section', 'format-section', 'package-section', 'stay', 'payment-rules'];
@@ -1037,7 +1058,7 @@ async function checkReturningUser(){
     const data = await res.json();
     if(data.status === "ok" && data.found && data.profile){
       returningProfile = data.profile;
-      document.getElementById('liffTag').textContent = "ยินดีต้อนรับ" + (LIFF_DISPLAY_NAME || "") + " 👋";
+      document.getElementById('liffTag').textContent = "ยินดีต้อนรับกลับ " + (LIFF_DISPLAY_NAME || "") + " 👋";
       const badgeRow = document.getElementById('badgeRow');
       if(badgeRow && !document.getElementById('returningBadge')){
         const b = document.createElement('span');
@@ -1132,7 +1153,7 @@ initLiff();
 /* ---------------- Application state ---------------- */
 let state = {
   goal: 'normal',                                    // 'normal' | 'preorder'
-  courseMonthLabel: 'คอร์สปกติ', // ข้อความอธิบายรอบ/เป้าหมายที่สมัคร
+  courseMonthLabel: 'คอร์สปกติ (เริ่มเรียนได้ทันที)', // ข้อความอธิบายรอบ/เป้าหมายที่สมัคร
   format: 'onsite',                                   // 'onsite' | 'online' | 'mix'
   coursePrice: 0, courseName: "",
   stayMode: "กบดาน", dormId: "", dormLabel: "", dormExtra: 0
@@ -1143,12 +1164,26 @@ document.getElementById('goalNormalCard').addEventListener('click', ()=> setGoal
 document.getElementById('goalPreorderCard').addEventListener('click', ()=> setGoal('preorder'));
 
 function setGoal(goal){
+  const goalChanged = state.goal !== goal;
   state.goal = goal;
   document.getElementById('goalNormalCard').classList.toggle('checked', goal==='normal');
   document.getElementById('goalPreorderCard').classList.toggle('checked', goal==='preorder');
   document.getElementById('goalNormalRadio').checked = goal==='normal';
   document.getElementById('goalPreorderRadio').checked = goal==='preorder';
+
+  if(goalChanged){
+    // แต่ละเป้าหมายมี "ช่วงวันที่สิทธิ์เตียง" ต่างกัน (ปกติ vs จองล่วงหน้า ต.ค.)
+    // ล้างเตียงที่เคยเลือกไว้ แล้วโหลดสถานะเตียงว่างใหม่ให้ตรงกับช่วงของเป้าหมายที่เพิ่งเลือก
+    state.dormId = ""; state.dormLabel = ""; state.dormExtra = 0;
+    document.getElementById('dormSelectedNote').classList.remove('show');
+    document.querySelectorAll('.seat.selected').forEach(s=>s.classList.remove('selected'));
+  }
+
   applyGoalMode();
+
+  if(goalChanged){
+    loadOccupiedBeds();
+  }
 }
 
 /**
@@ -1170,7 +1205,7 @@ function applyGoalMode(){
   if(isPreorder){
     state.format = 'onsite';
     state.coursePrice = 8900;
-    state.courseName = 'จองล่วงหน้า คอร์สเหมา 1 เดือน';
+    state.courseName = 'ติวสดเหมา 1 เดือน (จองล่วงหน้า ต.ค.)';
     state.courseMonthLabel = 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)';
     state.stayMode = 'กบดาน';
 
@@ -1185,7 +1220,7 @@ function applyGoalMode(){
   } else {
     state.coursePrice = 0;
     state.courseName = "";
-    state.courseMonthLabel = 'คอร์สปกติ';
+    state.courseMonthLabel = 'คอร์สปกติ (เริ่มเรียนได้ทันที)';
     document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('checked'));
     // คืนค่าการมองเห็นของ Step 4/กติกาชำระเงินตามแท็บรูปแบบเรียนที่กำลังเลือกอยู่
     const activeTab = document.querySelector('.tab-btn.active');
@@ -1759,6 +1794,7 @@ document.getElementById('pendSubmitBtn').addEventListener('click', async ()=>{
 updateDormAvailability();
 updateRules();
 updateSummary();
+loadOccupiedBeds();
 </script>
 </body>
 </html>
