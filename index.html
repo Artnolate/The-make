@@ -196,6 +196,8 @@ section.block.step-hidden{display:none;}
   background:var(--ink-2);color:var(--muted);font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap;
 }
 .dorm-tab-btn.active{background:var(--amber);color:#241706;border-color:var(--amber);}
+.dorm-tab-btn.goal-hidden{display:none;}
+.dorm-panel.goal-hidden{display:none;}
 .dorm-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;font-size:11.5px;color:var(--muted-2);}
 .dorm-legend span{display:inline-flex;align-items:center;gap:6px;}
 .legend-swatch{width:14px;height:14px;border-radius:4px;display:inline-block;}
@@ -330,6 +332,7 @@ section.block.step-hidden{display:none;}
 .pay-opt{flex:1;text-align:center;padding:11px 8px;border-radius:12px;border:1px solid var(--line);background:var(--ink-2);cursor:pointer;font-size:13.5px;font-weight:600;color:var(--muted);}
 .pay-opt input{position:absolute;opacity:0;}
 .pay-opt.checked{border-color:var(--amber);background:rgba(245,166,35,.1);color:var(--amber-2);}
+.pay-note-sub{display:block;font-size:10px;font-weight:400;opacity:.75;margin-top:2px;}
 .pay-amt-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
 .pay-amt-row input{flex:1;}
 .bank-box{
@@ -389,6 +392,19 @@ section.block.step-hidden{display:none;}
   background:var(--ink-2);border:1px dashed var(--line);border-radius:12px;
   padding:14px;margin:16px 0;letter-spacing:.06em;
 }
+
+/* ---------- Pending-installment overlay ---------- */
+#pendingOverlay{
+  position:fixed;inset:0;background:rgba(4,8,14,.78);backdrop-filter:blur(3px);
+  display:none;z-index:60;align-items:flex-end;justify-content:center;
+}
+#pendingOverlay.open{display:flex;}
+#pendingSheet{
+  width:100%;max-width:560px;max-height:94vh;overflow-y:auto;
+  background:var(--ink);border-radius:22px 22px 0 0;border:1px solid var(--line);border-bottom:none;
+  padding:18px 20px 30px;animation:slideUp .28s ease;
+}
+.pending-intro{color:var(--muted);font-size:13.5px;line-height:1.6;margin:2px 0 14px;}
 
 /* ---------- footer ---------- */
 .foot{padding:28px 0 40px;text-align:center;color:var(--muted-2);font-size:11.5px;}
@@ -612,11 +628,10 @@ section.block.step-hidden{display:none;}
       <span class="sec-num" data-label="สรุปและชำระเงิน"></span>
       <h2>สรุปและชำระเงิน</h2>
     </div>
-    <ul class="rule-list">
-      <li id="ruleDeposit"><span class="rule-num">1</span><span><b>มัดจำขั้นต่ำ 1,000 บาท</b> เพื่อล็อกที่นั่งหรือที่นอนไว้ก่อน</span></li>
-      <li id="ruleDeadline"><span class="rule-num">2</span><span>ชำระส่วนที่เหลือทั้งหมด <b>ภายในวันที่ 20 กันยายน 2569</b></span></li>
-      <li id="ruleFull" class="rule-hidden"><span class="rule-num">1</span><span><b>ชำระเต็มจำนวน</b> เมื่อสมัครคอร์สออนไลน์ (ไม่มีมัดจำ)</span></li>
-      <li><span class="rule-num" id="ruleBankNum">3</span><span>โอนผ่านบัญชี <b>ธนาคารไทยพาณิชย์</b> — ระบบจะแสดงเลขบัญชีให้อีกครั้งในหน้าลงทะเบียน เตรียมแอปธนาคารให้พร้อม</span></li>
+    <ul class="rule-list" id="ruleList">
+      <li id="rulePrimary"><span class="rule-num">1</span><span id="rulePrimaryText"></span></li>
+      <li id="ruleSecondary" class="rule-hidden"><span class="rule-num">2</span><span id="ruleSecondaryText"></span></li>
+      <li><span class="rule-num" id="ruleBankNum">2</span><span>โอนผ่านบัญชี <b>ธนาคารไทยพาณิชย์</b> — ระบบจะแสดงเลขบัญชีให้อีกครั้งในหน้าลงทะเบียน เตรียมแอปธนาคารให้พร้อม</span></li>
     </ul>
 
     <div class="summary" id="summaryBox">
@@ -713,20 +728,21 @@ section.block.step-hidden{display:none;}
       <div class="field">
         <label>รูปแบบการชำระเงิน</label>
         <div class="pay-toggle" id="payToggleWrap">
-          <label class="pay-opt checked" id="payDepositWrap">
-            <input type="radio" name="paytype" value="มัดจำ" id="payDeposit" checked>
-            มัดจำ (ขั้นต่ำ 1,000)
+          <label class="pay-opt checked" id="payFullWrap">
+            <input type="radio" name="paytype" value="ชำระเต็ม" id="payFull" checked>
+            ชำระเต็มจำนวน<span class="pay-note-sub">ไม่มีค่าธรรมเนียม · คุ้มที่สุด</span>
           </label>
-          <label class="pay-opt" id="payFullWrap">
-            <input type="radio" name="paytype" value="ชำระเต็ม" id="payFull">
-            ชำระเต็มจำนวน
+          <label class="pay-opt" id="paySecondaryWrap">
+            <input type="radio" name="paytype" value="" id="paySecondary">
+            <span id="paySecondaryLabel">แบ่งชำระ 2 งวด (+2%)</span>
           </label>
         </div>
-        <div class="callout" id="onlineFullPayNote" style="display:none;margin-top:8px;">💻 คอร์สออนไลน์ต้องชำระเต็มจำนวนเท่านั้น (ไม่สามารถมัดจำได้)</div>
+        <div class="callout" id="onlineFullPayNote" style="display:none;margin-top:8px;">💻 คอร์สออนไลน์ต้องชำระเต็มจำนวนเท่านั้น (ไม่สามารถมัดจำหรือแบ่งชำระได้)</div>
         <div class="pay-amt-row" id="payAmtRow">
           <input type="text" id="payAmount" value="1000" inputmode="numeric">
           <span style="font-size:12.5px;color:var(--muted-2)">บาท</span>
         </div>
+        <div class="callout" id="installmentNote" style="display:none;"></div>
         <div class="err" id="payErr">กรุณากรอกยอดมัดจำอย่างน้อย 1,000 บาท</div>
         <div class="bank-box">
           โอนเข้าบัญชี <b>ธ.ไทยพาณิชย์ 171-4-49798-5</b><br>
@@ -750,7 +766,7 @@ section.block.step-hidden{display:none;}
         <div class="ss-row" id="fsDormRow"><span>ที่นอนที่จอง</span><b id="fsDorm">—</b></div>
         <div class="ss-row"><span>สิทธิ์การจอง</span><b id="fsPrivilege">—</b></div>
         <div class="ss-divider"></div>
-        <div class="ss-row ss-highlight"><span id="fsPayNowLabel">ชำระวันนี้ (มัดจำ)</span><b id="fsAmount">0 ฿</b></div>
+        <div class="ss-row ss-highlight"><span id="fsPayNowLabel">ชำระวันนี้</span><b id="fsAmount">0 ฿</b></div>
         <div class="ss-row" id="fsRemainingRow"><span>ยอดคงเหลือที่ต้องชำระ</span><b id="fsRemaining" class="ss-remaining">0 ฿</b></div>
         <div class="ss-row" id="fsDeadlineRow"><span>ชำระยอดที่เหลือภายใน</span><b id="fsDeadline">20 กันยายน 2569</b></div>
       </div>
@@ -771,6 +787,42 @@ section.block.step-hidden{display:none;}
   </div>
 </div>
 
+<!-- ============ PENDING INSTALLMENT-2 OVERLAY ============ -->
+<div id="pendingOverlay">
+  <div id="pendingSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h3>⚠️ มียอดค้างชำระงวดที่ 2</h3>
+      <button class="close-x" id="closePendingBtn" aria-label="ปิด">✕</button>
+    </div>
+    <p class="pending-intro">พบว่ามียอดค้างชำระงวดที่ 2 จากการสมัครคอร์สก่อนหน้า กรุณาชำระและแนบสลิปให้เรียบร้อยก่อนสมัครคอร์สใหม่</p>
+
+    <div class="submit-summary">
+      <div class="ss-title">รายละเอียดยอดค้างชำระ</div>
+      <div class="ss-row"><span>คอร์สที่สมัครไว้</span><b id="pendCourse">—</b></div>
+      <div class="ss-row ss-highlight"><span>ยอดที่ต้องชำระ</span><b id="pendAmount">0 ฿</b></div>
+      <div class="ss-row"><span>ครบกำหนด</span><b id="pendDue">—</b></div>
+    </div>
+
+    <div class="bank-box">
+      โอนเข้าบัญชี <b>ธ.ไทยพาณิชย์ 171-4-49798-5</b><br>
+      ชื่อบัญชี "บริษัท อาร์ทโนเลท จำกัด"
+    </div>
+
+    <div class="field">
+      <label>แนบสลิปการชำระเงินงวดที่ 2</label>
+      <div class="upload-box" id="pendUploadBox">
+        <input type="file" accept="image/*" id="pendSlipInput">
+        <span id="pendUploadText">แตะเพื่อเลือกรูปสลิป (JPG/PNG)</span>
+      </div>
+      <div class="err" id="pendSlipErr">กรุณาแนบรูปสลิป</div>
+    </div>
+
+    <button class="btn-main" id="pendSubmitBtn">ส่งสลิปชำระงวดที่ 2</button>
+    <div id="pendMsg" style="font-size:12.5px;text-align:center;margin-top:10px;min-height:16px;color:var(--coral);"></div>
+  </div>
+</div>
+
 <script>
 /* =====================================================================
    CONFIG — แก้ค่าตรงนี้ก่อน deploy จริง
@@ -781,6 +833,11 @@ const CONFIG = {
   BANK_ACCOUNT_TEXT: "ธ.ไทยพาณิชย์ 171-4-49798-5 (บริษัท อาร์ทโนเลท จำกัด)"
 };
 const PAYMENT_DEADLINE_TEXT = "20 กันยายน 2569"; // ต้องตรงกับ CONFIG.PAYMENT_DEADLINE ใน code.gs
+const THAI_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+function formatThaiDate(d){
+  return d.getDate() + " " + THAI_MONTHS[d.getMonth()] + " " + (d.getFullYear() + 543);
+}
+function money(n){ return n.toLocaleString('th-TH') + " ฿"; }
 
 /* ---------------- Seat-map bed picker: data + renderer ---------------- */
 // รหัสเตียงแต่ละอันประกอบจาก roomId + ตำแหน่ง เช่น "87F4-3B" (ตึก87 ชั้น4 เตียง3 บน)
@@ -971,6 +1028,7 @@ updateStepNumbers();
 /* ---------------- Returning-user ("เด็กเก่า") lookup by LINE userId ---------------- */
 let returningProfile = null; // เก็บข้อมูลที่เคยกรอกไว้ล่าสุด (ถ้ามี) เพื่อ autofill ฟอร์ม
 let profileApplied = false;  // กันไม่ให้ autofill ทับข้อมูลที่ผู้ใช้แก้ไขเองแล้ว
+let pendingInstallmentInfo = null; // ยอดค้างชำระงวดที่ 2 ของการสมัครครั้งก่อน (ถ้ามี)
 
 async function checkReturningUser(){
   if(!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") === 0 || !LIFF_USER_ID) return;
@@ -991,6 +1049,20 @@ async function checkReturningUser(){
     }
   }catch(err){
     console.warn("เช็คสถานะเด็กเก่าไม่สำเร็จ:", err);
+  }
+}
+
+/** เช็คว่ามียอดค้างชำระงวดที่ 2 จากการสมัครครั้งก่อนหรือไม่ */
+async function checkPendingPayment(){
+  if(!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") === 0 || !LIFF_USER_ID) return;
+  try{
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=checkPending&lineUserId=" + encodeURIComponent(LIFF_USER_ID));
+    const data = await res.json();
+    if(data.status === "ok" && data.pending){
+      pendingInstallmentInfo = data;
+    }
+  }catch(err){
+    console.warn("เช็คยอดค้างชำระไม่สำเร็จ:", err);
   }
 }
 
@@ -1049,6 +1121,7 @@ async function initLiff(){
     LIFF_PICTURE_URL = profile.pictureUrl || "";
     document.getElementById('liffTag').textContent = "สวัสดี " + profile.displayName + " 👋";
     checkReturningUser(); // เช็ก "เด็กเก่า/เด็กใหม่" ทันทีตอนโหลดหน้าเว็บ ใช้ LINE UserID เป็นตัวเชื่อมหลัก
+    checkPendingPayment(); // เช็กยอดค้างชำระงวดที่ 2 จากการสมัครครั้งก่อน
   }catch(err){
     console.warn("liff.getProfile failed:", err);
     showGate("ไม่สามารถดึงข้อมูลบัญชี LINE ได้ กรุณาลองเปิดหน้านี้ใหม่อีกครั้งผ่านแอป LINE");
@@ -1108,10 +1181,6 @@ function applyGoalMode(){
     document.getElementById('stayHold').checked = true;
     document.getElementById('stayGo').checked = false;
 
-    document.getElementById('ruleDeposit').classList.remove('rule-hidden');
-    document.getElementById('ruleDeadline').classList.remove('rule-hidden');
-    document.getElementById('ruleFull').classList.add('rule-hidden');
-    document.getElementById('ruleBankNum').textContent = '3';
     document.getElementById('sumDormRow').classList.remove('summary-row-hidden');
   } else {
     state.coursePrice = 0;
@@ -1122,8 +1191,67 @@ function applyGoalMode(){
     const activeTab = document.querySelector('.tab-btn.active');
     setFormatMode(activeTab ? activeTab.dataset.tab : 'onsite');
   }
+  updateDormAvailability();
+  updateRules();
   updateStepNumbers();
   updateSummary();
+}
+
+/**
+ * เป้าหมาย "สมัครคอร์สปกติ" อนุญาตให้จองที่นอนเฉพาะ ตึก 87 และ ตึก 88 เท่านั้น
+ * (ซ่อนแท็บ "หอพักโคซี่" และ "สบายเพลส" ไปเลย) ส่วนเป้าหมาย "จองล่วงหน้า"
+ * ยังเลือกได้ทุกอาคารตามปกติ (สบายเพลสยังปิดอยู่เหมือนเดิมเพราะยังไม่เปิดจอง)
+ */
+function updateDormAvailability(){
+  const restrictToMain = state.goal === 'normal';
+  document.querySelectorAll('.dorm-tab-btn').forEach(btn=>{
+    const hide = restrictToMain && (btn.dataset.building==='cozy' || btn.dataset.building==='sabai');
+    btn.classList.toggle('goal-hidden', hide);
+  });
+  document.querySelectorAll('.dorm-panel').forEach(panel=>{
+    const hide = restrictToMain && (panel.dataset.building==='cozy' || panel.dataset.building==='sabai');
+    panel.classList.toggle('goal-hidden', hide);
+  });
+  const activeTab = document.querySelector('.dorm-tab-btn.active');
+  if(activeTab && activeTab.classList.contains('goal-hidden')){
+    const firstVisible = document.querySelector('.dorm-tab-btn:not(.goal-hidden)');
+    if(firstVisible) firstVisible.click();
+  }
+  if(state.dormId && restrictToMain && state.dormId.indexOf('COZY') === 0){
+    state.dormId=""; state.dormLabel=""; state.dormExtra=0;
+    document.getElementById('dormSelectedNote').classList.remove('show');
+  }
+}
+
+/**
+ * ปรับข้อความกติกาการชำระเงิน (Step 5) ตามเป้าหมาย/รูปแบบเรียนที่เลือก:
+ *   - จองล่วงหน้า: มัดจำ 1,000 + กำหนดชำระส่วนที่เหลือ 20 ก.ย. 69
+ *   - คอร์สปกติ (ออนไลน์): ต้องชำระเต็มจำนวนเท่านั้น
+ *   - คอร์สปกติ (ติวสด/Mix): เลือกชำระเต็มจำนวน หรือแบ่งชำระ 2 งวด
+ */
+function updateRules(){
+  const isPreorder = state.goal === 'preorder';
+  const isOnline = !isPreorder && state.format === 'online';
+  const primaryEl = document.getElementById('rulePrimaryText');
+  const secondaryLi = document.getElementById('ruleSecondary');
+  const secondaryText = document.getElementById('ruleSecondaryText');
+  let bankNum = 2;
+
+  if(isPreorder){
+    primaryEl.innerHTML = '<b>มัดจำขั้นต่ำ 1,000 บาท</b> เพื่อล็อกที่นั่งหรือที่นอนไว้ก่อน';
+    secondaryLi.classList.remove('rule-hidden');
+    secondaryText.innerHTML = 'ชำระส่วนที่เหลือทั้งหมด <b>ภายในวันที่ 20 กันยายน 2569</b>';
+    bankNum = 3;
+  } else if(isOnline){
+    primaryEl.innerHTML = 'คอร์สออนไลน์ <b>ต้องชำระเต็มจำนวนเท่านั้น</b> (ไม่มีมัดจำ/ไม่มีแบ่งชำระ)';
+    secondaryLi.classList.add('rule-hidden');
+    bankNum = 2;
+  } else {
+    primaryEl.innerHTML = 'เลือก <b>ชำระเต็มจำนวน</b> หรือ <b>แบ่งชำระ 2 งวด</b> (งวดแรก 60% วันนี้ + งวดที่ 2 40% ภายใน 15 วัน บวกค่าธรรมเนียม 2%)';
+    secondaryLi.classList.add('rule-hidden');
+    bankNum = 2;
+  }
+  document.getElementById('ruleBankNum').textContent = String(bankNum);
 }
 
 /* ---------------- Step 2: เลือกรูปแบบเรียน (ติวสด/ออนไลน์/Mix) ---------------- */
@@ -1154,7 +1282,7 @@ document.querySelectorAll('.pkg-card').forEach(card=>{
 /**
  * เมื่อสลับแท็บรูปแบบเรียน (ติวสด / ออนไลน์ / Mix):
  *   - ออนไลน์ล้วน: ซ่อนขั้นตอน "รูปแบบการเข้าเรียน/ที่พัก" ทั้งหมด (ไม่ต้อง
- *     เลือกที่พัก) และบังคับชำระเต็มจำนวนเท่านั้น (ไม่มีมัดจำ)
+ *     เลือกที่พัก) และบังคับชำระเต็มจำนวนเท่านั้น (ไม่มีมัดจำ/แบ่งชำระ)
  *   - ติวสด / Mix: แสดงขั้นตอนรูปแบบการเข้าเรียนตามปกติ (กบดาน/ไป-กลับ)
  * ล้างแพ็กเกจที่เคยเลือกไว้ทุกครั้งที่สลับแท็บ กันราคา/ชื่อคอร์สเพี้ยนข้ามรูปแบบ
  */
@@ -1169,13 +1297,6 @@ function setFormatMode(format){
   document.getElementById('mixStartNote').style.display = format==='mix' ? 'block' : 'none';
 
   document.getElementById('stay').classList.toggle('step-hidden', isPureOnline);
-
-  // ปรับกติกาการชำระเงินให้ตรงกับรูปแบบที่เลือก
-  document.getElementById('ruleDeposit').classList.toggle('rule-hidden', isPureOnline);
-  document.getElementById('ruleDeadline').classList.toggle('rule-hidden', isPureOnline);
-  document.getElementById('ruleFull').classList.toggle('rule-hidden', !isPureOnline);
-  document.getElementById('ruleBankNum').textContent = isPureOnline ? '2' : '3';
-
   document.getElementById('sumDormRow').classList.toggle('summary-row-hidden', isPureOnline);
 
   if(isPureOnline){
@@ -1185,6 +1306,7 @@ function setFormatMode(format){
   } else {
     state.stayMode = document.getElementById('stayHold').checked ? 'กบดาน' : 'ไป-กลับ';
   }
+  updateRules();
   updateStepNumbers();
   updateSummary();
 }
@@ -1211,24 +1333,26 @@ function setStay(mode){
   updateSummary();
 }
 
-function money(n){ return n.toLocaleString('th-TH') + " ฿"; }
-
 function monthDurationText(){
   return state.goal === 'preorder' ? 'เดือนตุลาคม' : 'รอบคอร์สที่สมัคร';
 }
 
+function totalPrice(){ return state.coursePrice + (state.stayMode==='กบดาน' ? state.dormExtra : 0); }
+
+/** คำนวณยอดแบ่งชำระ 2 งวด: รวม 2% ก่อน แล้วแบ่ง 60/40 */
+function computeInstallment(){
+  const total = totalPrice();
+  const totalWithFee = Math.round(total * 1.02);
+  const first = Math.round(totalWithFee * 0.6);
+  const second = totalWithFee - first;
+  return { total, totalWithFee, first, second };
+}
+
 /* ---------------- Step 5: สรุป (หน้าเพจหลัก) ---------------- */
 function updateSummary(){
-  const total = state.coursePrice + (state.stayMode==='กบดาน' ? state.dormExtra : 0);
+  const total = totalPrice();
   document.getElementById('sumGoal').textContent = state.goal === 'preorder' ? 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)' : 'สมัครคอร์สปกติ';
-
-  let courseLabel;
-  if(state.goal === 'preorder'){
-    courseLabel = state.courseMonthLabel + (state.courseName ? ' · ' + state.courseName : '');
-  } else {
-    courseLabel = state.courseName ? (state.courseMonthLabel + ' · ' + state.courseName) : (state.courseMonthLabel || '—');
-  }
-  document.getElementById('sumCourse').textContent = courseLabel;
+  document.getElementById('sumCourse').textContent = state.courseName || '—';
   document.getElementById('sumStay').textContent = state.stayMode==='ออนไลน์' ? 'เรียนออนไลน์ (ไม่มีที่พัก)' : state.stayMode;
   document.getElementById('sumDorm').textContent = state.stayMode==='กบดาน' ? (state.dormLabel || "ยังไม่เลือกเตียง") : (state.stayMode==='ออนไลน์' ? "ไม่มีที่พัก (เรียนออนไลน์)" : "ไม่พักค้าง");
   document.getElementById('sumTotal').textContent = money(total);
@@ -1246,6 +1370,12 @@ function checkReady(){
 agreeBox.addEventListener('change', checkReady);
 
 openRegBtn.addEventListener('click', async ()=>{
+  // ถ้ามียอดค้างชำระงวดที่ 2 จากการสมัครครั้งก่อน ต้องจัดการให้เรียบร้อยก่อน
+  if(pendingInstallmentInfo){
+    openPendingOverlay();
+    return;
+  }
+
   if(state.stayMode === 'กบดาน'){
     await loadOccupiedBeds(); // เช็คสถานะเตียงล่าสุดอีกครั้งก่อนเปิดฟอร์ม กันเตียงถูกจองไปแล้วระหว่างที่ดูหน้าเว็บ
     if(state.dormId && occupiedBeds.has(state.dormId)){
@@ -1257,13 +1387,14 @@ openRegBtn.addEventListener('click', async ()=>{
     }
   }
 
-  // บังคับชำระเต็มจำนวนสำหรับรูปแบบออนไลน์ล้วน (ข้ามตัวเลือกมัดจำ)
+  updatePayOptions(); // ตั้งค่าตัวเลือกชำระเงินตามเป้าหมาย + reset default เป็น "ชำระเต็มจำนวน"
+
   const payToggleWrap = document.getElementById('payToggleWrap');
   const onlineFullPayNote = document.getElementById('onlineFullPayNote');
   if(state.stayMode === 'ออนไลน์'){
     payToggleWrap.style.display = 'none';
     onlineFullPayNote.style.display = 'block';
-    setPayType('ชำระเต็ม');
+    setPayType(true);
   } else {
     payToggleWrap.style.display = 'flex';
     onlineFullPayNote.style.display = 'none';
@@ -1278,59 +1409,92 @@ document.getElementById('doneBtn').addEventListener('click', ()=>{ closeReg(); l
 function closeReg(){ document.getElementById('regOverlay').classList.remove('open'); }
 
 /* ---------------- Payment type in form ---------------- */
-const payDepositWrap = document.getElementById('payDepositWrap');
-const payFullWrap = document.getElementById('payFullWrap');
-const payAmount = document.getElementById('payAmount');
-payDepositWrap.addEventListener('click', ()=>{ if(state.stayMode !== 'ออนไลน์') setPayType('มัดจำ'); });
-payFullWrap.addEventListener('click', ()=>setPayType('ชำระเต็ม'));
-function setPayType(type){
-  document.getElementById('payDeposit').checked = type==='มัดจำ';
-  document.getElementById('payFull').checked = type==='ชำระเต็ม';
-  payDepositWrap.classList.toggle('checked', type==='มัดจำ');
-  payFullWrap.classList.toggle('checked', type==='ชำระเต็ม');
+/**
+ * ตัวเลือกที่ 2 ในหน้าฟอร์มเปลี่ยนความหมายตามเป้าหมาย:
+ *   - สมัครคอร์สปกติ  -> "แบ่งชำระ 2 งวด (+2%)"
+ *   - จองล่วงหน้า      -> "มัดจำ 1,000 บาท"
+ * ตัวเลือกแรก "ชำระเต็มจำนวน" เป็นค่า default เสมอทุกครั้งที่เปิดฟอร์ม
+ */
+function updatePayOptions(){
+  const isPreorder = state.goal === 'preorder';
+  const secInput = document.getElementById('paySecondary');
+  const secLabel = document.getElementById('paySecondaryLabel');
+  if(isPreorder){
+    secInput.value = 'มัดจำ';
+    secLabel.textContent = 'มัดจำ 1,000 บาท';
+  } else {
+    secInput.value = 'แบ่งชำระ2งวด';
+    secLabel.textContent = 'แบ่งชำระ 2 งวด (+2%)';
+  }
+  setPayType(true);
+}
+
+document.getElementById('payFullWrap').addEventListener('click', ()=>setPayType(true));
+document.getElementById('paySecondaryWrap').addEventListener('click', ()=>{
+  if(state.stayMode === 'ออนไลน์') return; // ออนไลน์บังคับชำระเต็มจำนวนเท่านั้น
+  setPayType(false);
+});
+
+function setPayType(isFull){
+  document.getElementById('payFull').checked = isFull;
+  document.getElementById('paySecondary').checked = !isFull;
+  document.getElementById('payFullWrap').classList.toggle('checked', isFull);
+  document.getElementById('paySecondaryWrap').classList.toggle('checked', !isFull);
   syncPayAmount();
 }
-function totalPrice(){ return state.coursePrice + (state.stayMode==='กบดาน' ? state.dormExtra : 0); }
+
+const payAmount = document.getElementById('payAmount');
+
+function currentPayType(){
+  const isFull = document.getElementById('payFull').checked;
+  return isFull ? 'ชำระเต็ม' : document.getElementById('paySecondary').value;
+}
+
 function syncPayAmount(){
-  const type = document.getElementById('payFull').checked ? 'ชำระเต็ม' : 'มัดจำ';
+  const type = currentPayType();
   const total = totalPrice();
-  if(type==='ชำระเต็ม'){
+  const payAmtRow = document.getElementById('payAmtRow');
+  const installmentNote = document.getElementById('installmentNote');
+
+  if(type === 'ชำระเต็ม'){
     payAmount.value = total;
     payAmount.disabled = true;
-  }else{
+    payAmtRow.style.display = 'flex';
+    installmentNote.style.display = 'none';
+  } else if(type === 'มัดจำ'){
     payAmount.disabled = false;
+    payAmtRow.style.display = 'flex';
+    installmentNote.style.display = 'none';
     if(!payAmount.value || parseInt(payAmount.value,10) < 1000) payAmount.value = 1000;
+  } else if(type === 'แบ่งชำระ2งวด'){
+    const c = computeInstallment();
+    payAmount.value = c.first;
+    payAmount.disabled = true;
+    payAmtRow.style.display = 'none';
+    installmentNote.style.display = 'block';
+    installmentNote.innerHTML =
+      'ยอดรวมหลังคิดค่าธรรมเนียม 2%: <b>' + money(c.totalWithFee) + '</b><br>' +
+      'งวดที่ 1 (ชำระวันนี้ 60%): <b>' + money(c.first) + '</b><br>' +
+      'งวดที่ 2 (ค้างชำระ 40% ภายใน 15 วัน): <b>' + money(c.second) + '</b>';
   }
   updateSubmitSummary();
 }
 payAmount.addEventListener('input', updateSubmitSummary);
 
 /**
- * อัปเดต "กล่องสรุปข้อมูลลงทะเบียน" ในฟอร์ม ให้มีเป้าหมาย/คอร์ส/ที่นอน/
- * สิทธิ์การจอง/ชำระวันนี้/ยอดคงเหลือที่ต้องชำระ/กำหนดชำระ ตามภาพตัวอย่าง
- * สำหรับรูปแบบออนไลน์ล้วนจะไม่มีมัดจำและไม่มีวันกำหนดชำระ (ชำระเต็มจำนวน
- * ในครั้งเดียว) ส่วนโหมดจองล่วงหน้าจะเน้นข้อความ "ล็อกสิทธิ์เตียง"
+ * อัปเดต "กล่องสรุปข้อมูลลงทะเบียน" ในฟอร์ม: เป้าหมาย/คอร์ส/รูปแบบเข้าเรียน/
+ * ที่นอน/สิทธิ์การจอง/ชำระวันนี้/ยอดคงเหลือที่ต้องชำระ/ชำระยอดที่เหลือภายใน
+ * เงื่อนไขวันครบกำหนด:
+ *   - จองล่วงหน้า        -> 20 กันยายน 2569
+ *   - แบ่งชำระคอร์สปกติ  -> วันนี้ + 15 วัน
+ *   - ชำระเต็มจำนวน      -> ซ่อนแถวยอดคงเหลือ/กำหนดชำระ
  */
 function updateSubmitSummary(){
   const isPreorder = state.goal === 'preorder';
   const isOnline = state.stayMode === 'ออนไลน์';
 
-  let formatLabel;
-  if(isOnline) formatLabel = 'ออนไลน์ (Discord)';
-  else if(state.format === 'mix') formatLabel = 'Mix (ติวสด+ออนไลน์)';
-  else formatLabel = 'ติวสดที่ตึก';
-
   document.getElementById('fsGoal').textContent = isPreorder ? 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)' : 'สมัครคอร์สปกติ';
-
-  let fsCourseText;
-  if(isPreorder){
-    fsCourseText = state.courseMonthLabel + (state.courseName ? ' · ' + state.courseName : '');
-  } else if(isOnline){
-    fsCourseText = formatLabel + (state.courseName ? ' · ' + state.courseName : '');
-  } else {
-    fsCourseText = state.courseMonthLabel + ' (' + formatLabel + ')' + (state.courseName ? ' · ' + state.courseName : '');
-  }
-  document.getElementById('fsCourse').textContent = fsCourseText;
+  document.getElementById('fsCourse').textContent = state.courseName || '—';
 
   const dormRow = document.getElementById('fsDormRow');
   if(isOnline){
@@ -1347,32 +1511,42 @@ function updateSubmitSummary(){
   else privilege = 'เข้าเรียนได้ตลอด' + monthDurationText() + ' (ไป-กลับ)';
   document.getElementById('fsPrivilege').textContent = privilege;
 
-  const payType = document.getElementById('payFull').checked ? 'ชำระเต็ม' : 'มัดจำ';
-  document.getElementById('fsPayNowLabel').textContent = payType==='ชำระเต็ม' ? 'ชำระวันนี้ (เต็มจำนวน)' : 'ชำระวันนี้ (มัดจำ)';
-
-  const amt = parseInt(payAmount.value,10) || 0;
+  const payType = currentPayType();
   const total = totalPrice();
-  document.getElementById('fsAmount').textContent = money(amt);
+  let amtNow = 0, remaining = 0, deadlineText = '';
 
-  // รูปแบบออนไลน์ล้วน: ชำระเต็มจำนวนเสมอ ไม่มียอดคงเหลือ และไม่มีวันกำหนดชำระ
-  document.getElementById('fsRemainingRow').classList.toggle('ss-row-hidden', isOnline);
-  document.getElementById('fsDeadlineRow').classList.toggle('ss-row-hidden', isOnline);
-  if(!isOnline){
-    document.getElementById('fsRemaining').textContent = money(Math.max(total - amt, 0));
-    document.getElementById('fsDeadline').textContent = PAYMENT_DEADLINE_TEXT;
+  if(payType === 'ชำระเต็ม'){
+    amtNow = total;
+    remaining = 0;
+  } else if(payType === 'มัดจำ'){
+    amtNow = parseInt(payAmount.value,10) || 0;
+    remaining = Math.max(total - amtNow, 0);
+    deadlineText = PAYMENT_DEADLINE_TEXT;
+  } else if(payType === 'แบ่งชำระ2งวด'){
+    const c = computeInstallment();
+    amtNow = c.first;
+    remaining = c.second;
+    const d = new Date(); d.setDate(d.getDate() + 15);
+    deadlineText = formatThaiDate(d);
+  }
+
+  document.getElementById('fsAmount').textContent = money(amtNow);
+
+  const hideRemaining = remaining <= 0;
+  document.getElementById('fsRemainingRow').classList.toggle('ss-row-hidden', hideRemaining);
+  document.getElementById('fsDeadlineRow').classList.toggle('ss-row-hidden', hideRemaining);
+  if(!hideRemaining){
+    document.getElementById('fsRemaining').textContent = money(remaining);
+    document.getElementById('fsDeadline').textContent = deadlineText;
   }
 }
 
-/* ---------------- Slip upload (resize + base64) ---------------- */
-let slipBase64 = "";
-let slipMime = "";
-function handleSlipFile(file){
-  if(!file) return;
+/* ---------------- Image resize + base64 helper (ใช้ร่วมกันทั้งสลิปมัดจำและสลิปงวด 2) ---------------- */
+function resizeImageToBase64(file, onDone){
   const reader = new FileReader();
   reader.onload = (ev)=>{
     const img = new Image();
     img.onload = ()=>{
-      // resize to max 1280px edge to keep payload light
       const maxEdge = 1280;
       let { width, height } = img;
       if(width > maxEdge || height > maxEdge){
@@ -1383,17 +1557,27 @@ function handleSlipFile(file){
       canvas.width = width; canvas.height = height;
       canvas.getContext('2d').drawImage(img,0,0,width,height);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-      slipBase64 = dataUrl.split(',')[1];
-      slipMime = 'image/jpeg';
-      const box = document.getElementById('uploadBox');
-      box.classList.add('filled');
-      box.innerHTML = '<img src="'+dataUrl+'" alt="สลิปที่แนบ"><input type="file" accept="image/*" id="slipInput">';
-      document.getElementById('slipInput').addEventListener('change', (e)=>handleSlipFile(e.target.files[0]));
-      document.getElementById('slipErr').style.display='none';
+      onDone(dataUrl, dataUrl.split(',')[1], 'image/jpeg');
     };
     img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
+}
+
+/* ---------------- Slip upload (มัดจำ/ชำระเต็ม/แบ่งชำระ) ---------------- */
+let slipBase64 = "";
+let slipMime = "";
+function handleSlipFile(file){
+  if(!file) return;
+  resizeImageToBase64(file, (dataUrl, base64, mime)=>{
+    slipBase64 = base64;
+    slipMime = mime;
+    const box = document.getElementById('uploadBox');
+    box.classList.add('filled');
+    box.innerHTML = '<img src="'+dataUrl+'" alt="สลิปที่แนบ"><input type="file" accept="image/*" id="slipInput">';
+    document.getElementById('slipInput').addEventListener('change', (e)=>handleSlipFile(e.target.files[0]));
+    document.getElementById('slipErr').style.display='none';
+  });
 }
 document.getElementById('slipInput').addEventListener('change', (e)=>handleSlipFile(e.target.files[0]));
 
@@ -1408,10 +1592,27 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
   const phone = document.getElementById('phone').value.trim();
   const parentPhone = document.getElementById('parentPhone').value.trim();
   const address = document.getElementById('address').value.trim();
-  const payType = document.getElementById('payFull').checked ? 'ชำระเต็ม' : 'มัดจำ';
-  const amount = parseInt(payAmount.value,10) || 0;
+  const payType = currentPayType(); // 'ชำระเต็ม' | 'มัดจำ' | 'แบ่งชำระ2งวด'
   const total = totalPrice();
   const department = deptSelect === 'อื่นๆ' ? (deptOther ? ('อื่นๆ: ' + deptOther) : '') : deptSelect;
+
+  let amount = 0;
+  let fullPriceToSend = total;
+  let installment2Amount = 0;
+  let installment2DueText = "";
+
+  if(payType === 'ชำระเต็ม'){
+    amount = total;
+  } else if(payType === 'มัดจำ'){
+    amount = parseInt(payAmount.value,10) || 0;
+  } else if(payType === 'แบ่งชำระ2งวด'){
+    const c = computeInstallment();
+    amount = c.first;
+    fullPriceToSend = c.totalWithFee;
+    installment2Amount = c.second;
+    const d = new Date(); d.setDate(d.getDate() + 15);
+    installment2DueText = formatThaiDate(d);
+  }
 
   let ok = true;
   if(!LIFF_USER_ID){
@@ -1448,9 +1649,10 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
     courseName: state.courseName,
     dormName: state.stayMode==='กบดาน' ? state.dormLabel : "-",
     bedId: state.stayMode==='กบดาน' ? state.dormId : "",
-    fullPrice: total,
+    fullPrice: fullPriceToSend,
     payType,
     amountNow: amount,
+    installment2Amount, installment2DueText,
     slipBase64, slipMime
   };
 
@@ -1486,6 +1688,77 @@ function setMsg(text, isError=true){
   el.textContent = text;
   el.style.color = isError ? 'var(--coral)' : 'var(--muted)';
 }
+
+/* ---------------- Pending installment-2 overlay ---------------- */
+function openPendingOverlay(){
+  const info = pendingInstallmentInfo;
+  document.getElementById('pendCourse').textContent = (info.courseMonth||'') + (info.courseName ? ' · ' + info.courseName : '');
+  document.getElementById('pendAmount').textContent = money(Number(info.amount)||0);
+  document.getElementById('pendDue').textContent = info.dueText || '-';
+  document.getElementById('pendMsg').textContent = '';
+  document.getElementById('pendingOverlay').classList.add('open');
+}
+document.getElementById('closePendingBtn').addEventListener('click', ()=>{
+  document.getElementById('pendingOverlay').classList.remove('open');
+});
+
+let pendSlipBase64 = "", pendSlipMime = "";
+function handlePendSlipFile(file){
+  if(!file) return;
+  resizeImageToBase64(file, (dataUrl, base64, mime)=>{
+    pendSlipBase64 = base64;
+    pendSlipMime = mime;
+    const box = document.getElementById('pendUploadBox');
+    box.classList.add('filled');
+    box.innerHTML = '<img src="'+dataUrl+'" alt="สลิปงวด 2"><input type="file" accept="image/*" id="pendSlipInput">';
+    document.getElementById('pendSlipInput').addEventListener('change', (e)=>handlePendSlipFile(e.target.files[0]));
+    document.getElementById('pendSlipErr').style.display='none';
+  });
+}
+document.getElementById('pendSlipInput').addEventListener('change', (e)=>handlePendSlipFile(e.target.files[0]));
+
+document.getElementById('pendSubmitBtn').addEventListener('click', async ()=>{
+  if(!pendSlipBase64){
+    document.getElementById('pendSlipErr').style.display='block';
+    return;
+  }
+  document.getElementById('pendSubmitBtn').disabled = true;
+  document.getElementById('pendMsg').style.color = 'var(--muted)';
+  document.getElementById('pendMsg').textContent = "กำลังส่งข้อมูล กรุณารอสักครู่…";
+  try{
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        type: "installment2",
+        lineUserId: LIFF_USER_ID,
+        row: pendingInstallmentInfo.row,
+        slipBase64: pendSlipBase64,
+        slipMime: pendSlipMime
+      })
+    });
+    const data = await res.json();
+    if(data.status === "ok"){
+      document.getElementById('pendMsg').style.color = 'var(--green)';
+      document.getElementById('pendMsg').textContent = "ส่งสลิปเรียบร้อย รอทีมงานตรวจสอบ ✅ ตอนนี้สามารถสมัครคอร์สใหม่ได้แล้ว";
+      pendingInstallmentInfo = null; // ปลดล็อกให้สมัครคอร์สใหม่ได้หลังส่งสลิปแล้ว
+      setTimeout(()=>{ document.getElementById('pendingOverlay').classList.remove('open'); }, 1800);
+    } else {
+      document.getElementById('pendMsg').style.color = 'var(--coral)';
+      document.getElementById('pendMsg').textContent = "เกิดข้อผิดพลาด: " + (data.message || "กรุณาลองใหม่");
+      document.getElementById('pendSubmitBtn').disabled = false;
+    }
+  }catch(err){
+    document.getElementById('pendMsg').style.color = 'var(--coral)';
+    document.getElementById('pendMsg').textContent = "ส่งข้อมูลไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่";
+    document.getElementById('pendSubmitBtn').disabled = false;
+  }
+});
+
+/* ---------------- Initial UI state ---------------- */
+updateDormAvailability();
+updateRules();
+updateSummary();
 </script>
 </body>
 </html>
