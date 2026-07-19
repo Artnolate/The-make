@@ -198,6 +198,7 @@ section.block.step-hidden{display:none;}
 .dorm-tab-btn.active{background:var(--amber);color:#241706;border-color:var(--amber);}
 .dorm-tab-btn.goal-hidden{display:none;}
 .dorm-panel.goal-hidden{display:none;}
+.room-card.goal-hidden{display:none;}
 .dorm-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;font-size:11.5px;color:var(--muted-2);}
 .dorm-legend span{display:inline-flex;align-items:center;gap:6px;}
 .legend-swatch{width:14px;height:14px;border-radius:4px;display:inline-block;}
@@ -1233,10 +1234,18 @@ function applyGoalMode(){
 }
 
 /**
- * เป้าหมาย "สมัครคอร์สปกติ" อนุญาตให้จองที่นอนเฉพาะ ตึก 87 และ ตึก 88 เท่านั้น
- * (ซ่อนแท็บ "หอพักโคซี่" และ "สบายเพลส" ไปเลย) ส่วนเป้าหมาย "จองล่วงหน้า"
- * ยังเลือกได้ทุกอาคารตามปกติ (สบายเพลสยังปิดอยู่เหมือนเดิมเพราะยังไม่เปิดจอง)
+ * เป้าหมาย "สมัครคอร์สปกติ" อนุญาตให้จองที่นอนเฉพาะบางส่วนเท่านั้น:
+ *   - ซ่อนแท็บอาคาร "หอพักโคซี่" และ "สบายเพลส" ไปเลย (เหมือนเดิม)
+ *   - ในตึก 87 และ 88 ที่ยังเปิดอยู่ ให้แสดงเฉพาะห้องหลัก และซ่อนห้องเสริม:
+ *       · ตึก 87: แสดงชั้น 3 (87F3) และชั้น 4 (87F4) เท่านั้น
+ *         ซ่อนชั้น 2 ห้องเสริม (87F2)
+ *       · ตึก 88: แสดงชั้น 4 (88F4) เท่านั้น
+ *         ซ่อนชั้น 3 ห้องเสริม (88F3)
+ * ส่วนเป้าหมาย "จองล่วงหน้า" ยังเลือกได้ทุกอาคาร/ทุกห้องตามปกติ (สบายเพลส
+ * ยังปิดอยู่เหมือนเดิมเพราะยังไม่เปิดจอง)
  */
+const NORMAL_HIDDEN_ROOM_IDS = ['87F2', '88F3']; // ห้องเสริมที่ปิดไม่ให้จองตอนเป้าหมาย "สมัครคอร์สปกติ"
+
 function updateDormAvailability(){
   const restrictToMain = state.goal === 'normal';
   document.querySelectorAll('.dorm-tab-btn').forEach(btn=>{
@@ -1247,14 +1256,28 @@ function updateDormAvailability(){
     const hide = restrictToMain && (panel.dataset.building==='cozy' || panel.dataset.building==='sabai');
     panel.classList.toggle('goal-hidden', hide);
   });
+
+  // ซ่อนห้องเสริม (87F2 / 88F3) ในตึก 87/88 เมื่อเป้าหมายเป็น "สมัครคอร์สปกติ"
+  document.querySelectorAll('.room-card').forEach(card=>{
+    const roomId = card.dataset.roomId;
+    const hideRoom = restrictToMain && NORMAL_HIDDEN_ROOM_IDS.indexOf(roomId) !== -1;
+    card.classList.toggle('goal-hidden', hideRoom);
+  });
+
   const activeTab = document.querySelector('.dorm-tab-btn.active');
   if(activeTab && activeTab.classList.contains('goal-hidden')){
     const firstVisible = document.querySelector('.dorm-tab-btn:not(.goal-hidden)');
     if(firstVisible) firstVisible.click();
   }
-  if(state.dormId && restrictToMain && state.dormId.indexOf('COZY') === 0){
-    state.dormId=""; state.dormLabel=""; state.dormExtra=0;
-    document.getElementById('dormSelectedNote').classList.remove('show');
+
+  // ถ้าเตียงที่เคยเลือกไว้อยู่ในอาคาร/ห้องที่เพิ่งถูกซ่อนไป ให้ล้างการเลือกทิ้ง
+  if(state.dormId && restrictToMain){
+    const isCozyBed = state.dormId.indexOf('COZY') === 0;
+    const isHiddenRoomBed = NORMAL_HIDDEN_ROOM_IDS.some(roomId => state.dormId.indexOf(roomId + '-') === 0);
+    if(isCozyBed || isHiddenRoomBed){
+      state.dormId=""; state.dormLabel=""; state.dormExtra=0;
+      document.getElementById('dormSelectedNote').classList.remove('show');
+    }
   }
 }
 
