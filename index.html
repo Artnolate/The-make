@@ -457,6 +457,10 @@ section.block.step-hidden{display:none;}
       <p>เลือกว่าต้องการสมัครเรียนแบบปกติ หรือจองสิทธิ์ล่วงหน้าสำหรับคอร์สทำพอร์ตเดือนตุลาคม</p>
     </div>
 
+    <div class="callout" id="overdueLockNote" style="display:none; border-color:rgba(255,107,91,.45); border-left-color:var(--coral); color:var(--coral);">
+      ⚠️ ยอดค้างชำระงวดที่ 2 เลยกำหนดชำระแล้ว กรุณาชำระให้เรียบร้อยก่อนสมัครคอร์สใหม่หรือจองคอร์สล่วงหน้า
+    </div>
+
     <div class="month-list">
       <label class="month-card checked" id="goalNormalCard" data-goal="normal">
         <input type="radio" name="goal" value="normal" id="goalNormalRadio" checked>
@@ -479,6 +483,17 @@ section.block.step-hidden{display:none;}
           <span class="month-tag tag-open">เปิดจอง</span>
         </div>
         <div class="month-price">มัดจำเริ่มต้น 1,000 บาท · คอร์สติวสดเหมา 1 เดือน 8,900 บาท</div>
+      </label>
+
+      <label class="month-card" id="goalInstallmentCard" data-goal="installment2" style="display:none;">
+        <input type="radio" name="goal" value="installment2" id="goalInstallmentRadio">
+        <div class="month-top">
+          <div>
+            <div class="month-name">ชำระยอดคงเหลืองวดที่ 2</div>
+            <div class="month-sub" id="goalInstallmentSub">มียอดค้างชำระจากการสมัครครั้งก่อน</div>
+          </div>
+          <span class="month-tag tag-open" id="goalInstallmentTag">ต้องดำเนินการ</span>
+        </div>
       </label>
     </div>
   </section>
@@ -508,6 +523,23 @@ section.block.step-hidden{display:none;}
     </div>
 
     <div class="pkg active" id="pkg-onsite">
+      <label class="pkg-card pkg-card-qty" id="pkgOnsitePerSession" data-unit="750">
+        <input type="radio" name="course" value="onsite-persession">
+        <div class="pkg-top">
+          <div><div class="pkg-name">ติวสดรายครั้ง</div><div class="pkg-sub">เลือกจำนวนครั้งที่ต้องการเรียน ตามความสะดวก</div></div>
+          <div class="pkg-price">750<small> บาท/ครั้ง</small></div>
+        </div>
+        <div class="pkg-row">
+          <span class="chip">จำนวนครั้ง</span>
+          <div class="qty-stepper">
+            <button type="button" class="qty-btn" data-qty-dir="-1">−</button>
+            <input type="number" class="qty-input" value="1" min="1" max="30" inputmode="numeric">
+            <button type="button" class="qty-btn" data-qty-dir="1">+</button>
+          </div>
+        </div>
+        <div class="qty-total">รวม 750 บาท</div>
+        <div class="radio-dot" style="position:absolute;right:16px;bottom:14px"></div>
+      </label>
       <label class="pkg-card" data-price="3990" data-name="ติวสดที่ตึก 10 ครั้ง/เดือน">
         <input type="radio" name="course" value="onsite-10">
         <div class="pkg-top">
@@ -536,6 +568,23 @@ section.block.step-hidden{display:none;}
     </div>
 
     <div class="pkg" id="pkg-online">
+      <label class="pkg-card pkg-card-qty" id="pkgOnlinePerSession" data-unit="380">
+        <input type="radio" name="course" value="online-persession">
+        <div class="pkg-top">
+          <div><div class="pkg-name">ออนไลน์รายครั้ง</div><div class="pkg-sub">เลือกจำนวนครั้งที่ต้องการเรียน ตามความสะดวก</div></div>
+          <div class="pkg-price">380<small> บาท/ครั้ง</small></div>
+        </div>
+        <div class="pkg-row">
+          <span class="chip">จำนวนครั้ง</span>
+          <div class="qty-stepper">
+            <button type="button" class="qty-btn" data-qty-dir="-1">−</button>
+            <input type="number" class="qty-input" value="1" min="1" max="30" inputmode="numeric">
+            <button type="button" class="qty-btn" data-qty-dir="1">+</button>
+          </div>
+        </div>
+        <div class="qty-total">รวม 380 บาท</div>
+        <div class="radio-dot" style="position:absolute;right:16px;bottom:14px"></div>
+      </label>
       <label class="pkg-card" data-price="2998" data-name="ออนไลน์ 10 ครั้ง/เดือน">
         <input type="radio" name="course" value="online-10">
         <div class="pkg-top">
@@ -617,6 +666,7 @@ section.block.step-hidden{display:none;}
       <div class="dorm-legend">
         <span><i class="legend-swatch lg-open"></i>ว่าง</span>
         <span><i class="legend-swatch lg-selected"></i>เลือกแล้ว</span>
+        <span><i class="legend-swatch lg-own"></i>เตียงเดิมของคุณ (ต่ออายุได้)</span>
         <span><i class="legend-swatch lg-taken"></i>ไม่ว่าง</span>
       </div>
       <div id="dormPanels"><!-- JS: การ์ดผังเตียงของแต่ละอาคาร --></div>
@@ -645,8 +695,23 @@ section.block.step-hidden{display:none;}
     </div>
   </section>
 
+  <!-- ============ Step 6: ชำระยอดคงเหลืองวดที่ 2 (แสดงเฉพาะเมื่อเลือกเป้าหมายนี้) ============ -->
+  <section class="block step-hidden" id="installment2-section">
+    <div class="sec-head">
+      <span class="sec-num" data-label="ชำระงวดที่ 2"></span>
+      <h2>ชำระยอดคงเหลืองวดที่ 2</h2>
+      <p>แนบสลิปการชำระงวดที่ 2 จากคอร์สที่สมัครไว้ก่อนหน้า เพื่อปลดล็อกการสมัคร/จองคอร์สใหม่</p>
+    </div>
+    <div class="submit-summary">
+      <div class="ss-row"><span>คอร์สที่สมัครไว้</span><b id="instCourse">—</b></div>
+      <div class="ss-row ss-highlight"><span>ยอดที่ต้องชำระ</span><b id="instAmount">0 ฿</b></div>
+      <div class="ss-row"><span>ครบกำหนด</span><b id="instDue">—</b></div>
+    </div>
+    <button class="btn-main" id="openInstallmentBtn" type="button">แนบสลิปชำระงวดที่ 2</button>
+  </section>
+
   <!-- ============ Call To Action ============ -->
-  <section class="cta-block">
+  <section class="cta-block" id="cta-block">
     <label class="agree">
       <input type="checkbox" id="agreeBox">
       <span>ฉันได้อ่านและยอมรับเงื่อนไขการสมัครและ<a href="https://github.com/user-attachments/files/30117396/default.pdf" target="_blank" rel="noopener">กฎระเบียบและข้อบังคับภายในตึก</a>แล้ว</span>
@@ -883,6 +948,7 @@ const DORM_DATA = {
 };
 
 let occupiedBeds = new Set(); // เตียงที่มีคนจองไปแล้ว (โหลดจาก Apps Script)
+let ownBedsSet = new Set();   // เตียงที่เป็นของผู้ใช้คนนี้เองอยู่แล้ว (ต่ออายุได้ทันที)
 
 function buildBedGrid(room){
   const beds = []; // {id, label}
@@ -907,8 +973,10 @@ function buildBedGrid(room){
 }
 
 function seatHtml(bed, roomId){
-  const taken = occupiedBeds.has(bed.id);
-  return '<button type="button" class="seat'+(taken?' taken':'')+'" data-bed-id="'+bed.id+'" '+(taken?'disabled':'')+'>'+bed.label+'</button>';
+  const isOwn = ownBedsSet.has(bed.id);
+  const taken = occupiedBeds.has(bed.id) && !isOwn;
+  let cls = "seat" + (taken ? " taken" : "") + (isOwn ? " own" : "");
+  return '<button type="button" class="'+cls+'" data-bed-id="'+bed.id+'" '+(taken?'disabled':'')+' title="'+(isOwn?'เตียงเดิมของคุณ — กดเพื่อต่ออายุ':'')+'">'+bed.label+(isOwn?' ★':'')+'</button>';
 }
 
 function renderRoomCard(room){
@@ -982,10 +1050,11 @@ function renderDorms(){
     const buildingKey = seat.closest('.dorm-panel').dataset.building;
     const room = DORM_DATA[buildingKey].rooms.find(r=>r.id===roomId);
     state.dormId = seat.dataset.bedId;
-    state.dormLabel = DORM_DATA[buildingKey].buildingLabel + " · " + room.title + " · เตียง " + seat.textContent.trim();
+    const isOwn = ownBedsSet.has(state.dormId);
+    state.dormLabel = DORM_DATA[buildingKey].buildingLabel + " · " + room.title + " · เตียง " + seat.textContent.replace('★','').trim();
     state.dormExtra = room.extra;
     const note = document.getElementById('dormSelectedNote');
-    note.textContent = "✅ เลือกแล้ว: " + state.dormLabel;
+    note.textContent = (isOwn ? "✅ เลือกแล้ว (ต่ออายุเตียงเดิม): " : "✅ เลือกแล้ว: ") + state.dormLabel;
     note.classList.add('show');
     updateSummary();
   });
@@ -997,23 +1066,30 @@ renderDorms();
  *   - สมัครคอร์สปกติ  → เช็คเตียงว่างของรอบปัจจุบัน (ช่วงวันที่ CONFIG.NORMAL_PERIOD)
  *   - จองล่วงหน้า      → เช็คเตียงว่างของรอบตุลาคม (ช่วงวันที่ CONFIG.PREORDER_PERIOD)
  * เตียงเดียวกันอาจว่างสำหรับรอบหนึ่งแต่ไม่ว่างอีกรอบหนึ่งได้ ถ้าช่วงวันที่ไม่ทับซ้อนกัน
+ * เตียงที่เป็นของผู้ใช้คนนี้เองอยู่แล้ว (ownBeds) จะไม่ถูกนับว่า "ไม่ว่าง" — ให้เลือกซ้ำ
+ * เพื่อ "ต่ออายุ" เตียงเดิมได้แบบไร้รอยต่อ แทนที่จะโดนล็อกว่าเต็ม
  */
 let currentBedPeriodLabel = "";
 async function loadOccupiedBeds(){
   if(!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") === 0) return;
   try{
     const goalParam = state.goal === 'preorder' ? 'preorder' : 'normal';
-    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=occupied&goal=" + goalParam);
+    const uidParam = LIFF_USER_ID ? ("&lineUserId=" + encodeURIComponent(LIFF_USER_ID)) : "";
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=occupied&goal=" + goalParam + uidParam);
     const data = await res.json();
     if(data.status === "ok"){
       occupiedBeds = new Set(data.occupied || []);
+      ownBedsSet = new Set(data.ownBeds || []);
       currentBedPeriodLabel = data.periodLabel || "";
       updateDormPeriodLabel();
       document.querySelectorAll('.seat').forEach(seatEl=>{
         const id = seatEl.dataset.bedId;
-        const taken = occupiedBeds.has(id) && !seatEl.classList.contains('selected');
+        const isOwn = ownBedsSet.has(id);
+        const taken = occupiedBeds.has(id) && !seatEl.classList.contains('selected') && !isOwn;
         seatEl.classList.toggle('taken', taken);
+        seatEl.classList.toggle('own', isOwn);
         seatEl.disabled = taken;
+        seatEl.title = isOwn ? 'เตียงเดิมของคุณ — กดเพื่อต่ออายุ' : '';
       });
     }
   }catch(err){
@@ -1033,7 +1109,7 @@ function updateDormPeriodLabel(){
 }
 
 /* ---------------- Step numbering: renumber only visible section blocks ---------------- */
-const STEP_ORDER = ['goal-section', 'format-section', 'package-section', 'stay', 'payment-rules'];
+const STEP_ORDER = ['goal-section', 'format-section', 'package-section', 'stay', 'payment-rules', 'installment2-section'];
 function updateStepNumbers(){
   let n = 0;
   STEP_ORDER.forEach(id=>{
@@ -1088,7 +1164,59 @@ async function checkPendingPayment(){
   }catch(err){
     console.warn("เช็คยอดค้างชำระไม่สำเร็จ:", err);
   }
+  applyPendingCardVisibility();
 }
+
+/**
+ * แสดง/ซ่อนตัวเลือก "ชำระยอดคงเหลืองวดที่ 2" ในขั้นตอนเลือกเป้าหมาย และ
+ * ถ้ายอดค้างชำระนั้นเลยกำหนดชำระไปแล้ว (overdue) จะล็อกตัวเลือกอื่น
+ * ("สมัครคอร์สปกติ" / "จองล่วงหน้า") ทั้งหมด บังคับให้ชำระงวด 2 ก่อนเสมอ
+ */
+function applyPendingCardVisibility(){
+  const card = document.getElementById('goalInstallmentCard');
+  if(!pendingInstallmentInfo){
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = 'block';
+  document.getElementById('goalInstallmentSub').textContent =
+    'ยอดค้าง ' + money(Number(pendingInstallmentInfo.amount)||0) + ' · ครบกำหนด ' + (pendingInstallmentInfo.dueText||'-');
+
+  const normalCard = document.getElementById('goalNormalCard');
+  const preorderCard = document.getElementById('goalPreorderCard');
+  const tag = document.getElementById('goalInstallmentTag');
+
+  if(pendingInstallmentInfo.overdue){
+    document.getElementById('overdueLockNote').style.display = 'block';
+    normalCard.classList.add('disabled');
+    preorderCard.classList.add('disabled');
+    normalCard.style.pointerEvents = 'none';
+    preorderCard.style.pointerEvents = 'none';
+    tag.textContent = 'เลยกำหนดชำระ';
+    tag.style.background = 'rgba(255,107,91,.14)';
+    tag.style.color = 'var(--coral)';
+    tag.style.borderColor = 'rgba(255,107,91,.4)';
+    setGoal('installment2');
+  } else {
+    document.getElementById('overdueLockNote').style.display = 'none';
+    normalCard.classList.remove('disabled');
+    preorderCard.classList.remove('disabled');
+    normalCard.style.pointerEvents = '';
+    preorderCard.style.pointerEvents = '';
+    tag.textContent = 'ต้องดำเนินการ';
+    tag.style.background = '';
+    tag.style.color = '';
+    tag.style.borderColor = '';
+  }
+}
+
+function populateInstallmentSection(){
+  if(!pendingInstallmentInfo) return;
+  document.getElementById('instCourse').textContent = (pendingInstallmentInfo.courseMonth||'') + (pendingInstallmentInfo.courseName ? ' · ' + pendingInstallmentInfo.courseName : '');
+  document.getElementById('instAmount').textContent = money(Number(pendingInstallmentInfo.amount)||0);
+  document.getElementById('instDue').textContent = pendingInstallmentInfo.dueText || '-';
+}
+document.getElementById('openInstallmentBtn').addEventListener('click', openPendingOverlay);
 
 /** ดึงข้อมูลเดิมของเด็กเก่าใส่ลงในฟอร์มอัตโนมัติ เรียกครั้งเดียวตอนเปิดฟอร์มครั้งแรก */
 function applyReturningProfile(){
@@ -1155,7 +1283,7 @@ initLiff();
 
 /* ---------------- Application state ---------------- */
 let state = {
-  goal: 'normal',                                    // 'normal' | 'preorder'
+  goal: 'normal',                                    // 'normal' | 'preorder' | 'installment2'
   courseMonthLabel: 'คอร์สปกติ (เริ่มเรียนได้ทันที)', // ข้อความอธิบายรอบ/เป้าหมายที่สมัคร
   format: 'onsite',                                   // 'onsite' | 'online' | 'mix'
   coursePrice: 0, courseName: "",
@@ -1165,16 +1293,20 @@ let state = {
 /* ---------------- Step 1: เลือกเป้าหมาย ---------------- */
 document.getElementById('goalNormalCard').addEventListener('click', ()=> setGoal('normal'));
 document.getElementById('goalPreorderCard').addEventListener('click', ()=> setGoal('preorder'));
+document.getElementById('goalInstallmentCard').addEventListener('click', ()=> setGoal('installment2'));
 
 function setGoal(goal){
   const goalChanged = state.goal !== goal;
   state.goal = goal;
   document.getElementById('goalNormalCard').classList.toggle('checked', goal==='normal');
   document.getElementById('goalPreorderCard').classList.toggle('checked', goal==='preorder');
+  document.getElementById('goalInstallmentCard').classList.toggle('checked', goal==='installment2');
   document.getElementById('goalNormalRadio').checked = goal==='normal';
   document.getElementById('goalPreorderRadio').checked = goal==='preorder';
+  const instRadio = document.getElementById('goalInstallmentRadio');
+  if(instRadio) instRadio.checked = goal==='installment2';
 
-  if(goalChanged){
+  if(goalChanged && goal !== 'installment2'){
     // แต่ละเป้าหมายมี "ช่วงวันที่สิทธิ์เตียง" ต่างกัน (ปกติ vs จองล่วงหน้า ต.ค.)
     // ล้างเตียงที่เคยเลือกไว้ แล้วโหลดสถานะเตียงว่างใหม่ให้ตรงกับช่วงของเป้าหมายที่เพิ่งเลือก
     state.dormId = ""; state.dormLabel = ""; state.dormExtra = 0;
@@ -1184,7 +1316,7 @@ function setGoal(goal){
 
   applyGoalMode();
 
-  if(goalChanged){
+  if(goalChanged && goal !== 'installment2'){
     loadOccupiedBeds();
   }
 }
@@ -1197,11 +1329,31 @@ function setGoal(goal){
  *     เพื่อให้ตรงตามจุดประสงค์ "จองสิทธิ์ล็อกเตียง"
  * เมื่อกลับไปเลือก "สมัครคอร์สปกติ": คืนค่า Step 2/3 ตามปกติ และให้เลือก
  * แพ็กเกจใหม่อีกครั้ง (เคลียร์คอร์ส/ราคาที่เคยเลือกไว้ กันข้อมูลเพี้ยน)
+ *
+ * เมื่อเลือก "ชำระยอดคงเหลืองวดที่ 2": ซ่อนขั้นตอนสมัครคอร์ส/ที่พัก/ชำระเงิน
+ * ทั้งหมด แสดงเฉพาะกล่องสรุปยอดค้างชำระ + ปุ่มแนบสลิปงวด 2 แทน
  */
 function applyGoalMode(){
   const isPreorder = state.goal === 'preorder';
+  const isInstallment2 = state.goal === 'installment2';
+
+  document.getElementById('installment2-section').classList.toggle('step-hidden', !isInstallment2);
+  document.getElementById('cta-block').classList.toggle('step-hidden', isInstallment2);
+
+  if(isInstallment2){
+    document.getElementById('format-section').classList.add('step-hidden');
+    document.getElementById('package-section').classList.add('step-hidden');
+    document.getElementById('stay').classList.add('step-hidden');
+    document.getElementById('payment-rules').classList.add('step-hidden');
+    populateInstallmentSection();
+    updateStepNumbers();
+    return;
+  }
+
   document.getElementById('format-section').classList.toggle('step-hidden', isPreorder);
   document.getElementById('package-section').classList.toggle('step-hidden', isPreorder);
+  document.getElementById('stay').classList.remove('step-hidden');
+  document.getElementById('payment-rules').classList.remove('step-hidden');
   document.getElementById('stayToggleWrap').style.display = isPreorder ? 'none' : 'flex';
   document.getElementById('preorderStayNote').style.display = isPreorder ? 'block' : 'none';
 
@@ -1329,6 +1481,7 @@ tabBtns.forEach(btn=>{
 
 /* ---------------- Step 3: เลือกแพ็กเกจ ---------------- */
 document.querySelectorAll('.pkg-card').forEach(card=>{
+  if(card.classList.contains('pkg-card-qty')) return; // การ์ด "รายครั้ง" มีตัวจัดการของตัวเองด้านล่าง
   card.addEventListener('click', ()=>{
     document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('checked'));
     card.classList.add('checked');
@@ -1338,6 +1491,57 @@ document.querySelectorAll('.pkg-card').forEach(card=>{
     updateSummary();
   });
 });
+
+/**
+ * การ์ด "ติวสดรายครั้ง" / "ออนไลน์รายครั้ง" มีตัวเลือกจำนวนครั้งในตัว
+ * (ปุ่ม +/- และช่องกรอกตัวเลข) จึงไม่ใช้ overlay input ครอบทั้งการ์ดแบบ
+ * การ์ดอื่น เพื่อให้กดปุ่ม +/- ได้โดยไม่โดนตีความว่าคลิกเลือกการ์ดเฉยๆ
+ * ราคารวม = จำนวนครั้ง × ราคาต่อครั้ง คำนวณสดทุกครั้งที่มีการเปลี่ยนจำนวน
+ */
+function setupQtyCard(cardId, unitPrice, nameBase){
+  const card = document.getElementById(cardId);
+  if(!card) return;
+  const qtyInput = card.querySelector('.qty-input');
+  const totalEl = card.querySelector('.qty-total');
+  const radio = card.querySelector('input[type=radio]');
+
+  function currentQty(){
+    let q = parseInt(qtyInput.value, 10);
+    if(!q || q < 1) q = 1;
+    if(q > 30) q = 30;
+    qtyInput.value = q;
+    return q;
+  }
+
+  function selectThisCard(){
+    document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('checked'));
+    card.classList.add('checked');
+    if(radio) radio.checked = true;
+    const qty = currentQty();
+    state.coursePrice = qty * unitPrice;
+    state.courseName = nameBase + ' ' + qty + ' ครั้ง';
+    totalEl.textContent = 'รวม ' + state.coursePrice.toLocaleString('th-TH') + ' บาท';
+    updateSummary();
+  }
+
+  card.querySelectorAll('.qty-btn').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const dir = parseInt(btn.dataset.qtyDir, 10);
+      let q = currentQty() + dir;
+      if(q < 1) q = 1;
+      if(q > 30) q = 30;
+      qtyInput.value = q;
+      selectThisCard();
+    });
+  });
+  qtyInput.addEventListener('click', (e)=> e.stopPropagation());
+  qtyInput.addEventListener('input', ()=> selectThisCard());
+  card.querySelector('.pkg-top').addEventListener('click', selectThisCard);
+  card.querySelector('.chip').addEventListener('click', (e)=>{ e.stopPropagation(); });
+}
+setupQtyCard('pkgOnsitePerSession', 750, 'ติวสดรายครั้ง');
+setupQtyCard('pkgOnlinePerSession', 380, 'ออนไลน์รายครั้ง');
 
 /**
  * เมื่อสลับแท็บรูปแบบเรียน (ติวสด / ออนไลน์ / Mix):
@@ -1411,7 +1615,7 @@ function computeInstallment(){
 /* ---------------- Step 5: สรุป (หน้าเพจหลัก) ---------------- */
 function updateSummary(){
   const total = totalPrice();
-  document.getElementById('sumGoal').textContent = state.goal === 'preorder' ? 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)' : 'สมัครคอร์สปกติ';
+  document.getElementById('sumGoal').textContent = state.goal === 'preorder' ? 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)' : (state.goal === 'installment2' ? 'ชำระยอดคงเหลืองวดที่ 2' : 'สมัครคอร์สปกติ');
   document.getElementById('sumCourse').textContent = state.courseName || '—';
   document.getElementById('sumStay').textContent = state.stayMode==='ออนไลน์' ? 'เรียนออนไลน์ (ไม่มีที่พัก)' : state.stayMode;
   document.getElementById('sumDorm').textContent = state.stayMode==='กบดาน' ? (state.dormLabel || "ยังไม่เลือกเตียง") : (state.stayMode==='ออนไลน์' ? "ไม่มีที่พัก (เรียนออนไลน์)" : "ไม่พักค้าง");
@@ -1423,6 +1627,7 @@ function updateSummary(){
 const agreeBox = document.getElementById('agreeBox');
 const openRegBtn = document.getElementById('openRegBtn');
 function checkReady(){
+  if(state.goal === 'installment2'){ openRegBtn.disabled = true; return; }
   const hasCourse = state.coursePrice > 0;
   const hasDorm = state.stayMode!=='กบดาน' || !!state.dormId;
   openRegBtn.disabled = !(agreeBox.checked && hasCourse && hasDorm);
@@ -1430,15 +1635,17 @@ function checkReady(){
 agreeBox.addEventListener('change', checkReady);
 
 openRegBtn.addEventListener('click', async ()=>{
-  // ถ้ามียอดค้างชำระงวดที่ 2 จากการสมัครครั้งก่อน ต้องจัดการให้เรียบร้อยก่อน
-  if(pendingInstallmentInfo){
+  // ถ้ามียอดค้างชำระงวดที่ 2 ที่เลยกำหนดชำระแล้ว ต้องจัดการให้เรียบร้อยก่อนเสมอ
+  // (ถ้ายังไม่เลยกำหนด จะไม่บล็อกการสมัคร/จองคอร์สใหม่ — น้องเลือกได้เองว่าจะ
+  // ชำระงวด 2 ก่อนหรือสมัครคอร์สใหม่ก่อนก็ได้ ผ่านตัวเลือกในขั้นตอนที่ 1)
+  if(pendingInstallmentInfo && pendingInstallmentInfo.overdue){
     openPendingOverlay();
     return;
   }
 
   if(state.stayMode === 'กบดาน'){
     await loadOccupiedBeds(); // เช็คสถานะเตียงล่าสุดอีกครั้งก่อนเปิดฟอร์ม กันเตียงถูกจองไปแล้วระหว่างที่ดูหน้าเว็บ
-    if(state.dormId && occupiedBeds.has(state.dormId)){
+    if(state.dormId && occupiedBeds.has(state.dormId) && !ownBedsSet.has(state.dormId)){
       state.dormId=""; state.dormLabel=""; state.dormExtra=0;
       document.getElementById('dormSelectedNote').classList.remove('show');
       updateSummary();
@@ -1802,7 +2009,16 @@ document.getElementById('pendSubmitBtn').addEventListener('click', async ()=>{
       document.getElementById('pendMsg').style.color = 'var(--green)';
       document.getElementById('pendMsg').textContent = "ส่งสลิปเรียบร้อย รอทีมงานตรวจสอบ ✅ ตอนนี้สามารถสมัครคอร์สใหม่ได้แล้ว";
       pendingInstallmentInfo = null; // ปลดล็อกให้สมัครคอร์สใหม่ได้หลังส่งสลิปแล้ว
-      setTimeout(()=>{ document.getElementById('pendingOverlay').classList.remove('open'); }, 1800);
+      document.getElementById('overdueLockNote').style.display = 'none';
+      document.getElementById('goalNormalCard').classList.remove('disabled');
+      document.getElementById('goalPreorderCard').classList.remove('disabled');
+      document.getElementById('goalNormalCard').style.pointerEvents = '';
+      document.getElementById('goalPreorderCard').style.pointerEvents = '';
+      document.getElementById('goalInstallmentCard').style.display = 'none';
+      setTimeout(()=>{
+        document.getElementById('pendingOverlay').classList.remove('open');
+        setGoal('normal');
+      }, 1800);
     } else {
       document.getElementById('pendMsg').style.color = 'var(--coral)';
       document.getElementById('pendMsg').textContent = "เกิดข้อผิดพลาด: " + (data.message || "กรุณาลองใหม่");
@@ -1823,5 +2039,3 @@ loadOccupiedBeds();
 </script>
 </body>
 </html>
-
-
