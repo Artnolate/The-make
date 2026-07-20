@@ -198,7 +198,6 @@ section.block.step-hidden{display:none;}
 .dorm-tab-btn.active{background:var(--amber);color:#241706;border-color:var(--amber);}
 .dorm-tab-btn.goal-hidden{display:none;}
 .dorm-panel.goal-hidden{display:none;}
-.room-card.goal-hidden{display:none;}
 .dorm-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;font-size:11.5px;color:var(--muted-2);}
 .dorm-legend span{display:inline-flex;align-items:center;gap:6px;}
 .legend-swatch{width:14px;height:14px;border-radius:4px;display:inline-block;}
@@ -612,7 +611,6 @@ section.block.step-hidden{display:none;}
     <div class="callout">สิทธิ์ในการจองเตียงจะล็อกตำแหน่งตามลำดับการสมัคร</div>
 
     <div id="dormZone" style="margin-top:16px;">
-      <div class="callout" id="dormPeriodNote" style="display:none;"></div>
       <div class="dorm-tabs" id="dormTabs"><!-- JS: ปุ่มเลือกอาคาร --></div>
       <div class="dorm-legend">
         <span><i class="legend-swatch lg-open"></i>ว่าง</span>
@@ -699,13 +697,11 @@ section.block.step-hidden{display:none;}
           <option value="">เลือกภาควิชา</option>
           <option>จิตรกรรม วิจิตรศิลป์</option>
           <option>สถาปัตยกรรมหลัก</option>
-          <option>ภูมิสถาปัตยกรรม</option>
           <option>ออกแบบภายใน</option>
           <option>นิเทศศิลป์</option>
           <option>ศิลปอุตสาหกรรม จิวเวลรี่</option>
           <option>แฟชั่น</option>
           <option>ภาพยนตร์</option>
-          <option>อนิเมชัน</option>
           <option>การถ่ายภาพ</option>
           <option value="อื่นๆ">อื่นๆ (ระบุ)</option>
         </select>
@@ -992,23 +988,13 @@ function renderDorms(){
 }
 renderDorms();
 
-/**
- * โหลดรายชื่อเตียงที่ไม่ว่าง — แยกกันตาม "ช่วงวันที่" ของเป้าหมายที่กำลังเลือก:
- *   - สมัครคอร์สปกติ  → เช็คเตียงว่างของรอบปัจจุบัน (ช่วงวันที่ CONFIG.NORMAL_PERIOD)
- *   - จองล่วงหน้า      → เช็คเตียงว่างของรอบตุลาคม (ช่วงวันที่ CONFIG.PREORDER_PERIOD)
- * เตียงเดียวกันอาจว่างสำหรับรอบหนึ่งแต่ไม่ว่างอีกรอบหนึ่งได้ ถ้าช่วงวันที่ไม่ทับซ้อนกัน
- */
-let currentBedPeriodLabel = "";
 async function loadOccupiedBeds(){
   if(!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") === 0) return;
   try{
-    const goalParam = state.goal === 'preorder' ? 'preorder' : 'normal';
-    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=occupied&goal=" + goalParam);
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=occupied");
     const data = await res.json();
     if(data.status === "ok"){
       occupiedBeds = new Set(data.occupied || []);
-      currentBedPeriodLabel = data.periodLabel || "";
-      updateDormPeriodLabel();
       document.querySelectorAll('.seat').forEach(seatEl=>{
         const id = seatEl.dataset.bedId;
         const taken = occupiedBeds.has(id) && !seatEl.classList.contains('selected');
@@ -1020,17 +1006,7 @@ async function loadOccupiedBeds(){
     console.warn("โหลดสถานะเตียงไม่สำเร็จ:", err);
   }
 }
-
-function updateDormPeriodLabel(){
-  const note = document.getElementById('dormPeriodNote');
-  if(!note) return;
-  if(currentBedPeriodLabel){
-    note.textContent = '🗓️ แสดงตำแหน่งเตียงว่างสำหรับช่วง ' + currentBedPeriodLabel;
-    note.style.display = 'block';
-  } else {
-    note.style.display = 'none';
-  }
-}
+loadOccupiedBeds();
 
 /* ---------------- Step numbering: renumber only visible section blocks ---------------- */
 const STEP_ORDER = ['goal-section', 'format-section', 'package-section', 'stay', 'payment-rules'];
@@ -1167,26 +1143,12 @@ document.getElementById('goalNormalCard').addEventListener('click', ()=> setGoal
 document.getElementById('goalPreorderCard').addEventListener('click', ()=> setGoal('preorder'));
 
 function setGoal(goal){
-  const goalChanged = state.goal !== goal;
   state.goal = goal;
   document.getElementById('goalNormalCard').classList.toggle('checked', goal==='normal');
   document.getElementById('goalPreorderCard').classList.toggle('checked', goal==='preorder');
   document.getElementById('goalNormalRadio').checked = goal==='normal';
   document.getElementById('goalPreorderRadio').checked = goal==='preorder';
-
-  if(goalChanged){
-    // แต่ละเป้าหมายมี "ช่วงวันที่สิทธิ์เตียง" ต่างกัน (ปกติ vs จองล่วงหน้า ต.ค.)
-    // ล้างเตียงที่เคยเลือกไว้ แล้วโหลดสถานะเตียงว่างใหม่ให้ตรงกับช่วงของเป้าหมายที่เพิ่งเลือก
-    state.dormId = ""; state.dormLabel = ""; state.dormExtra = 0;
-    document.getElementById('dormSelectedNote').classList.remove('show');
-    document.querySelectorAll('.seat.selected').forEach(s=>s.classList.remove('selected'));
-  }
-
   applyGoalMode();
-
-  if(goalChanged){
-    loadOccupiedBeds();
-  }
 }
 
 /**
@@ -1236,18 +1198,10 @@ function applyGoalMode(){
 }
 
 /**
- * เป้าหมาย "สมัครคอร์สปกติ" อนุญาตให้จองที่นอนเฉพาะบางส่วนเท่านั้น:
- *   - ซ่อนแท็บอาคาร "หอพักโคซี่" และ "สบายเพลส" ไปเลย (เหมือนเดิม)
- *   - ในตึก 87 และ 88 ที่ยังเปิดอยู่ ให้แสดงเฉพาะห้องหลัก และซ่อนห้องเสริม:
- *       · ตึก 87: แสดงชั้น 3 (87F3) และชั้น 4 (87F4) เท่านั้น
- *         ซ่อนชั้น 2 ห้องเสริม (87F2)
- *       · ตึก 88: แสดงชั้น 4 (88F4) เท่านั้น
- *         ซ่อนชั้น 3 ห้องเสริม (88F3)
- * ส่วนเป้าหมาย "จองล่วงหน้า" ยังเลือกได้ทุกอาคาร/ทุกห้องตามปกติ (สบายเพลส
- * ยังปิดอยู่เหมือนเดิมเพราะยังไม่เปิดจอง)
+ * เป้าหมาย "สมัครคอร์สปกติ" อนุญาตให้จองที่นอนเฉพาะ ตึก 87 และ ตึก 88 เท่านั้น
+ * (ซ่อนแท็บ "หอพักโคซี่" และ "สบายเพลส" ไปเลย) ส่วนเป้าหมาย "จองล่วงหน้า"
+ * ยังเลือกได้ทุกอาคารตามปกติ (สบายเพลสยังปิดอยู่เหมือนเดิมเพราะยังไม่เปิดจอง)
  */
-const NORMAL_HIDDEN_ROOM_IDS = ['87F2', '88F3']; // ห้องเสริมที่ปิดไม่ให้จองตอนเป้าหมาย "สมัครคอร์สปกติ"
-
 function updateDormAvailability(){
   const restrictToMain = state.goal === 'normal';
   document.querySelectorAll('.dorm-tab-btn').forEach(btn=>{
@@ -1258,28 +1212,14 @@ function updateDormAvailability(){
     const hide = restrictToMain && (panel.dataset.building==='cozy' || panel.dataset.building==='sabai');
     panel.classList.toggle('goal-hidden', hide);
   });
-
-  // ซ่อนห้องเสริม (87F2 / 88F3) ในตึก 87/88 เมื่อเป้าหมายเป็น "สมัครคอร์สปกติ"
-  document.querySelectorAll('.room-card').forEach(card=>{
-    const roomId = card.dataset.roomId;
-    const hideRoom = restrictToMain && NORMAL_HIDDEN_ROOM_IDS.indexOf(roomId) !== -1;
-    card.classList.toggle('goal-hidden', hideRoom);
-  });
-
   const activeTab = document.querySelector('.dorm-tab-btn.active');
   if(activeTab && activeTab.classList.contains('goal-hidden')){
     const firstVisible = document.querySelector('.dorm-tab-btn:not(.goal-hidden)');
     if(firstVisible) firstVisible.click();
   }
-
-  // ถ้าเตียงที่เคยเลือกไว้อยู่ในอาคาร/ห้องที่เพิ่งถูกซ่อนไป ให้ล้างการเลือกทิ้ง
-  if(state.dormId && restrictToMain){
-    const isCozyBed = state.dormId.indexOf('COZY') === 0;
-    const isHiddenRoomBed = NORMAL_HIDDEN_ROOM_IDS.some(roomId => state.dormId.indexOf(roomId + '-') === 0);
-    if(isCozyBed || isHiddenRoomBed){
-      state.dormId=""; state.dormLabel=""; state.dormExtra=0;
-      document.getElementById('dormSelectedNote').classList.remove('show');
-    }
+  if(state.dormId && restrictToMain && state.dormId.indexOf('COZY') === 0){
+    state.dormId=""; state.dormLabel=""; state.dormExtra=0;
+    document.getElementById('dormSelectedNote').classList.remove('show');
   }
 }
 
@@ -1726,7 +1666,7 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
     if(data.status === "ok"){
       document.getElementById('formView').style.display = 'none';
       document.getElementById('successView').classList.add('show');
-      document.getElementById('queueCodeShow').textContent = "คิวที่ " + data.queueNumber;
+      document.getElementById('queueCodeShow').textContent = "ลำดับที่ " + data.queueNumber;
     }else if(data.status === "bed_taken"){
       setMsg("เตียงนี้เพิ่งถูกจองไปแล้ว กรุณาปิดหน้าต่างนี้แล้วเลือกเตียงใหม่");
       state.dormId=""; state.dormLabel=""; state.dormExtra=0;
@@ -1819,7 +1759,6 @@ document.getElementById('pendSubmitBtn').addEventListener('click', async ()=>{
 updateDormAvailability();
 updateRules();
 updateSummary();
-loadOccupiedBeds();
 </script>
 </body>
 </html>
