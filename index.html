@@ -1727,10 +1727,10 @@ function syncPayAmount(){
     payAmtRow.style.display = 'flex';
     installmentNote.style.display = 'none';
   } else if(type === 'มัดจำ'){
-    payAmount.disabled = false;
+    payAmount.value = 1000;
+    payAmount.disabled = true;
     payAmtRow.style.display = 'flex';
     installmentNote.style.display = 'none';
-    payAmount.value = 1000; // รีเซ็ตเป็น 1,000 บาททุกครั้งที่เลือกตัวเลือกนี้
   } else if(type === 'แบ่งชำระ2งวด'){
     const c = computeInstallment();
     payAmount.value = c.first;
