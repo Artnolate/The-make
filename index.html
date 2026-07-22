@@ -166,6 +166,42 @@ section.block.step-hidden{display:none;}
 .tag-hold{color:var(--coral);border-color:rgba(255,107,91,.4);}
 .tag-mix{color:#c084fc;border-color:rgba(192,132,252,.4);}
 
+/* ---------- Per-session qty ticket (redesigned) ---------- */
+.pkg-card-qty{padding-bottom:16px;}
+.pkg-card-qty .pkg-row{
+  margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);
+  align-items:center;
+}
+.pkg-card-qty .chip{font-weight:600;}
+
+.qty-stepper{
+  display:flex;align-items:center;gap:0;
+  background:var(--ink);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+}
+.qty-btn{
+  width:38px;height:38px;border:none;background:var(--ink-2);color:var(--amber-2);
+  font-family:var(--mono);font-size:18px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:.12s;
+  -webkit-user-select:none;user-select:none;
+}
+.qty-btn:active{background:rgba(245,166,35,.18);transform:scale(.94);}
+.qty-input{
+  width:52px;height:38px;border:none;background:transparent;color:var(--paper);
+  font-family:var(--mono);font-weight:700;font-size:16px;text-align:center;
+  -moz-appearance:textfield;
+}
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.qty-input:focus{outline:none;background:rgba(245,166,35,.10);}
+
+.qty-total{
+  margin-top:12px;display:flex;justify-content:space-between;align-items:center;
+  background:linear-gradient(180deg, rgba(245,166,35,.10), rgba(245,166,35,.03));
+  border:1px solid rgba(245,166,35,.3);border-radius:10px;padding:10px 12px;
+  font-family:var(--mono);font-size:13px;color:var(--muted);
+}
+.qty-total b{color:var(--amber-2);font-size:16px;}
+
 /* ---------- Stay mode toggle ---------- */
 .stay-toggle{display:flex;gap:8px;margin-bottom:16px;}
 .stay-opt{
@@ -538,7 +574,7 @@ section.block.step-hidden{display:none;}
             <button type="button" class="qty-btn" data-qty-dir="1">+</button>
           </div>
         </div>
-        <div class="qty-total">รวม 750 บาท</div>
+        <div class="qty-total"><span>ยอดรวม</span><b>750 บาท</b></div>
         <div class="radio-dot" style="position:absolute;right:16px;bottom:14px"></div>
       </label>
       <label class="pkg-card" data-price="3990" data-name="ติวสดที่ตึก 10 ครั้ง/เดือน">
@@ -583,7 +619,7 @@ section.block.step-hidden{display:none;}
             <button type="button" class="qty-btn" data-qty-dir="1">+</button>
           </div>
         </div>
-        <div class="qty-total">รวม 380 บาท</div>
+        <div class="qty-total"><span>ยอดรวม</span><b>380 บาท</b></div>
         <div class="radio-dot" style="position:absolute;right:16px;bottom:14px"></div>
       </label>
       <label class="pkg-card" data-price="2998" data-name="ออนไลน์ 10 ครั้ง/เดือน">
@@ -1500,19 +1536,24 @@ document.querySelectorAll('.pkg-card').forEach(card=>{
  * (ปุ่ม +/- และช่องกรอกตัวเลข) จึงไม่ใช้ overlay input ครอบทั้งการ์ดแบบ
  * การ์ดอื่น เพื่อให้กดปุ่ม +/- ได้โดยไม่โดนตีความว่าคลิกเลือกการ์ดเฉยๆ
  * ราคารวม = จำนวนครั้ง × ราคาต่อครั้ง คำนวณสดทุกครั้งที่มีการเปลี่ยนจำนวน
+ *
+ * บั๊กที่แก้แล้ว: ช่องกรอกตัวเลขมีค่าเริ่มต้น "1" ค้างอยู่ ถ้าผู้ใช้แตะแล้ว
+ * พิมพ์ทับโดยไม่เลือกข้อความเดิมก่อน (โดยเฉพาะบนมือถือ) ตัวเลขจะต่อกัน
+ * เช่น พิมพ์ "1" ทับค่าเดิม "1" กลายเป็น "11" → ราคาพุ่งผิดพลาด (11×750=8,250)
+ * แก้โดย select() ข้อความทั้งหมดทันทีที่แตะ/โฟกัสช่อง เพื่อให้พิมพ์ทับได้เลย
+ * และคำนวณราคาจริงตอนพิมพ์เสร็จ (blur/Enter) แทนการคำนวณทุกคีย์สโตรก
  */
 function setupQtyCard(cardId, unitPrice, nameBase){
   const card = document.getElementById(cardId);
   if(!card) return;
   const qtyInput = card.querySelector('.qty-input');
-  const totalEl = card.querySelector('.qty-total');
+  const totalEl = card.querySelector('.qty-total b');
   const radio = card.querySelector('input[type=radio]');
 
-  function currentQty(){
-    let q = parseInt(qtyInput.value, 10);
+  function clamp(q){
+    q = parseInt(q, 10);
     if(!q || q < 1) q = 1;
     if(q > 30) q = 30;
-    qtyInput.value = q;
     return q;
   }
 
@@ -1520,10 +1561,11 @@ function setupQtyCard(cardId, unitPrice, nameBase){
     document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('checked'));
     card.classList.add('checked');
     if(radio) radio.checked = true;
-    const qty = currentQty();
+    const qty = clamp(qtyInput.value);
+    qtyInput.value = qty;
     state.coursePrice = qty * unitPrice;
     state.courseName = nameBase + ' ' + qty + ' ครั้ง';
-    totalEl.textContent = 'รวม ' + state.coursePrice.toLocaleString('th-TH') + ' บาท';
+    totalEl.textContent = state.coursePrice.toLocaleString('th-TH') + ' บาท';
     updateSummary();
   }
 
@@ -1531,15 +1573,23 @@ function setupQtyCard(cardId, unitPrice, nameBase){
     btn.addEventListener('click', (e)=>{
       e.stopPropagation();
       const dir = parseInt(btn.dataset.qtyDir, 10);
-      let q = currentQty() + dir;
-      if(q < 1) q = 1;
-      if(q > 30) q = 30;
-      qtyInput.value = q;
+      qtyInput.value = clamp(clamp(qtyInput.value) + dir);
       selectThisCard();
     });
   });
-  qtyInput.addEventListener('click', (e)=> e.stopPropagation());
-  qtyInput.addEventListener('input', ()=> selectThisCard());
+
+  // ป้องกันบั๊กเลขต่อกัน: เลือกข้อความทั้งหมดทันทีที่แตะ/โฟกัสช่อง
+  // เพื่อให้พิมพ์ทับค่าเดิมได้เลย แทนที่จะพิมพ์ต่อท้ายจนกลายเป็นเลขผิด
+  qtyInput.addEventListener('click', (e)=>{ e.stopPropagation(); qtyInput.select(); });
+  qtyInput.addEventListener('focus', ()=> qtyInput.select());
+
+  // ระหว่างพิมพ์ ไม่ clamp/คำนวณราคาทันที (กันตัวเลขกระพริบผิดระหว่างพิมพ์หลายหลัก)
+  // พอเลิกโฟกัสหรือกด Enter ค่อย validate + คำนวณราคาจริง
+  qtyInput.addEventListener('blur', selectThisCard);
+  qtyInput.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){ qtyInput.blur(); }
+  });
+
   card.querySelector('.pkg-top').addEventListener('click', selectThisCard);
   card.querySelector('.chip').addEventListener('click', (e)=>{ e.stopPropagation(); });
 }
