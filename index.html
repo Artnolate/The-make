@@ -1730,7 +1730,7 @@ function syncPayAmount(){
     payAmount.disabled = false;
     payAmtRow.style.display = 'flex';
     installmentNote.style.display = 'none';
-    if(!payAmount.value || parseInt(payAmount.value,10) < 1000) payAmount.value = 1000;
+    payAmount.value = 1000; // รีเซ็ตเป็น 1,000 บาททุกครั้งที่เลือกตัวเลือกนี้
   } else if(type === 'แบ่งชำระ2งวด'){
     const c = computeInstallment();
     payAmount.value = c.first;
