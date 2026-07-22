@@ -1282,11 +1282,15 @@ initLiff();
 
 /* ---------------- Application state ---------------- */
 let state = {
-  goal: 'normal',                                    // 'normal' | 'preorder' | 'installment2'
-  courseMonthLabel: 'คอร์สปกติ (เริ่มเรียนได้ทันที)', // ข้อความอธิบายรอบ/เป้าหมายที่สมัคร
-  format: 'onsite',                                   // 'onsite' | 'online' | 'mix'
-  coursePrice: 0, courseName: "",
-  stayMode: "กบดาน", dormId: "", dormLabel: "", dormExtra: 0
+    goal: 'preorder',
+    courseMonthLabel: 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)',
+    format: 'onsite',
+    coursePrice: 8900,
+    courseName: "ติวสดเหมา 1 เดือน (จองล่วงหน้า ต.ค.)",
+    stayMode: "กบดาน",
+    dormId: "",
+    dormLabel: "",
+    dormExtra: 0
 };
 
 /* ---------------- Step 1: เลือกเป้าหมาย ---------------- */
