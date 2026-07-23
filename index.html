@@ -358,12 +358,16 @@ section.block.step-hidden{display:none;}
 .close-x{background:none;border:1px solid var(--line);color:var(--muted);width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;}
 .field{margin-bottom:14px;}
 .field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:500;}
-.field input[type=text],.field input[type=tel],.field select,.field textarea{
+.field input[type=text],.field input[type=tel],.field input[type=date],.field select,.field textarea{
   width:100%;padding:12px 13px;background:var(--ink-2);border:1px solid var(--line);
   border-radius:12px;color:var(--paper);font-family:var(--body);font-size:14px;
 }
 .field textarea{resize:vertical;min-height:64px;}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--amber);}
+/* input[type=date] บนพื้นหลังมืด ต้องบังคับ color-scheme ให้ไอคอนปฏิทิน
+   เป็นสีอ่อน ไม่งั้นเบราว์เซอร์บางตัวจะวาดไอคอนสีเข้มจนมองแทบไม่เห็น */
+.field input[type=date]{color-scheme:dark;font-family:var(--mono);letter-spacing:.02em;}
+.field-hint{font-size:11px;color:var(--muted-2);margin-top:6px;}
 .field-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .pay-toggle{display:flex;gap:8px;}
 .pay-opt{flex:1;text-align:center;padding:11px 8px;border-radius:12px;border:1px solid var(--line);background:var(--ink-2);cursor:pointer;font-size:13.5px;font-weight:600;color:var(--muted);}
@@ -830,6 +834,13 @@ section.block.step-hidden{display:none;}
       </div>
 
       <div class="field">
+        <label for="startDate">📅 วันที่เริ่มเรียน</label>
+        <input type="date" id="startDate">
+        <div class="field-hint">เลือกวันที่ต้องการเริ่มเรียนคอร์สนี้</div>
+        <div class="err" id="startDateErr">กรุณาเลือกวันที่เริ่มเรียน</div>
+      </div>
+
+      <div class="field">
         <label>รูปแบบการชำระเงิน</label>
         <div class="pay-toggle" id="payToggleWrap">
           <label class="pay-opt checked" id="payFullWrap">
@@ -867,6 +878,7 @@ section.block.step-hidden{display:none;}
         <div class="ss-title">📋 กล่องสรุปข้อมูลลงทะเบียน</div>
         <div class="ss-row"><span>เป้าหมาย</span><b id="fsGoal">—</b></div>
         <div class="ss-row"><span>คอร์สเรียน</span><b id="fsCourse">—</b></div>
+        <div class="ss-row"><span>วันที่เริ่มเรียน</span><b id="fsStartDate">—</b></div>
         <div class="ss-row" id="fsDormRow"><span>ที่นอนที่จอง</span><b id="fsDorm">—</b></div>
         <div class="ss-row"><span>สิทธิ์การจอง</span><b id="fsPrivilege">—</b></div>
         <div class="ss-divider"></div>
@@ -1628,6 +1640,14 @@ function setFormatMode(format){
   updateSummary();
 }
 
+/* ---------------- วันที่เริ่มเรียน: ห้ามเลือกวันที่ผ่านไปแล้ว ---------------- */
+const startDateInput = document.getElementById('startDate');
+startDateInput.min = new Date().toISOString().split('T')[0];
+startDateInput.addEventListener('change', ()=>{
+  document.getElementById('startDateErr').style.display = 'none';
+  updateSubmitSummary();
+});
+
 /* ---------------- Department "other" toggle ---------------- */
 document.getElementById('department').addEventListener('change', (e)=>{
   const isOther = e.target.value === 'อื่นๆ';
@@ -1816,6 +1836,11 @@ function updateSubmitSummary(){
   document.getElementById('fsGoal').textContent = isPreorder ? 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)' : 'สมัครคอร์สปกติ';
   document.getElementById('fsCourse').textContent = state.courseName || '—';
 
+  const startDateVal = document.getElementById('startDate').value;
+  document.getElementById('fsStartDate').textContent = startDateVal
+    ? formatThaiDate(new Date(startDateVal + 'T00:00:00'))
+    : 'ยังไม่ได้เลือก';
+
   const dormRow = document.getElementById('fsDormRow');
   if(isOnline){
     dormRow.style.display = 'none';
@@ -1912,6 +1937,7 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
   const phone = document.getElementById('phone').value.trim();
   const parentPhone = document.getElementById('parentPhone').value.trim();
   const address = document.getElementById('address').value.trim();
+  const startDate = document.getElementById('startDate').value; // "YYYY-MM-DD" ตรงกับ parseConfigDate_ ฝั่ง code.gs
   const payType = currentPayType(); // 'ชำระเต็ม' | 'มัดจำ' | 'แบ่งชำระ2งวด'
   const total = totalPrice();
   const department = deptSelect === 'อื่นๆ' ? (deptOther ? ('อื่นๆ: ' + deptOther) : '') : deptSelect;
@@ -1944,6 +1970,11 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
   if(!deptSelect || (deptSelect==='อื่นๆ' && !deptOther)){
     setMsg("กรุณาเลือก (หรือระบุ) ภาควิชาที่สมัคร"); ok=false;
   }
+  if(!startDate){
+    document.getElementById('startDateErr').style.display='block'; ok=false;
+  } else {
+    document.getElementById('startDateErr').style.display='none';
+  }
   if(payType==='มัดจำ' && (amount < 1000 || amount >= total)){
     document.getElementById('payErr').style.display='block'; ok=false;
   } else {
@@ -1962,6 +1993,7 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
     lineDisplayName: LIFF_DISPLAY_NAME,
     linePictureUrl: LIFF_PICTURE_URL,
     nickname, fullname, school, grade, phone, parentPhone, address,
+    startDate,
     department,
     goal: state.goal === 'preorder' ? 'จองล่วงหน้า (ต.ค.)' : 'สมัครปกติ',
     courseMonth: state.courseMonthLabel,
