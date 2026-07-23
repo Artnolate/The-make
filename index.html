@@ -475,7 +475,7 @@ section.block.step-hidden{display:none;}
     <div class="ticket">
       <div class="badge-row" id="badgeRow">
         <span class="badge exclusive">EXCLUSIVE · เด็กเก่าเท่านั้น</span>
-        <span class="badge date">21–31 ก.ค. 69</span>
+        <span class="badge date">23–31 ก.ค. 69</span>
       </div>
       <h1>THE MAKE<br><span>PORTFOLIO</span> TCAS70</h1>
       <p>รอบพิเศษเปิดจองก่อนใคร เฉพาะน้องที่เคยเรียนกับเรา — เลือกคอร์ส เลือกเตียงกบดาน ก่อนเปิดรอบทั่วไป</p>
@@ -507,11 +507,11 @@ section.block.step-hidden{display:none;}
         <div class="month-top">
           <div>
             <div class="month-name">จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)</div>
-            <div class="month-sub">จองสิทธิ์ล็อกเตียง เฉพาะคอร์สเหมา 1 เดือน ราคา 8,900 บาท</div>
+            <div class="month-sub">จองสิทธิ์ล็อกเตียง เฉพาะคอร์สเหมา 1 เดือน</div>
           </div>
           <span class="month-tag tag-open">เปิดจอง</span>
         </div>
-        <div class="month-price">มัดจำเริ่มต้น 1,000 บาท · คอร์สติวสดเหมา 1 เดือน 8,900 บาท</div>
+        <div class="month-price">มัดจำ 1,000 บาท · คอร์สติวสดเหมา 1 เดือน 8,900 บาท</div>
       </label>
        
       <label class="month-card" id="goalNormalCard" data-goal="normal">
@@ -679,7 +679,7 @@ section.block.step-hidden{display:none;}
     <div class="sec-head">
       <span class="sec-num" data-label="รูปแบบการเข้าเรียน"></span>
       <h2>รูปแบบการเข้าเรียน</h2>
-      <p>เลือก "กบดาน" หากต้องการพักค้างและจองเตียง หรือ "ไป-กลับ" หากไม่ต้องการที่พัก สิทธิ์ในการจองเตียงจะล็อกตำแหน่งตามลำดับการสมัคร</p>
+      <p>เลือก "กบดานนอนตึก" หากต้องการพักค้างและจองเตียง หรือ "ไป-กลับ" หากไม่ต้องการที่พัก สิทธิ์ในการจองเตียงจะล็อกตำแหน่งตามลำดับการสมัคร</p>
     </div>
 
     <div class="callout callout-lock" id="preorderStayNote" style="display:none;">🔒 จองล่วงหน้าคอร์สทำพอร์ตต้องล็อกเตียงแบบ "กบดาน" เท่านั้น เพื่อยืนยันสิทธิ์ที่นอนในเดือนตุลาคม</div>
@@ -687,7 +687,7 @@ section.block.step-hidden{display:none;}
     <div class="stay-toggle" id="stayToggleWrap">
       <div class="stay-opt checked" id="stayHoldWrap">
         <input type="radio" name="staymode" value="กบดาน" id="stayHold" checked>
-        <label for="stayHold">🛏️ กบดาน</label>
+        <label for="stayHold">🛏️ กบดานนอนตึก</label>
       </div>
       <div class="stay-opt" id="stayGoWrap">
         <input type="radio" name="staymode" value="ไป-กลับ" id="stayGo">
@@ -759,7 +759,7 @@ section.block.step-hidden{display:none;}
     <div class="btn-hint">กรอกข้อมูลส่วนตัว + แนบสลิปมัดจำในขั้นตอนถัดไป</div>
   </section>
 
-  <div class="foot">THE MAKE PORTFOLIO · TCAS70 Exclusive Round · 21–31 ก.ค. 2569</div>
+  <div class="foot">THE MAKE PORTFOLIO · TCAS70 Exclusive Round · 23-31 ก.ค. 2569</div>
 </main>
 
 <!-- ============ REGISTRATION SHEET (modal) ============ -->
@@ -1172,7 +1172,7 @@ function updateDormPeriodLabel(){
   const note = document.getElementById('dormPeriodNote');
   if(!note) return;
   if(currentBedPeriodLabel){
-    note.textContent = '🗓️ แสดงตำแหน่งเตียงว่างสำหรับช่วง ' + currentBedPeriodLabel;
+    note.textContent = '🗓️ แสดงตำแหน่งเตียงว่างสำหรับช่วง ' + currentBedPeriodLabel + ' อาจมีการปรับเปลี่ยนวันที่ตามประกาศระเบียบการจากมหาวิทยาลัยอีกครั้ง ';
     note.style.display = 'block';
   } else {
     note.style.display = 'none';
