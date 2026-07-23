@@ -946,7 +946,8 @@ section.block.step-hidden{display:none;}
 const CONFIG = {
   LIFF_ID: "2010678772-aHz0EeXW",                       // จาก LINE Developers Console
   APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzEwz_uM9k3YtXYZQSFqE4TbqZcnDdbaMPFB5qCC2YPAUGsqvEEMxOPsCf6aXkYSx6U/exec", // /exec URL จาก Apps Script deployment
-  BANK_ACCOUNT_TEXT: "ธ.ไทยพาณิชย์ 171-4-49798-5 (บริษัท อาร์ทโนเลท จำกัด)"
+  BANK_ACCOUNT_TEXT: "ธ.ไทยพาณิชย์ 171-4-49798-5 (บริษัท อาร์ทโนเลท จำกัด)",
+  NORMAL_COURSE_OPEN: false // ⚠️ เปลี่ยนเป็น true เมื่อต้องการเปิดรับสมัครคอร์สปกติ
 };
 const PAYMENT_DEADLINE_TEXT = "20 กันยายน 2569"; // ต้องตรงกับ CONFIG.PAYMENT_DEADLINE ใน code.gs
 const THAI_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
@@ -954,6 +955,29 @@ function formatThaiDate(d){
   return d.getDate() + " " + THAI_MONTHS[d.getMonth()] + " " + (d.getFullYear() + 543);
 }
 function money(n){ return n.toLocaleString('th-TH') + " ฿"; }
+
+/* ---------------- ควบคุมการเปิด-ปิด คอร์สปกติ ---------------- */
+function applyNormalCourseState() {
+  const normalCard = document.getElementById('goalNormalCard');
+  const normalRadio = document.getElementById('goalNormalRadio');
+  const normalTag = normalCard.querySelector('.month-tag');
+
+  if (!CONFIG.NORMAL_COURSE_OPEN) {
+    // ปิดการใช้งาน
+    normalCard.classList.add('disabled');
+    normalCard.style.pointerEvents = 'none';
+    normalRadio.disabled = true;
+    normalTag.className = 'month-tag tag-soon';
+    normalTag.textContent = 'เปิดใช้งานเร็วๆ นี้';
+  } else {
+    // เปิดการใช้งาน
+    normalCard.classList.remove('disabled');
+    normalCard.style.pointerEvents = '';
+    normalRadio.disabled = false;
+    normalTag.className = 'month-tag tag-open';
+    normalTag.textContent = 'เปิดรับสมัคร';
+  }
+}
 
 /* ---------------- Seat-map bed picker: data + renderer ---------------- */
 // รหัสเตียงแต่ละอันประกอบจาก roomId + ตำแหน่ง เช่น "87F4-3B" (ตึก87 ชั้น4 เตียง3 บน)
@@ -1246,9 +1270,14 @@ function applyPendingCardVisibility(){
     setGoal('installment2');
   } else {
     document.getElementById('overdueLockNote').style.display = 'none';
-    normalCard.classList.remove('disabled');
+    
+    // เช็กสถานะการเปิด/ปิดคอร์สปกติจาก CONFIG ก่อนอนุญาตให้ปลดล็อก
+    if (CONFIG.NORMAL_COURSE_OPEN) {
+      normalCard.classList.remove('disabled');
+      normalCard.style.pointerEvents = '';
+    }
+    
     preorderCard.classList.remove('disabled');
-    normalCard.style.pointerEvents = '';
     preorderCard.style.pointerEvents = '';
     tag.textContent = 'ต้องดำเนินการ';
     tag.style.background = '';
@@ -2146,14 +2175,20 @@ document.getElementById('pendSubmitBtn').addEventListener('click', async ()=>{
       document.getElementById('pendMsg').textContent = "ส่งสลิปเรียบร้อย รอทีมงานตรวจสอบ ✅ ตอนนี้สามารถสมัครคอร์สใหม่ได้แล้ว";
       pendingInstallmentInfo = null; // ปลดล็อกให้สมัครคอร์สใหม่ได้หลังส่งสลิปแล้ว
       document.getElementById('overdueLockNote').style.display = 'none';
-      document.getElementById('goalNormalCard').classList.remove('disabled');
+      
+      // เช็กก่อนจะปลดล็อกปุ่มคอร์สปกติ
+      if (CONFIG.NORMAL_COURSE_OPEN) {
+        document.getElementById('goalNormalCard').classList.remove('disabled');
+        document.getElementById('goalNormalCard').style.pointerEvents = '';
+      }
       document.getElementById('goalPreorderCard').classList.remove('disabled');
-      document.getElementById('goalNormalCard').style.pointerEvents = '';
       document.getElementById('goalPreorderCard').style.pointerEvents = '';
+      
       document.getElementById('goalInstallmentCard').style.display = 'none';
       setTimeout(()=>{
         document.getElementById('pendingOverlay').classList.remove('open');
-        setGoal('normal');
+        // ถ้าคอร์สปกติเปิดอยู่ให้สลับไปหน้าคอร์สปกติ ถ้าปิดอยู่ให้สลับไปหน้า Preorder
+        setGoal(CONFIG.NORMAL_COURSE_OPEN ? 'normal' : 'preorder');
       }, 1800);
     } else {
       document.getElementById('pendMsg').style.color = 'var(--coral)';
@@ -2168,6 +2203,7 @@ document.getElementById('pendSubmitBtn').addEventListener('click', async ()=>{
 });
 
 /* ---------------- Initial UI state ---------------- */
+applyNormalCourseState();
 setGoal('preorder');
 updateDormAvailability();
 updateRules();
