@@ -1376,8 +1376,7 @@ function setGoal(goal){
  * เมื่อเลือก "จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)":
  *   - ซ่อน Step 2 (รูปแบบเรียน) และ Step 3 (แพ็กเกจ) เพราะกำหนดตายตัวเป็น
  *     ติวสดเหมา 1 เดือน ราคา 8,900 บาทอยู่แล้ว
- *   - บังคับรูปแบบการเข้าเรียนเป็น "กบดาน" เท่านั้น (ซ่อนตัวเลือกไป-กลับ)
- *     เพื่อให้ตรงตามจุดประสงค์ "จองสิทธิ์ล็อกเตียง"
+ *   - ไม่บังคับรูปแบบการเข้าเรียนเป็น "กบดาน" เท่านั้นอีกต่อไป
  * เมื่อกลับไปเลือก "สมัครคอร์สปกติ": คืนค่า Step 2/3 ตามปกติ และให้เลือก
  * แพ็กเกจใหม่อีกครั้ง (เคลียร์คอร์ส/ราคาที่เคยเลือกไว้ กันข้อมูลเพี้ยน)
  *
@@ -1405,24 +1404,22 @@ function applyGoalMode(){
   document.getElementById('package-section').classList.toggle('step-hidden', isPreorder);
   document.getElementById('stay').classList.remove('step-hidden');
   document.getElementById('payment-rules').classList.remove('step-hidden');
-  document.getElementById('stayToggleWrap').style.display = isPreorder ? 'none' : 'flex';
-  document.getElementById('preorderStayNote').style.display = isPreorder ? 'block' : 'none';
+  document.getElementById('stayToggleWrap').style.display = 'flex'; // แสดงปุ่มเลือกเสมอ
+  document.getElementById('preorderStayNote').style.display = 'none'; // ซ่อนข้อความเตือนล็อกเตียง
 
   if(isPreorder){
     state.format = 'onsite';
     state.coursePrice = 8900;
     state.courseName = 'ติวสดเหมา 1 เดือน (จองล่วงหน้า ต.ค.)';
     state.courseMonthLabel = 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)';
-    state.stayMode = 'กบดาน';
+
+    // อ่านค่าจากสถานะปุ่มที่ถูกเลือกอยู่บน UI
+    const isHold = document.getElementById('stayHold').checked;
+    state.stayMode = isHold ? 'กบดาน' : 'ไป-กลับ';
 
     document.getElementById('stay').classList.remove('step-hidden');
-    document.getElementById('dormZone').classList.remove('hidden');
-    document.getElementById('stayHoldWrap').classList.add('checked');
-    document.getElementById('stayGoWrap').classList.remove('checked');
-    document.getElementById('stayHold').checked = true;
-    document.getElementById('stayGo').checked = false;
-
-    document.getElementById('sumDormRow').classList.remove('summary-row-hidden');
+    document.getElementById('dormZone').classList.toggle('hidden', !isHold);
+    document.getElementById('sumDormRow').classList.toggle('summary-row-hidden', !isHold);
   } else {
     state.coursePrice = 0;
     state.courseName = "";
@@ -1654,11 +1651,10 @@ document.getElementById('department').addEventListener('change', (e)=>{
   document.getElementById('departmentOtherWrap').style.display = isOther ? 'block' : 'none';
 });
 
-/* ---------------- Step 4: กบดาน / ไป-กลับ (ไม่มีผลถ้าเป็นจองล่วงหน้า ซึ่งบังคับกบดาน) ---------------- */
+/* ---------------- Step 4: กบดาน / ไป-กลับ ---------------- */
 document.getElementById('stayHoldWrap').addEventListener('click', ()=>setStay('กบดาน'));
 document.getElementById('stayGoWrap').addEventListener('click', ()=>setStay('ไป-กลับ'));
 function setStay(mode){
-  if(state.goal === 'preorder') return; // จองล่วงหน้าบังคับกบดานเท่านั้น
   if(state.format === 'online') return; // ออนไลน์ล้วนไม่มีการเลือกที่พัก
   state.stayMode = mode;
   document.getElementById('stayHoldWrap').classList.toggle('checked', mode==='กบดาน');
