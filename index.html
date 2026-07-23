@@ -845,7 +845,7 @@ section.block.step-hidden{display:none;}
         <div class="pay-toggle" id="payToggleWrap">
           <label class="pay-opt checked" id="payFullWrap">
             <input type="radio" name="paytype" value="ชำระเต็ม" id="payFull" checked>
-            ชำระเต็มจำนวน<span class="pay-note-sub">ไม่มีค่าธรรมเนียม · คุ้มที่สุด</span>
+            ชำระเต็มจำนวน<span class="pay-note-sub" id="payFullSub">ไม่มีค่าธรรมเนียม · คุ้มที่สุด</span>
           </label>
           <label class="pay-opt" id="paySecondaryWrap">
             <input type="radio" name="paytype" value="" id="paySecondary">
@@ -1375,7 +1375,8 @@ function setGoal(goal){
 /**
  * เมื่อเลือก "จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)":
  *   - ซ่อน Step 2 (รูปแบบเรียน) และ Step 3 (แพ็กเกจ) เพราะกำหนดตายตัวเป็น
- *     ติวสดเหมา 1 เดือน ราคา 8,900 บาทอยู่แล้ว
+ *     ติวสดเหมา 1 เดือนอยู่แล้ว (ราคาขึ้นกับรูปแบบกบดาน/ไป-กลับ — ดู
+ *     updatePreorderCourseInfo())
  *   - ไม่บังคับรูปแบบการเข้าเรียนเป็น "กบดาน" เท่านั้นอีกต่อไป
  * เมื่อกลับไปเลือก "สมัครคอร์สปกติ": คืนค่า Step 2/3 ตามปกติ และให้เลือก
  * แพ็กเกจใหม่อีกครั้ง (เคลียร์คอร์ส/ราคาที่เคยเลือกไว้ กันข้อมูลเพี้ยน)
@@ -1409,13 +1410,13 @@ function applyGoalMode(){
 
   if(isPreorder){
     state.format = 'onsite';
-    state.coursePrice = 8900;
-    state.courseName = 'ติวสดเหมา 1 เดือน (จองล่วงหน้า ต.ค.)';
     state.courseMonthLabel = 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)';
 
     // อ่านค่าจากสถานะปุ่มที่ถูกเลือกอยู่บน UI
     const isHold = document.getElementById('stayHold').checked;
     state.stayMode = isHold ? 'กบดาน' : 'ไป-กลับ';
+    // ราคาคอร์ส preorder ขึ้นกับรูปแบบกบดาน/ไป-กลับ (ดู PREORDER_PRICING ด้านล่าง)
+    updatePreorderCourseInfo();
 
     document.getElementById('stay').classList.remove('step-hidden');
     document.getElementById('dormZone').classList.toggle('hidden', !isHold);
@@ -1485,7 +1486,8 @@ function updateDormAvailability(){
 
 /**
  * ปรับข้อความกติกาการชำระเงิน (Step 5) ตามเป้าหมาย/รูปแบบเรียนที่เลือก:
- *   - จองล่วงหน้า: มัดจำ 1,000 + กำหนดชำระส่วนที่เหลือ 20 ก.ย. 69
+ *   - จองล่วงหน้า: มัดจำ 1,000 + กำหนดชำระส่วนที่เหลือ 20 ก.ย. 69 หรือ
+ *     ชำระเต็มจำนวนวันนี้รับส่วนลดพิเศษ (ราคาขึ้นกับกบดาน/ไป-กลับ)
  *   - คอร์สปกติ (ออนไลน์): ต้องชำระเต็มจำนวนเท่านั้น
  *   - คอร์สปกติ (ติวสด/Mix): เลือกชำระเต็มจำนวน หรือแบ่งชำระ 2 งวด
  */
@@ -1498,9 +1500,10 @@ function updateRules(){
   let bankNum = 2;
 
   if(isPreorder){
-    primaryEl.innerHTML = '<b>มัดจำขั้นต่ำ 1,000 บาท</b> เพื่อล็อกที่นั่งหรือที่นอนไว้ก่อน';
+    const pricing = PREORDER_PRICING[state.stayMode] || PREORDER_PRICING['กบดาน'];
+    primaryEl.innerHTML = '<b>มัดจำขั้นต่ำ 1,000 บาท</b> เพื่อล็อกที่นั่งหรือที่นอนไว้ก่อน (ราคาปกติ ' + money(pricing.normal) + ') หรือ <b>ชำระเต็มจำนวนวันนี้ลดราคาเหลือ ' + money(pricing.full) + '</b>';
     secondaryLi.classList.remove('rule-hidden');
-    secondaryText.innerHTML = 'ชำระส่วนที่เหลือทั้งหมด <b>ภายในวันที่ 20 กันยายน 2569</b>';
+    secondaryText.innerHTML = 'กรณีมัดจำ ชำระส่วนที่เหลือทั้งหมด <b>ภายในวันที่ 20 กันยายน 2569</b>';
     bankNum = 3;
   } else if(isOnline){
     primaryEl.innerHTML = 'คอร์สออนไลน์ <b>ต้องชำระเต็มจำนวนเท่านั้น</b> (ไม่มีมัดจำ/ไม่มีแบ่งชำระ)';
@@ -1663,6 +1666,11 @@ function setStay(mode){
   document.getElementById('stayGo').checked = mode==='ไป-กลับ';
   document.getElementById('dormZone').classList.toggle('hidden', mode!=='กบดาน');
   if(mode!=='กบดาน'){ state.dormId=""; state.dormLabel=""; state.dormExtra=0; }
+  if(state.goal === 'preorder'){
+    // สลับกบดาน/ไป-กลับ ระหว่างเป้าหมาย preorder ต้องอัปเดตราคาคอร์สใหม่ทันที
+    updatePreorderCourseInfo();
+    updateRules();
+  }
   updateSummary();
 }
 
@@ -1670,7 +1678,49 @@ function monthDurationText(){
   return state.goal === 'preorder' ? 'เดือนตุลาคม' : 'รอบคอร์สที่สมัคร';
 }
 
-function totalPrice(){ return state.coursePrice + (state.stayMode==='กบดาน' ? state.dormExtra : 0); }
+/**
+ * ราคาคอร์ส "จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)" แยกตามรูปแบบการเข้าเรียน:
+ *   - กบดาน:   ราคาปกติ 8,900 บาท   / ชำระเต็มจำนวนวันนี้ลดเหลือ 8,600 บาท
+ *   - ไป-กลับ: ราคาปกติ 8,400 บาท   / ชำระเต็มจำนวนวันนี้ลดเหลือ 8,200 บาท
+ * ส่วนรูปแบบ "มัดจำ 1,000 บาท" ใช้ราคาปกติ (normal) เสมอในการคำนวณยอดคงเหลือ
+ * — ส่วนลดจากการชำระเต็มจำนวนใช้ได้เฉพาะตอนชำระครบวันนี้เท่านั้น
+ */
+const PREORDER_PRICING = {
+  'กบดาน':   { normal: 8900, full: 8600 },
+  'ไป-กลับ': { normal: 8400, full: 8200 }
+};
+/** ราคาปกติ (ก่อนส่วนลดชำระเต็ม) ของ preorder ตามรูปแบบการเข้าเรียนที่ระบุ */
+function preorderBasePrice(stayMode){
+  return (PREORDER_PRICING[stayMode] || PREORDER_PRICING['กบดาน']).normal;
+}
+/**
+ * ราคาที่ใช้จริงของ preorder ณ ขณะนี้ — ขึ้นกับรูปแบบการเข้าเรียน (state.stayMode)
+ * และรูปแบบการชำระเงินที่กำลังเลือกอยู่ (currentPayType()):
+ *   - ชำระเต็ม -> ราคาลดพิเศษ (full)
+ *   - มัดจำ    -> ราคาปกติ (normal)
+ */
+function preorderEffectivePrice(){
+  const pricing = PREORDER_PRICING[state.stayMode] || PREORDER_PRICING['กบดาน'];
+  return currentPayType() === 'ชำระเต็ม' ? pricing.full : pricing.normal;
+}
+/** อัปเดต state.coursePrice / state.courseName ของ preorder ให้ตรงกับรูปแบบการเข้าเรียนปัจจุบัน */
+function updatePreorderCourseInfo(){
+  if(state.goal !== 'preorder') return;
+  state.coursePrice = preorderBasePrice(state.stayMode);
+  state.courseName = 'ติวสดเหมา 1 เดือน (จองล่วงหน้า ต.ค.) — ' + state.stayMode;
+}
+
+/**
+ * ราคาคอร์ส "จองล่วงหน้า (ต.ค.)" ขึ้นกับรูปแบบการเข้าเรียน (กบดาน/ไป-กลับ)
+ * และรูปแบบการชำระเงินที่กำลังเลือกอยู่ในฟอร์ม (payType):
+ *   - ชำระเต็มจำนวนวันนี้ -> ราคาลดพิเศษ (pricing.full)
+ *   - มัดจำ 1,000 บาท     -> ราคาปกติ (pricing.normal) ใช้คำนวณยอดคงเหลือ
+ * คอร์สปกติ (ไม่ใช่ preorder) ใช้ state.coursePrice ตามเดิม ไม่เปลี่ยนแปลง
+ */
+function totalPrice(){
+  const course = state.goal === 'preorder' ? preorderEffectivePrice() : state.coursePrice;
+  return course + (state.stayMode==='กบดาน' ? state.dormExtra : 0);
+}
 
 /** คำนวณยอดแบ่งชำระ 2 งวด: รวม 2% ก่อน แล้วแบ่ง 60/40 */
 function computeInstallment(){
@@ -1748,19 +1798,24 @@ function closeReg(){ document.getElementById('regOverlay').classList.remove('ope
 /**
  * ตัวเลือกที่ 2 ในหน้าฟอร์มเปลี่ยนความหมายตามเป้าหมาย:
  *   - สมัครคอร์สปกติ  -> "แบ่งชำระ 2 งวด (+2%)"
- *   - จองล่วงหน้า      -> "มัดจำ 1,000 บาท"
+ *   - จองล่วงหน้า      -> "มัดจำ 1,000 บาท" (ราคาปกติเสมอ ไม่ได้ส่วนลด)
  * ตัวเลือกแรก "ชำระเต็มจำนวน" เป็นค่า default เสมอทุกครั้งที่เปิดฟอร์ม
+ * และสำหรับ preorder จะแสดงราคาลดพิเศษกำกับไว้ที่ตัวเลือกนี้ด้วย
  */
 function updatePayOptions(){
   const isPreorder = state.goal === 'preorder';
   const secInput = document.getElementById('paySecondary');
   const secLabel = document.getElementById('paySecondaryLabel');
+  const fullSub = document.getElementById('payFullSub');
   if(isPreorder){
+    const pricing = PREORDER_PRICING[state.stayMode] || PREORDER_PRICING['กบดาน'];
     secInput.value = 'มัดจำ';
-    secLabel.textContent = 'มัดจำ 1,000 บาท';
+    secLabel.textContent = 'มัดจำ 1,000 บาท (ราคาปกติ ' + money(pricing.normal) + ')';
+    if(fullSub) fullSub.textContent = 'ลดพิเศษเหลือ ' + money(pricing.full) + ' (จาก ' + money(pricing.normal) + ')';
   } else {
     secInput.value = 'แบ่งชำระ2งวด';
     secLabel.textContent = 'แบ่งชำระ 2 งวด (+2%)';
+    if(fullSub) fullSub.textContent = 'ไม่มีค่าธรรมเนียม · คุ้มที่สุด';
   }
   setPayType(true);
 }
