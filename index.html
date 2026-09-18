@@ -87,6 +87,7 @@ a{color:inherit;}
 .badge.exclusive{background:rgba(255,107,91,.14);color:var(--coral);border:1px solid rgba(255,107,91,.35);}
 .badge.date{background:rgba(245,166,35,.14);color:var(--amber-2);border:1px solid rgba(245,166,35,.35);}
 .badge.returning{background:rgba(74,222,128,.14);color:var(--green);border:1px solid rgba(74,222,128,.4);}
+.badge.done{background:rgba(74,222,128,.18);color:var(--green);border:1px solid rgba(74,222,128,.5);}
 .hero h1{
   font-size:30px;font-weight:800;color:var(--paper);line-height:1.15;
 }
@@ -240,6 +241,7 @@ section.block.step-hidden{display:none;}
 .legend-swatch{width:14px;height:14px;border-radius:4px;display:inline-block;}
 .legend-swatch.lg-open{border:1.5px solid var(--line);background:transparent;}
 .legend-swatch.lg-selected{background:var(--amber);}
+.legend-swatch.lg-own{background:rgba(245,166,35,.3);border:1.5px solid var(--amber);}
 .legend-swatch.lg-taken{background:var(--line);}
 .dorm-panel{display:none;}
 .dorm-panel.active{display:block;}
@@ -264,6 +266,7 @@ section.block.step-hidden{display:none;}
 }
 .seat:active{transform:scale(.94);}
 .seat.selected{background:var(--amber);border-color:var(--amber);color:#241706;}
+.seat.own{border-color:var(--amber);color:var(--amber-2);background:rgba(245,166,35,.12);}
 .seat.taken{background:rgba(0,0,0,.35);border-color:transparent;color:rgba(245,239,228,.35);cursor:not-allowed;}
 .dorm-disabled-panel{
   border-radius:var(--radius);padding:26px 18px;text-align:center;background:var(--ink-2);
@@ -281,6 +284,7 @@ section.block.step-hidden{display:none;}
   border-radius:12px;padding:13px 14px;font-size:13px;color:var(--amber-2);margin:14px 0 4px;
 }
 .callout.callout-lock{border-color:rgba(74,222,128,.35);border-left-color:var(--green);color:var(--green);}
+.callout.callout-warn{border-color:rgba(255,107,91,.45);border-left-color:var(--coral);color:var(--coral);}
 
 /* ---------- Payment rules ---------- */
 .rule-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
@@ -310,6 +314,7 @@ section.block.step-hidden{display:none;}
 
 /* ---------- CTA block ---------- */
 .cta-block{padding:30px 0 10px;}
+.cta-block.step-hidden{display:none;}
 .agree{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--muted);margin-bottom:16px;}
 .agree input{margin-top:3px;width:17px;height:17px;accent-color:var(--amber);flex-shrink:0;}
 .agree a{color:var(--amber-2);text-decoration:underline;}
@@ -323,6 +328,16 @@ section.block.step-hidden{display:none;}
 .btn-main:active{transform:scale(.98);}
 .btn-main:disabled{opacity:.4;filter:grayscale(.4);box-shadow:none;cursor:not-allowed;}
 .btn-hint{text-align:center;font-size:11.5px;color:var(--muted-2);margin-top:9px;}
+
+/* ---------- Completed booking view ---------- */
+.completed-hero{
+  text-align:center;padding:10px 0 4px;
+}
+.completed-hero .check-circle{
+  width:64px;height:64px;border-radius:50%;background:rgba(74,222,128,.12);
+  border:1.5px solid rgba(74,222,128,.4);display:flex;align-items:center;justify-content:center;
+  margin:0 auto 14px;font-size:30px;color:var(--green);
+}
 
 /* ---------- LINE-only access gate ---------- */
 #liffGate{
@@ -480,7 +495,7 @@ section.block.step-hidden{display:none;}
       <h1>THE MAKE<br><span>PORTFOLIO</span> TCAS70</h1>
       <p>รอบพิเศษเปิดจองก่อนใคร เฉพาะน้องที่เคยเรียนกับเรา — เลือกคอร์ส เลือกเตียงกบดาน ก่อนเปิดรอบทั่วไป</p>
       <div class="tear">
-        <span>สถานะ · <b>เปิดรับ Exclusive</b></span>
+        <span>สถานะ · <b id="heroStatusText">เปิดรับ Exclusive</b></span>
         <span id="liffTag">กำลังเชื่อมต่อ LINE…</span>
       </div>
     </div>
@@ -488,6 +503,36 @@ section.block.step-hidden{display:none;}
 </header>
 
 <main class="wrap">
+
+  <!-- ============ สถานะ "จองสมบูรณ์แล้ว" (คอลัมน์ M = ชำระเต็ม / ชำระครบแล้ว) ============ -->
+  <section class="block" id="completedZone" style="display:none;">
+    <div class="completed-hero">
+      <div class="check-circle" id="cpIcon">✓</div>
+    </div>
+    <div class="sec-head" style="text-align:center;">
+      <span class="sec-num" style="color:var(--green)">STATUS · การจองของคุณ</span>
+      <h2 id="cpTitle">การจองสมบูรณ์แล้ว 🎉</h2>
+      <p id="cpSubtitle">ระบบได้รับการชำระเงินเต็มจำนวนของน้องเรียบร้อยแล้ว ไม่ต้องดำเนินการอะไรเพิ่มเติม</p>
+    </div>
+
+    <div class="submit-summary">
+      <div class="ss-title">📋 รายละเอียดการจองของคุณ</div>
+      <div class="ss-row"><span>เป้าหมาย</span><b id="cpGoal">—</b></div>
+      <div class="ss-row"><span>คอร์สที่จอง</span><b id="cpCourse">—</b></div>
+      <div class="ss-row" id="cpStartRow"><span>วันที่เริ่มเรียน</span><b id="cpStart">—</b></div>
+      <div class="ss-row"><span>รูปแบบเข้าเรียน</span><b id="cpStay">—</b></div>
+      <div class="ss-row" id="cpDormRow"><span>ตำแหน่งที่นอน</span><b id="cpDorm">—</b></div>
+      <div class="ss-row" id="cpPeriodRow"><span>ช่วงสิทธิ์ที่นอน</span><b id="cpPeriod">—</b></div>
+      <div class="ss-divider"></div>
+      <div class="ss-row ss-highlight"><span>ยอดที่ชำระแล้ว</span><b id="cpPaid">0 ฿</b></div>
+      <div class="ss-row" id="cpBalanceRow"><span>ยอดคงเหลือ</span><b id="cpBalance" class="ss-remaining">0 ฿</b></div>
+      <div class="ss-row"><span>สถานะสลิป</span><b id="cpApproval">—</b></div>
+    </div>
+
+    <div class="callout callout-lock" id="cpNote">
+      🔒 ระบบล็อกสิทธิ์ที่นั่งและที่นอนของน้องไว้เรียบร้อยแล้ว หากต้องการแก้ไขข้อมูล กรุณาติดต่อทีมงานผ่านไลน์
+    </div>
+  </section>
 
   <!-- ============ Step 1: เลือกเป้าหมาย ============ -->
   <section class="block" id="goal-section">
@@ -497,8 +542,13 @@ section.block.step-hidden{display:none;}
       <p>เลือกว่าต้องการสมัครเรียนแบบปกติ หรือจองสิทธิ์ล่วงหน้าสำหรับคอร์สทำพอร์ตเดือนตุลาคม</p>
     </div>
 
-    <div class="callout" id="overdueLockNote" style="display:none; border-color:rgba(255,107,91,.45); border-left-color:var(--coral); color:var(--coral);">
+    <div class="callout callout-warn" id="overdueLockNote" style="display:none;">
       ⚠️ ยอดค้างชำระงวดที่ 2 เลยกำหนดชำระแล้ว กรุณาชำระให้เรียบร้อยก่อนสมัครคอร์สใหม่หรือจองคอร์สล่วงหน้า
+    </div>
+
+    <!-- ล็อกเพราะยังมียอดคงเหลือจากการชำระแบบ "มัดจำ" / "แบ่งชำระ 2 งวด" -->
+    <div class="callout callout-warn" id="depositLockNote" style="display:none;">
+      🔒 น้องมีการจองที่ชำระแบบ <b>"มัดจำ"</b> ค้างอยู่ กรุณาชำระยอดคงเหลือให้ครบก่อน จึงจะสมัคร/จองคอร์สใหม่ได้
     </div>
 
     <div class="month-list">
@@ -513,7 +563,7 @@ section.block.step-hidden{display:none;}
         </div>
         <div class="month-price">มัดจำ 1,000 บาท · คอร์สติวสดเหมา 1 เดือน 8,900 บาท</div>
       </label>
-       
+
       <label class="month-card" id="goalNormalCard" data-goal="normal">
         <input type="radio" name="goal" value="normal" id="goalNormalRadio">
         <div class="month-top">
@@ -525,7 +575,6 @@ section.block.step-hidden{display:none;}
         </div>
       </label>
 
-      
       <label class="month-card" id="goalInstallmentCard" data-goal="installment2" style="display:none;">
         <input type="radio" name="goal" value="installment2" id="goalInstallmentRadio">
         <div class="month-top">
@@ -697,9 +746,9 @@ section.block.step-hidden{display:none;}
 
     <a class="pdf-link-btn" href="https://github.com/user-attachments/files/30295052/default.pdf" target="_blank" rel="noopener">
       📄 อ่านกฎระเบียบและข้อบังคับภายในตึก
-    </a></div>
-    
-     <div id="dormZone" style="margin-top:16px;">
+    </a>
+
+    <div id="dormZone" style="margin-top:16px;">
       <div class="callout" id="dormPeriodNote" style="display:none;"></div>
       <div class="dorm-tabs" id="dormTabs"><!-- JS: ปุ่มเลือกอาคาร --></div>
       <div class="dorm-legend">
@@ -739,7 +788,7 @@ section.block.step-hidden{display:none;}
     <div class="sec-head">
       <span class="sec-num" data-label="ชำระงวดที่ 2"></span>
       <h2>ชำระยอดคงเหลืองวดที่ 2</h2>
-      <p>แนบสลิปการชำระงวดที่ 2 จากคอร์สที่สมัครไว้ก่อนหน้า เพื่อปลดล็อกการสมัคร/จองคอร์สใหม่</p>
+      <p>แนบสลิปการชำระยอดคงเหลือจากคอร์สที่สมัครไว้ก่อนหน้า เพื่อปลดล็อกการสมัคร/จองคอร์สใหม่</p>
     </div>
     <div class="submit-summary">
       <div class="ss-row"><span>คอร์สที่สมัครไว้</span><b id="instCourse">—</b></div>
@@ -887,11 +936,11 @@ section.block.step-hidden{display:none;}
         <div class="ss-row" id="fsDeadlineRow"><span>ชำระยอดที่เหลือภายใน</span><b id="fsDeadline">20 กันยายน 2569</b></div>
       </div>
 
-       <p style="font-size: 12px; color: var(--muted-2); text-align: center; margin-bottom: 10px; line-height: 1.5;">
-          ⚠️ การชำระเงินมัดจำไม่สามารถขอคืนได้ในทุกกรณี<br>
-          (สงวนสิทธิ์ล็อกสิทธิ์ที่นั่งและที่นอน 100%)
-       </p>
-            
+      <p style="font-size: 12px; color: var(--muted-2); text-align: center; margin-bottom: 10px; line-height: 1.5;">
+        ⚠️ การชำระเงินมัดจำไม่สามารถขอคืนได้ในทุกกรณี<br>
+        (สงวนสิทธิ์ล็อกสิทธิ์ที่นั่งและที่นอน 100%)
+      </p>
+
       <button class="btn-main" id="submitBtn">ยืนยันการลงทะเบียน</button>
       <div id="formMsg"></div>
     </div>
@@ -916,7 +965,7 @@ section.block.step-hidden{display:none;}
       <h3>⚠️ มียอดค้างชำระงวดที่ 2</h3>
       <button class="close-x" id="closePendingBtn" aria-label="ปิด">✕</button>
     </div>
-    <p class="pending-intro">พบว่ามียอดค้างชำระงวดที่ 2 จากการสมัครคอร์สก่อนหน้า กรุณาชำระและแนบสลิปให้เรียบร้อยก่อนสมัครคอร์สใหม่</p>
+    <p class="pending-intro">พบว่ามียอดค้างชำระจากการสมัครคอร์สก่อนหน้า กรุณาชำระและแนบสลิปให้เรียบร้อยก่อนสมัครคอร์สใหม่</p>
 
     <div class="submit-summary">
       <div class="ss-title">รายละเอียดยอดค้างชำระ</div>
@@ -959,7 +1008,7 @@ const THAI_MONTHS = ["มกราคม","กุมภาพันธ์","ม�
 function formatThaiDate(d){
   return d.getDate() + " " + THAI_MONTHS[d.getMonth()] + " " + (d.getFullYear() + 543);
 }
-function money(n){ return n.toLocaleString('th-TH') + " ฿"; }
+function money(n){ return (Number(n)||0).toLocaleString('th-TH') + " ฿"; }
 
 /* ---------------- ควบคุมการเปิด-ปิด คอร์สปกติ ---------------- */
 function applyNormalCourseState() {
@@ -1228,7 +1277,10 @@ async function checkReturningUser(){
   }
 }
 
-/** เช็คว่ามียอดค้างชำระงวดที่ 2 จากการสมัครครั้งก่อนหรือไม่ */
+/**
+ * เช็คว่ามียอดค้างชำระหรือไม่ — ครอบคลุมทั้ง "แบ่งชำระ 2 งวด" (สถานะ
+ * คอลัมน์ AD = รอชำระ) และ "มัดจำ" (คอลัมน์ M = มัดจำ และยอดคงเหลือ > 0)
+ */
 async function checkPendingPayment(){
   if(!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") === 0 || !LIFF_USER_ID) return;
   try{
@@ -1275,15 +1327,19 @@ function applyPendingCardVisibility(){
     setGoal('installment2');
   } else {
     document.getElementById('overdueLockNote').style.display = 'none';
-    
-    // เช็กสถานะการเปิด/ปิดคอร์สปกติจาก CONFIG ก่อนอนุญาตให้ปลดล็อก
-    if (CONFIG.NORMAL_COURSE_OPEN) {
-      normalCard.classList.remove('disabled');
-      normalCard.style.pointerEvents = '';
+
+    // ถ้าถูกล็อกไว้เพราะยังมียอดคงเหลือจาก "มัดจำ"/"แบ่งชำระ" ห้ามปลดล็อกย้อนกลับ
+    const lockedByBalance = registrationStatus && registrationStatus.needSecondPayment;
+    if(!lockedByBalance){
+      // เช็กสถานะการเปิด/ปิดคอร์สปกติจาก CONFIG ก่อนอนุญาตให้ปลดล็อก
+      if (CONFIG.NORMAL_COURSE_OPEN) {
+        normalCard.classList.remove('disabled');
+        normalCard.style.pointerEvents = '';
+      }
+      preorderCard.classList.remove('disabled');
+      preorderCard.style.pointerEvents = '';
     }
-    
-    preorderCard.classList.remove('disabled');
-    preorderCard.style.pointerEvents = '';
+
     tag.textContent = 'ต้องดำเนินการ';
     tag.style.background = '';
     tag.style.color = '';
@@ -1297,32 +1353,164 @@ function populateInstallmentSection(){
   document.getElementById('instAmount').textContent = money(Number(pendingInstallmentInfo.amount)||0);
   document.getElementById('instDue').textContent = pendingInstallmentInfo.dueText || '-';
 }
-document.getElementById('openInstallmentBtn').addEventListener('click', openPendingOverlay);
+document.getElementById('openInstallmentBtn').addEventListener('click', ()=>{
+  if(pendingInstallmentInfo) openPendingOverlay();
+});
 
-/** ดึงข้อมูลเดิมของเด็กเก่าใส่ลงในฟอร์มอัตโนมัติ เรียกครั้งเดียวตอนเปิดฟอร์มครั้งแรก */
-function applyReturningProfile(){
-  if(!returningProfile || profileApplied) return;
-  profileApplied = true;
-  const p = returningProfile;
-  if(p.nickname) document.getElementById('nickname').value = p.nickname;
-  if(p.fullname) document.getElementById('fullname').value = p.fullname;
-  if(p.school) document.getElementById('school').value = p.school;
-  if(p.grade) document.getElementById('grade').value = p.grade;
-  if(p.phone) document.getElementById('phone').value = p.phone;
-  if(p.parentPhone) document.getElementById('parentPhone').value = p.parentPhone;
-  if(p.address) document.getElementById('address').value = p.address;
-  if(p.department){
-    const deptSelect = document.getElementById('department');
-    const options = Array.from(deptSelect.options).map(o=>o.value);
-    if(options.includes(p.department)){
-      deptSelect.value = p.department;
-    } else {
-      deptSelect.value = 'อื่นๆ';
-      document.getElementById('departmentOtherWrap').style.display = 'block';
-      document.getElementById('departmentOther').value = p.department;
+/* =====================================================================
+   ★ ล็อกหน้าจอตามรูปแบบการชำระเงินล่าสุด (คอลัมน์ M ในชีต)
+   ---------------------------------------------------------------------
+   - คอลัมน์ M = "ชำระเต็ม" (หรือชำระครบแล้ว) → ปิดการใช้งานทุกปุ่ม
+     แล้วแสดงการ์ด "จองสมบูรณ์แล้ว" พร้อมรายละเอียดคอร์ส + ตำแหน่งที่นอน
+   - คอลัมน์ M = "มัดจำ" / "แบ่งชำระ2งวด" ที่ยังมียอดคงเหลือ → ปิดกล่อง
+     "จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)" และ "สมัครคอร์สปกติ" เหลือเฉพาะ
+     ปุ่ม "ชำระยอดคงเหลืองวดที่ 2"
+   - ส่งสลิปงวด 2 แล้วรอแอดมินตรวจ → ล็อกทุกปุ่มเช่นกัน แต่ข้อความเปลี่ยน
+     เป็น "รอทีมงานตรวจสอบ"
+   ===================================================================== */
+let registrationStatus = null;
+
+async function checkRegistrationStatus(){
+  if(!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") === 0 || !LIFF_USER_ID) return;
+  try{
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=checkStatus&lineUserId=" + encodeURIComponent(LIFF_USER_ID));
+    const data = await res.json();
+    if(data.status === "ok" && data.found){
+      registrationStatus = data;
+      applyRegistrationStatusUI();
     }
+  }catch(err){
+    console.warn("เช็คสถานะการสมัครล่าสุดไม่สำเร็จ:", err);
   }
-  document.getElementById('autofillNote').classList.add('show');
+}
+
+function applyRegistrationStatusUI(){
+  const s = registrationStatus;
+  if(!s) return;
+  if(s.completed || s.awaitingReview){
+    showCompletedView(s);
+  } else if(s.needSecondPayment){
+    lockToInstallmentOnly();
+  }
+}
+
+/** ซ่อนทุกขั้นตอน แล้วแสดงสรุป "การจองสมบูรณ์แล้ว" (คอร์ส + ตำแหน่งที่นอน) */
+function showCompletedView(s){
+  ['goal-section','format-section','package-section','stay','payment-rules','installment2-section','cta-block']
+    .forEach(id=>{ const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+
+  if(s.awaitingReview){
+    document.getElementById('cpIcon').textContent = '⏳';
+    document.getElementById('cpTitle').textContent = 'ส่งสลิปแล้ว รอทีมงานตรวจสอบ';
+    document.getElementById('cpSubtitle').textContent = 'ทีมงานกำลังตรวจสอบสลิปยอดคงเหลือของน้อง เมื่ออนุมัติแล้วจะแจ้งกลับทางไลน์อัตโนมัติ';
+    document.getElementById('cpNote').textContent = '🔒 ระบบล็อกสิทธิ์ที่นั่งและที่นอนของน้องไว้แล้ว ระหว่างนี้ยังไม่ต้องดำเนินการอะไรเพิ่มเติม';
+    document.getElementById('heroStatusText').textContent = 'รอตรวจสอบสลิป';
+  } else {
+    document.getElementById('heroStatusText').textContent = 'จองสมบูรณ์แล้ว';
+  }
+
+  // แท็กสถานะบนหัวบัตร
+  const badgeRow = document.getElementById('badgeRow');
+  if(badgeRow && !document.getElementById('doneBadge')){
+    const b = document.createElement('span');
+    b.id = 'doneBadge';
+    b.className = 'badge done';
+    b.textContent = s.awaitingReview ? '⏳ รอตรวจสอบสลิป' : '✅ จองสมบูรณ์แล้ว';
+    badgeRow.appendChild(b);
+  }
+
+  document.getElementById('cpGoal').textContent = s.goal || s.courseMonth || '—';
+  document.getElementById('cpCourse').textContent = s.courseName || s.courseMonth || '—';
+
+  const startRow = document.getElementById('cpStartRow');
+  if(s.startDateText){
+    startRow.style.display = 'flex';
+    document.getElementById('cpStart').textContent = s.startDateText;
+  } else {
+    startRow.style.display = 'none';
+  }
+
+  document.getElementById('cpStay').textContent =
+    s.stayMode === 'ออนไลน์' ? 'เรียนออนไลน์ (ไม่มีที่พัก)' : (s.stayMode || '—');
+
+  const dormRow = document.getElementById('cpDormRow');
+  const periodRow = document.getElementById('cpPeriodRow');
+  if(s.stayMode === 'กบดาน'){
+    dormRow.style.display = 'flex';
+    document.getElementById('cpDorm').textContent =
+      (s.dormName || 'ไม่พบข้อมูลที่นอนในระบบ') + (s.bedId ? ' (รหัส ' + s.bedId + ')' : '');
+    if(s.bookingPeriodText){
+      periodRow.style.display = 'flex';
+      document.getElementById('cpPeriod').textContent = s.bookingPeriodText;
+    } else {
+      periodRow.style.display = 'none';
+    }
+  } else {
+    dormRow.style.display = 'none';
+    periodRow.style.display = 'none';
+  }
+
+  document.getElementById('cpPaid').textContent = money(s.amountPaid);
+
+  const balanceRow = document.getElementById('cpBalanceRow');
+  const balance = Number(s.balance) || 0;
+  if(balance > 0 && !s.completed){
+    balanceRow.style.display = 'flex';
+    document.getElementById('cpBalance').textContent = money(balance);
+  } else {
+    balanceRow.style.display = 'none';
+  }
+
+  document.getElementById('cpApproval').textContent =
+    s.approvalStatus === 'อนุมัติแล้ว' ? '✅ อนุมัติแล้ว' : '⏳ รอทีมงานตรวจสอบสลิป';
+
+  document.getElementById('completedZone').style.display = 'block';
+}
+
+/** ปิดกล่อง "จองล่วงหน้า" และ "คอร์สปกติ" เหลือเฉพาะ "ชำระยอดคงเหลืองวดที่ 2" */
+function lockToInstallmentOnly(){
+  ['goalPreorderCard','goalNormalCard'].forEach(id=>{
+    const card = document.getElementById(id);
+    if(!card) return;
+    card.classList.add('disabled');
+    card.classList.remove('checked');
+    card.style.pointerEvents = 'none';
+    const tag = card.querySelector('.month-tag');
+    if(tag){
+      tag.className = 'month-tag tag-soon';
+      tag.textContent = 'ต้องชำระยอดคงเหลือก่อน';
+    }
+  });
+  document.getElementById('goalPreorderRadio').disabled = true;
+  document.getElementById('goalNormalRadio').disabled = true;
+  document.getElementById('depositLockNote').style.display = 'block';
+  document.getElementById('goalInstallmentCard').style.display = 'block';
+  document.getElementById('heroStatusText').textContent = 'มียอดคงเหลือค้างชำระ';
+
+  // ถ้า checkPending ไม่ได้คืนค่ามา (เช่นแถวถูกแก้ระหว่างทาง) ใช้ข้อมูลจาก
+  // checkStatus แทน เพื่อให้ปุ่มแนบสลิปงวด 2 ยังทำงานได้
+  if(!pendingInstallmentInfo && registrationStatus){
+    pendingInstallmentInfo = {
+      row: registrationStatus.row,
+      courseMonth: registrationStatus.courseMonth,
+      courseName: registrationStatus.courseName,
+      amount: registrationStatus.balance,
+      dueText: registrationStatus.dueText,
+      overdue: false
+    };
+    applyPendingCardVisibility();
+  }
+
+  setGoal('installment2');
+}
+
+/** ปลดล็อกหน้าจอหลังส่งสลิปยอดคงเหลือเรียบร้อย (ใช้หลัง pendSubmit สำเร็จ) */
+function clearBalanceLock(){
+  if(registrationStatus){
+    registrationStatus.needSecondPayment = false;
+    registrationStatus.awaitingReview = true;
+  }
+  document.getElementById('depositLockNote').style.display = 'none';
 }
 
 /* ---------------- LIFF init: บังคับเข้าผ่านแอป LINE เท่านั้น ---------------- */
@@ -1353,8 +1541,10 @@ async function initLiff(){
     LIFF_DISPLAY_NAME = profile.displayName || "";
     LIFF_PICTURE_URL = profile.pictureUrl || "";
     document.getElementById('liffTag').textContent = "สวัสดี " + profile.displayName + " 👋";
-    checkReturningUser(); // เช็ก "เด็กเก่า/เด็กใหม่" ทันทีตอนโหลดหน้าเว็บ ใช้ LINE UserID เป็นตัวเชื่อมหลัก
-    checkPendingPayment(); // เช็กยอดค้างชำระงวดที่ 2 จากการสมัครครั้งก่อน
+    checkReturningUser();          // เช็ก "เด็กเก่า/เด็กใหม่" ใช้ LINE UserID เป็นตัวเชื่อมหลัก
+    await checkPendingPayment();   // เช็กยอดค้างชำระ (ต้องเสร็จก่อนล็อก UI)
+    await checkRegistrationStatus(); // ★ แล้วค่อยล็อกหน้าจอตามคอลัมน์ M
+    loadOccupiedBeds();
   }catch(err){
     console.warn("liff.getProfile failed:", err);
     showGate("ไม่สามารถดึงข้อมูลบัญชี LINE ได้ กรุณาลองเปิดหน้านี้ใหม่อีกครั้งผ่านแอป LINE");
@@ -1411,7 +1601,6 @@ function setGoal(goal){
  *   - ซ่อน Step 2 (รูปแบบเรียน) และ Step 3 (แพ็กเกจ) เพราะกำหนดตายตัวเป็น
  *     ติวสดเหมา 1 เดือนอยู่แล้ว (ราคาขึ้นกับรูปแบบกบดาน/ไป-กลับ — ดู
  *     updatePreorderCourseInfo())
- *   - ไม่บังคับรูปแบบการเข้าเรียนเป็น "กบดาน" เท่านั้นอีกต่อไป
  * เมื่อกลับไปเลือก "สมัครคอร์สปกติ": คืนค่า Step 2/3 ตามปกติ และให้เลือก
  * แพ็กเกจใหม่อีกครั้ง (เคลียร์คอร์ส/ราคาที่เคยเลือกไว้ กันข้อมูลเพี้ยน)
  *
@@ -1472,16 +1661,13 @@ function applyGoalMode(){
 
 /**
  * เป้าหมาย "สมัครคอร์สปกติ" อนุญาตให้จองที่นอนเฉพาะบางส่วนเท่านั้น:
- *   - ซ่อนแท็บอาคาร "หอพักโคซี่" และ "สบายเพลส" ไปเลย (เหมือนเดิม)
+ *   - ซ่อนแท็บอาคาร "หอพักโคซี่" และ "สบายเพลส" ไปเลย
  *   - ในตึก 87 และ 88 ที่ยังเปิดอยู่ ให้แสดงเฉพาะห้องหลัก และซ่อนห้องเสริม:
- *       · ตึก 87: แสดงชั้น 3 (87F3) และชั้น 4 (87F4) เท่านั้น
- *         ซ่อนชั้น 2 ห้องเสริม (87F2)
- *       · ตึก 88: แสดงชั้น 4 (88F4) เท่านั้น
- *         ซ่อนชั้น 3 ห้องเสริม (88F3)
- * ส่วนเป้าหมาย "จองล่วงหน้า" ยังเลือกได้ทุกอาคาร/ทุกห้องตามปกติ (สบายเพลส
- * ยังปิดอยู่เหมือนเดิมเพราะยังไม่เปิดจอง)
+ *       · ตึก 87: แสดงชั้น 3 (87F3) และชั้น 4 (87F4) เท่านั้น ซ่อน 87F2
+ *       · ตึก 88: แสดงชั้น 4 (88F4) เท่านั้น ซ่อน 88F3
+ * ส่วนเป้าหมาย "จองล่วงหน้า" ยังเลือกได้ทุกอาคาร/ทุกห้องตามปกติ
  */
-const NORMAL_HIDDEN_ROOM_IDS = ['87F2', '88F3']; // ห้องเสริมที่ปิดไม่ให้จองตอนเป้าหมาย "สมัครคอร์สปกติ"
+const NORMAL_HIDDEN_ROOM_IDS = ['87F2', '88F3']; // ห้องเสริมที่ปิดตอนเป้าหมาย "สมัครคอร์สปกติ"
 
 function updateDormAvailability(){
   const restrictToMain = state.goal === 'normal';
@@ -1537,7 +1723,7 @@ function updateRules(){
     const pricing = PREORDER_PRICING[state.stayMode] || PREORDER_PRICING['กบดาน'];
     primaryEl.innerHTML = '<b>มัดจำขั้นต่ำ 1,000 บาท</b> เพื่อล็อกที่นั่งหรือที่นอนไว้ก่อน (ราคาปกติ ' + money(pricing.normal) + ') หรือ <b>ชำระเต็มจำนวนวันนี้ลดราคาเหลือ ' + money(pricing.full) + '</b>';
     secondaryLi.classList.remove('rule-hidden');
-    secondaryText.innerHTML = 'กรณีมัดจำ ชำระส่วนที่เหลือทั้งหมด <b>ภายในวันที่ 20 กันยายน 2569</b>';
+    secondaryText.innerHTML = 'กรณีมัดจำ ชำระส่วนที่เหลือทั้งหมด <b>ภายในวันที่ ' + PAYMENT_DEADLINE_TEXT + '</b>';
     bankNum = 3;
   } else if(isOnline){
     primaryEl.innerHTML = 'คอร์สออนไลน์ <b>ต้องชำระเต็มจำนวนเท่านั้น</b> (ไม่มีมัดจำ/ไม่มีแบ่งชำระ)';
@@ -1625,12 +1811,10 @@ function setupQtyCard(cardId, unitPrice, nameBase){
   });
 
   // ป้องกันบั๊กเลขต่อกัน: เลือกข้อความทั้งหมดทันทีที่แตะ/โฟกัสช่อง
-  // เพื่อให้พิมพ์ทับค่าเดิมได้เลย แทนที่จะพิมพ์ต่อท้ายจนกลายเป็นเลขผิด
   qtyInput.addEventListener('click', (e)=>{ e.stopPropagation(); qtyInput.select(); });
   qtyInput.addEventListener('focus', ()=> qtyInput.select());
 
   // ระหว่างพิมพ์ ไม่ clamp/คำนวณราคาทันที (กันตัวเลขกระพริบผิดระหว่างพิมพ์หลายหลัก)
-  // พอเลิกโฟกัสหรือกด Enter ค่อย validate + คำนวณราคาจริง
   qtyInput.addEventListener('blur', selectThisCard);
   qtyInput.addEventListener('keydown', (e)=>{
     if(e.key === 'Enter'){ qtyInput.blur(); }
@@ -1644,8 +1828,8 @@ setupQtyCard('pkgOnlinePerSession', 380, 'ออนไลน์รายคร�
 
 /**
  * เมื่อสลับแท็บรูปแบบเรียน (ติวสด / ออนไลน์ / Mix):
- *   - ออนไลน์ล้วน: ซ่อนขั้นตอน "รูปแบบการเข้าเรียน/ที่พัก" ทั้งหมด (ไม่ต้อง
- *     เลือกที่พัก) และบังคับชำระเต็มจำนวนเท่านั้น (ไม่มีมัดจำ/แบ่งชำระ)
+ *   - ออนไลน์ล้วน: ซ่อนขั้นตอน "รูปแบบการเข้าเรียน/ที่พัก" ทั้งหมด และบังคับ
+ *     ชำระเต็มจำนวนเท่านั้น (ไม่มีมัดจำ/แบ่งชำระ)
  *   - ติวสด / Mix: แสดงขั้นตอนรูปแบบการเข้าเรียนตามปกติ (กบดาน/ไป-กลับ)
  * ล้างแพ็กเกจที่เคยเลือกไว้ทุกครั้งที่สลับแท็บ กันราคา/ชื่อคอร์สเพี้ยนข้ามรูปแบบ
  */
@@ -1717,7 +1901,6 @@ function monthDurationText(){
  *   - กบดาน:   ราคาปกติ 8,900 บาท   / ชำระเต็มจำนวนวันนี้ลดเหลือ 8,600 บาท
  *   - ไป-กลับ: ราคาปกติ 8,400 บาท   / ชำระเต็มจำนวนวันนี้ลดเหลือ 8,200 บาท
  * ส่วนรูปแบบ "มัดจำ 1,000 บาท" ใช้ราคาปกติ (normal) เสมอในการคำนวณยอดคงเหลือ
- * — ส่วนลดจากการชำระเต็มจำนวนใช้ได้เฉพาะตอนชำระครบวันนี้เท่านั้น
  */
 const PREORDER_PRICING = {
   'กบดาน':   { normal: 8900, full: 8600 },
@@ -1727,12 +1910,7 @@ const PREORDER_PRICING = {
 function preorderBasePrice(stayMode){
   return (PREORDER_PRICING[stayMode] || PREORDER_PRICING['กบดาน']).normal;
 }
-/**
- * ราคาที่ใช้จริงของ preorder ณ ขณะนี้ — ขึ้นกับรูปแบบการเข้าเรียน (state.stayMode)
- * และรูปแบบการชำระเงินที่กำลังเลือกอยู่ (currentPayType()):
- *   - ชำระเต็ม -> ราคาลดพิเศษ (full)
- *   - มัดจำ    -> ราคาปกติ (normal)
- */
+/** ราคาที่ใช้จริงของ preorder ณ ขณะนี้ — ขึ้นกับรูปแบบเข้าเรียน + รูปแบบชำระเงิน */
 function preorderEffectivePrice(){
   const pricing = PREORDER_PRICING[state.stayMode] || PREORDER_PRICING['กบดาน'];
   return currentPayType() === 'ชำระเต็ม' ? pricing.full : pricing.normal;
@@ -1745,11 +1923,8 @@ function updatePreorderCourseInfo(){
 }
 
 /**
- * ราคาคอร์ส "จองล่วงหน้า (ต.ค.)" ขึ้นกับรูปแบบการเข้าเรียน (กบดาน/ไป-กลับ)
- * และรูปแบบการชำระเงินที่กำลังเลือกอยู่ในฟอร์ม (payType):
- *   - ชำระเต็มจำนวนวันนี้ -> ราคาลดพิเศษ (pricing.full)
- *   - มัดจำ 1,000 บาท     -> ราคาปกติ (pricing.normal) ใช้คำนวณยอดคงเหลือ
- * คอร์สปกติ (ไม่ใช่ preorder) ใช้ state.coursePrice ตามเดิม ไม่เปลี่ยนแปลง
+ * ยอดรวมที่ต้องชำระทั้งหมด (ค่าคอร์ส + ค่าที่พักเพิ่มเติมกรณีกบดานหอโคซี่)
+ * คอร์สปกติ (ไม่ใช่ preorder) ใช้ state.coursePrice ตามเดิม
  */
 function totalPrice(){
   const course = state.goal === 'preorder' ? preorderEffectivePrice() : state.coursePrice;
@@ -1781,6 +1956,10 @@ const agreeBox = document.getElementById('agreeBox');
 const openRegBtn = document.getElementById('openRegBtn');
 function checkReady(){
   if(state.goal === 'installment2'){ openRegBtn.disabled = true; return; }
+  // ★ ถ้ายังมียอดคงเหลือค้างชำระ (มัดจำ/แบ่งชำระ) ห้ามสมัครคอร์สใหม่
+  if(registrationStatus && (registrationStatus.needSecondPayment || registrationStatus.completed || registrationStatus.awaitingReview)){
+    openRegBtn.disabled = true; return;
+  }
   const hasCourse = state.coursePrice > 0;
   const hasDorm = state.stayMode!=='กบดาน' || !!state.dormId;
   openRegBtn.disabled = !(agreeBox.checked && hasCourse && hasDorm);
@@ -1788,16 +1967,14 @@ function checkReady(){
 agreeBox.addEventListener('change', checkReady);
 
 openRegBtn.addEventListener('click', async ()=>{
-  // ถ้ามียอดค้างชำระงวดที่ 2 ที่เลยกำหนดชำระแล้ว ต้องจัดการให้เรียบร้อยก่อนเสมอ
-  // (ถ้ายังไม่เลยกำหนด จะไม่บล็อกการสมัคร/จองคอร์สใหม่ — น้องเลือกได้เองว่าจะ
-  // ชำระงวด 2 ก่อนหรือสมัครคอร์สใหม่ก่อนก็ได้ ผ่านตัวเลือกในขั้นตอนที่ 1)
+  // ถ้ามียอดค้างชำระที่เลยกำหนดแล้ว ต้องจัดการให้เรียบร้อยก่อนเสมอ
   if(pendingInstallmentInfo && pendingInstallmentInfo.overdue){
     openPendingOverlay();
     return;
   }
 
   if(state.stayMode === 'กบดาน'){
-    await loadOccupiedBeds(); // เช็คสถานะเตียงล่าสุดอีกครั้งก่อนเปิดฟอร์ม กันเตียงถูกจองไปแล้วระหว่างที่ดูหน้าเว็บ
+    await loadOccupiedBeds(); // เช็คสถานะเตียงล่าสุดอีกครั้งก่อนเปิดฟอร์ม
     if(state.dormId && occupiedBeds.has(state.dormId) && !ownBedsSet.has(state.dormId)){
       state.dormId=""; state.dormLabel=""; state.dormExtra=0;
       document.getElementById('dormSelectedNote').classList.remove('show');
@@ -1828,13 +2005,38 @@ document.getElementById('closeRegBtn').addEventListener('click', closeReg);
 document.getElementById('doneBtn').addEventListener('click', ()=>{ closeReg(); location.reload(); });
 function closeReg(){ document.getElementById('regOverlay').classList.remove('open'); }
 
+/** ดึงข้อมูลเดิมของเด็กเก่าใส่ลงในฟอร์มอัตโนมัติ เรียกครั้งเดียวตอนเปิดฟอร์มครั้งแรก */
+function applyReturningProfile(){
+  if(!returningProfile || profileApplied) return;
+  profileApplied = true;
+  const p = returningProfile;
+  if(p.nickname) document.getElementById('nickname').value = p.nickname;
+  if(p.fullname) document.getElementById('fullname').value = p.fullname;
+  if(p.school) document.getElementById('school').value = p.school;
+  if(p.grade) document.getElementById('grade').value = p.grade;
+  if(p.phone) document.getElementById('phone').value = p.phone;
+  if(p.parentPhone) document.getElementById('parentPhone').value = p.parentPhone;
+  if(p.address) document.getElementById('address').value = p.address;
+  if(p.department){
+    const deptSelect = document.getElementById('department');
+    const options = Array.from(deptSelect.options).map(o=>o.value);
+    if(options.includes(p.department)){
+      deptSelect.value = p.department;
+    } else {
+      deptSelect.value = 'อื่นๆ';
+      document.getElementById('departmentOtherWrap').style.display = 'block';
+      document.getElementById('departmentOther').value = p.department;
+    }
+  }
+  document.getElementById('autofillNote').classList.add('show');
+}
+
 /* ---------------- Payment type in form ---------------- */
 /**
  * ตัวเลือกที่ 2 ในหน้าฟอร์มเปลี่ยนความหมายตามเป้าหมาย:
  *   - สมัครคอร์สปกติ  -> "แบ่งชำระ 2 งวด (+2%)"
  *   - จองล่วงหน้า      -> "มัดจำ 1,000 บาท" (ราคาปกติเสมอ ไม่ได้ส่วนลด)
  * ตัวเลือกแรก "ชำระเต็มจำนวน" เป็นค่า default เสมอทุกครั้งที่เปิดฟอร์ม
- * และสำหรับ preorder จะแสดงราคาลดพิเศษกำกับไว้ที่ตัวเลือกนี้ด้วย
  */
 function updatePayOptions(){
   const isPreorder = state.goal === 'preorder';
@@ -1907,12 +2109,11 @@ function syncPayAmount(){
 payAmount.addEventListener('input', updateSubmitSummary);
 
 /**
- * อัปเดต "กล่องสรุปข้อมูลลงทะเบียน" ในฟอร์ม: เป้าหมาย/คอร์ส/รูปแบบเข้าเรียน/
- * ที่นอน/สิทธิ์การจอง/ชำระวันนี้/ยอดคงเหลือที่ต้องชำระ/ชำระยอดที่เหลือภายใน
+ * อัปเดต "กล่องสรุปข้อมูลลงทะเบียน" ในฟอร์ม
  * เงื่อนไขวันครบกำหนด:
- *   - จองล่วงหน้า        -> 20 กันยายน 2569
- *   - แบ่งชำระคอร์สปกติ  -> วันนี้ + 15 วัน
- *   - ชำระเต็มจำนวน      -> ซ่อนแถวยอดคงเหลือ/กำหนดชำระ
+ *   - จองล่วงหน้า (มัดจำ) -> PAYMENT_DEADLINE_TEXT
+ *   - แบ่งชำระคอร์สปกติ    -> วันนี้ + 15 วัน
+ *   - ชำระเต็มจำนวน        -> ซ่อนแถวยอดคงเหลือ/กำหนดชำระ
  */
 function updateSubmitSummary(){
   const isPreorder = state.goal === 'preorder';
@@ -2129,6 +2330,7 @@ function setMsg(text, isError=true){
 /* ---------------- Pending installment-2 overlay ---------------- */
 function openPendingOverlay(){
   const info = pendingInstallmentInfo;
+  if(!info) return;
   document.getElementById('pendCourse').textContent = (info.courseMonth||'') + (info.courseName ? ' · ' + info.courseName : '');
   document.getElementById('pendAmount').textContent = money(Number(info.amount)||0);
   document.getElementById('pendDue').textContent = info.dueText || '-';
@@ -2177,23 +2379,14 @@ document.getElementById('pendSubmitBtn').addEventListener('click', async ()=>{
     const data = await res.json();
     if(data.status === "ok"){
       document.getElementById('pendMsg').style.color = 'var(--green)';
-      document.getElementById('pendMsg').textContent = "ส่งสลิปเรียบร้อย รอทีมงานตรวจสอบ ✅ ตอนนี้สามารถสมัครคอร์สใหม่ได้แล้ว";
-      pendingInstallmentInfo = null; // ปลดล็อกให้สมัครคอร์สใหม่ได้หลังส่งสลิปแล้ว
+      document.getElementById('pendMsg').textContent = "ส่งสลิปเรียบร้อย รอทีมงานตรวจสอบ ✅";
+      pendingInstallmentInfo = null;
       document.getElementById('overdueLockNote').style.display = 'none';
-      
-      // เช็กก่อนจะปลดล็อกปุ่มคอร์สปกติ
-      if (CONFIG.NORMAL_COURSE_OPEN) {
-        document.getElementById('goalNormalCard').classList.remove('disabled');
-        document.getElementById('goalNormalCard').style.pointerEvents = '';
-      }
-      document.getElementById('goalPreorderCard').classList.remove('disabled');
-      document.getElementById('goalPreorderCard').style.pointerEvents = '';
-      
       document.getElementById('goalInstallmentCard').style.display = 'none';
+      clearBalanceLock(); // ปลดสถานะ "ต้องชำระยอดคงเหลือ" ฝั่งหน้าเว็บ
       setTimeout(()=>{
         document.getElementById('pendingOverlay').classList.remove('open');
-        // ถ้าคอร์สปกติเปิดอยู่ให้สลับไปหน้าคอร์สปกติ ถ้าปิดอยู่ให้สลับไปหน้า Preorder
-        setGoal(CONFIG.NORMAL_COURSE_OPEN ? 'normal' : 'preorder');
+        location.reload(); // โหลดสถานะล่าสุดจากชีตใหม่ทั้งหมด
       }, 1800);
     } else {
       document.getElementById('pendMsg').style.color = 'var(--coral)';
@@ -2213,7 +2406,6 @@ setGoal('preorder');
 updateDormAvailability();
 updateRules();
 updateSummary();
-loadOccupiedBeds();
 </script>
 </body>
 </html>
