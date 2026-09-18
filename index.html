@@ -6,8 +6,14 @@
 <title>THE MAKE PORTFOLIO — TCAS70 Exclusive</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<!-- ⚡ โหลดเฉพาะน้ำหนักฟอนต์ที่ถูกใช้จริงในหน้านี้ (เดิมโหลด 14 น้ำหนัก ซึ่ง
+     ฟอนต์ไทยไฟล์ใหญ่มาก ทำให้หน้าเว็บขึ้นช้า) — หน้าตายังเหมือนเดิมทุกอย่าง -->
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@600;700&display=swap" rel="stylesheet">
+<!-- ⚡ โหลด LIFF SDK แบบ async (ไม่บล็อกการแสดงผลหน้าเว็บ) แล้วค่อยเริ่ม
+     initLiff() เมื่อไฟล์โหลดเสร็จ — เดิมเบราว์เซอร์ต้องรอไฟล์นี้จนเสร็จ
+     ก่อนจะเริ่มวาดหน้าจอเลย -->
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js" async
+        onload="window.__liffSdkReady=true; if(window.__startLiff) window.__startLiff();"></script>
 <style>
 /* ============================================================
    THE MAKE PORTFOLIO · TCAS70 EXCLUSIVE
@@ -167,7 +173,7 @@ section.block.step-hidden{display:none;}
 .tag-hold{color:var(--coral);border-color:rgba(255,107,91,.4);}
 .tag-mix{color:#c084fc;border-color:rgba(192,132,252,.4);}
 
-/* ---------- Per-session qty ticket (redesigned) ---------- */
+/* ---------- Per-session qty ticket ---------- */
 .pkg-card-qty{padding-bottom:16px;}
 .pkg-card-qty .pkg-row{
   margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);
@@ -300,7 +306,7 @@ section.block.step-hidden{display:none;}
 }
 .rule-list b{color:var(--paper);}
 
-/* ---------- Summary bar (sticky) ---------- */
+/* ---------- Summary bar ---------- */
 .summary{
   background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);
   padding:16px;margin-top:18px;
@@ -338,6 +344,19 @@ section.block.step-hidden{display:none;}
   border:1.5px solid rgba(74,222,128,.4);display:flex;align-items:center;justify-content:center;
   margin:0 auto 14px;font-size:30px;color:var(--green);
 }
+
+/* ---------- Loading skeleton (ระหว่างรอข้อมูลจากชีต) ---------- */
+#bootLoading{
+  display:none;align-items:center;gap:10px;background:var(--ink-2);
+  border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+  font-size:12.5px;color:var(--muted-2);margin-top:14px;
+}
+#bootLoading.show{display:flex;}
+.spinner{
+  width:16px;height:16px;border-radius:50%;border:2px solid var(--line);
+  border-top-color:var(--amber);animation:spin .8s linear infinite;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
 
 /* ---------- LINE-only access gate ---------- */
 #liffGate{
@@ -379,8 +398,7 @@ section.block.step-hidden{display:none;}
 }
 .field textarea{resize:vertical;min-height:64px;}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--amber);}
-/* input[type=date] บนพื้นหลังมืด ต้องบังคับ color-scheme ให้ไอคอนปฏิทิน
-   เป็นสีอ่อน ไม่งั้นเบราว์เซอร์บางตัวจะวาดไอคอนสีเข้มจนมองแทบไม่เห็น */
+/* input[type=date] บนพื้นหลังมืด ต้องบังคับ color-scheme ให้ไอคอนปฏิทินเป็นสีอ่อน */
 .field input[type=date]{color-scheme:dark;font-family:var(--mono);letter-spacing:.02em;}
 .field-hint{font-size:11px;color:var(--muted-2);margin-top:6px;}
 .field-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
@@ -417,7 +435,7 @@ section.block.step-hidden{display:none;}
   border-radius:8px;padding:4px 9px;font-size:11.5px;cursor:pointer;flex-shrink:0;
 }
 
-/* ---------- Submit summary (redesigned) ---------- */
+/* ---------- Submit summary ---------- */
 .submit-summary{
   background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:14px 15px;
   margin:16px 0;
@@ -498,6 +516,7 @@ section.block.step-hidden{display:none;}
         <span>สถานะ · <b id="heroStatusText">เปิดรับ Exclusive</b></span>
         <span id="liffTag">กำลังเชื่อมต่อ LINE…</span>
       </div>
+      <div id="bootLoading"><span class="spinner"></span><span>กำลังโหลดข้อมูลการจองของคุณ…</span></div>
     </div>
   </div>
 </header>
@@ -783,7 +802,7 @@ section.block.step-hidden{display:none;}
     </div>
   </section>
 
-  <!-- ============ Step 6: ชำระยอดคงเหลืองวดที่ 2 (แสดงเฉพาะเมื่อเลือกเป้าหมายนี้) ============ -->
+  <!-- ============ Step 6: ชำระยอดคงเหลืองวดที่ 2 ============ -->
   <section class="block step-hidden" id="installment2-section">
     <div class="sec-head">
       <span class="sec-num" data-label="ชำระงวดที่ 2"></span>
@@ -1139,6 +1158,9 @@ function renderDorms(){
   tabsEl.innerHTML = "";
   panelsEl.innerHTML = "";
   const keys = Object.keys(DORM_DATA);
+  const tabsFrag = document.createDocumentFragment();
+  const panelsFrag = document.createDocumentFragment();
+
   keys.forEach((key, idx)=>{
     const b = DORM_DATA[key];
     const tabBtn = document.createElement('button');
@@ -1151,7 +1173,7 @@ function renderDorms(){
       tabBtn.classList.add('active');
       document.querySelectorAll('.dorm-panel').forEach(p=>p.classList.toggle('active', p.dataset.building===key));
     });
-    tabsEl.appendChild(tabBtn);
+    tabsFrag.appendChild(tabBtn);
 
     const panel = document.createElement('div');
     panel.className = "dorm-panel" + (idx===0 ? " active" : "");
@@ -1161,8 +1183,12 @@ function renderDorms(){
     } else {
       panel.innerHTML = b.rooms.map(renderRoomCard).join("");
     }
-    panelsEl.appendChild(panel);
+    panelsFrag.appendChild(panel);
   });
+
+  // ⚡ แทรก DOM ทีเดียวจบ (ลดจำนวน reflow ของเบราว์เซอร์ ผังเตียงขึ้นไวขึ้น)
+  tabsEl.appendChild(tabsFrag);
+  panelsEl.appendChild(panelsFrag);
 
   // ผูก event การเลือกเตียงทั้งหมด (event delegation)
   panelsEl.addEventListener('click', (e)=>{
@@ -1186,39 +1212,123 @@ function renderDorms(){
 }
 renderDorms();
 
-/**
- * โหลดรายชื่อเตียงที่ไม่ว่าง — แยกกันตาม "ช่วงวันที่" ของเป้าหมายที่กำลังเลือก:
- *   - สมัครคอร์สปกติ  → เช็คเตียงว่างของรอบปัจจุบัน (ช่วงวันที่ CONFIG.NORMAL_PERIOD)
- *   - จองล่วงหน้า      → เช็คเตียงว่างของรอบตุลาคม (ช่วงวันที่ CONFIG.PREORDER_PERIOD)
- * เตียงเดียวกันอาจว่างสำหรับรอบหนึ่งแต่ไม่ว่างอีกรอบหนึ่งได้ ถ้าช่วงวันที่ไม่ทับซ้อนกัน
- * เตียงที่เป็นของผู้ใช้คนนี้เองอยู่แล้ว (ownBeds) จะไม่ถูกนับว่า "ไม่ว่าง" — ให้เลือกซ้ำ
- * เพื่อ "ต่ออายุ" เตียงเดิมได้แบบไร้รอยต่อ แทนที่จะโดนล็อกว่าเต็ม
- */
+/* =====================================================================
+   ⚡ BOOTSTRAP — ยิง request ไป Apps Script "ครั้งเดียว" ตอนเปิดหน้า
+   ---------------------------------------------------------------------
+   เดิมหน้าเว็บยิง 4 ครั้งต่อคิวกัน (checkUser → checkPending → checkStatus
+   → occupied) ซึ่งแต่ละครั้ง Apps Script ใช้เวลา 1-3 วินาที ผู้ใช้จึงต้องรอ
+   เกือบ 10 วินาทีกว่าจะเห็นผังเตียง
+   ตอนนี้เรียก ?action=init ครั้งเดียว ได้ทุกอย่างพร้อมกัน รวมถึง "เตียงว่าง
+   ของทั้งสองรอบ" (ปกติ + จองล่วงหน้า) จึงสลับเป้าหมายได้ทันทีโดยไม่ต้อง
+   โหลดใหม่ ส่วนก่อนกดลงทะเบียนจะรีเฟรชสถานะเตียงสด ๆ อีกครั้งเสมอ
+   เพื่อความถูกต้องของการกันจองซ้ำ (ตรรกะนี้เหมือนเดิมทุกประการ)
+   ===================================================================== */
+const BED_CACHE = { normal: null, preorder: null };
 let currentBedPeriodLabel = "";
-async function loadOccupiedBeds(){
-  if(!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") === 0) return;
+let returningProfile = null;       // ข้อมูลที่เคยกรอกไว้ล่าสุด (autofill ฟอร์ม)
+let profileApplied = false;        // กันไม่ให้ autofill ทับข้อมูลที่ผู้ใช้แก้เองแล้ว
+let pendingInstallmentInfo = null; // ยอดค้างชำระงวดที่ 2 (ถ้ามี)
+let registrationStatus = null;     // สถานะการสมัครล่าสุด (ล็อกหน้าจอตามคอลัมน์ M)
+
+function apiReady(){
+  return !!CONFIG.APPS_SCRIPT_URL && CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") !== 0;
+}
+function currentBedKey(){ return state.goal === 'preorder' ? 'preorder' : 'normal'; }
+function showBootLoading(show){
+  document.getElementById('bootLoading').classList.toggle('show', !!show);
+}
+
+/** เอาข้อมูลเตียงของรอบที่กำลังเลือกอยู่ใน cache มาทาลงบนผังเตียง */
+function applyBedData(){
+  const d = BED_CACHE[currentBedKey()];
+  if(!d) return;
+  occupiedBeds = new Set(d.occupied || []);
+  ownBedsSet = new Set(d.ownBeds || []);
+  currentBedPeriodLabel = d.periodLabel || "";
+  updateDormPeriodLabel();
+  document.querySelectorAll('.seat').forEach(seatEl=>{
+    const id = seatEl.dataset.bedId;
+    const isOwn = ownBedsSet.has(id);
+    const taken = occupiedBeds.has(id) && !seatEl.classList.contains('selected') && !isOwn;
+    seatEl.classList.toggle('taken', taken);
+    seatEl.classList.toggle('own', isOwn);
+    seatEl.disabled = taken;
+    seatEl.title = isOwn ? 'เตียงเดิมของคุณ — กดเพื่อต่ออายุ' : '';
+  });
+}
+
+/**
+ * โหลดสถานะเตียง — ปกติใช้ข้อมูลจาก cache ที่ได้มาตอน bootstrap (ทันที
+ * ไม่ต้องรอเน็ต) ยกเว้นเรียกแบบ force = true (ก่อนเปิดฟอร์มลงทะเบียน)
+ * ที่จะยิงไปเช็คสดจากชีตอีกครั้งเพื่อกันเตียงชนกัน
+ */
+async function loadOccupiedBeds(force){
+  if(!apiReady()) return;
+  const key = currentBedKey();
+  if(!force && BED_CACHE[key]){ applyBedData(); return; }
   try{
-    const goalParam = state.goal === 'preorder' ? 'preorder' : 'normal';
     const uidParam = LIFF_USER_ID ? ("&lineUserId=" + encodeURIComponent(LIFF_USER_ID)) : "";
-    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=occupied&goal=" + goalParam + uidParam);
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=occupied&goal=" + key + uidParam);
     const data = await res.json();
     if(data.status === "ok"){
-      occupiedBeds = new Set(data.occupied || []);
-      ownBedsSet = new Set(data.ownBeds || []);
-      currentBedPeriodLabel = data.periodLabel || "";
-      updateDormPeriodLabel();
-      document.querySelectorAll('.seat').forEach(seatEl=>{
-        const id = seatEl.dataset.bedId;
-        const isOwn = ownBedsSet.has(id);
-        const taken = occupiedBeds.has(id) && !seatEl.classList.contains('selected') && !isOwn;
-        seatEl.classList.toggle('taken', taken);
-        seatEl.classList.toggle('own', isOwn);
-        seatEl.disabled = taken;
-        seatEl.title = isOwn ? 'เตียงเดิมของคุณ — กดเพื่อต่ออายุ' : '';
-      });
+      BED_CACHE[key] = {
+        occupied: data.occupied || [],
+        ownBeds: data.ownBeds || [],
+        periodLabel: data.periodLabel || ""
+      };
+      applyBedData();
     }
   }catch(err){
     console.warn("โหลดสถานะเตียงไม่สำเร็จ:", err);
+  }
+}
+
+/** ★ ยิงครั้งเดียวได้ครบ: profile + pending + status + เตียงของทั้ง 2 รอบ */
+async function bootstrapData(){
+  if(!apiReady() || !LIFF_USER_ID) return;
+  showBootLoading(true);
+  try{
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=init&lineUserId=" + encodeURIComponent(LIFF_USER_ID));
+    const data = await res.json();
+    if(data.status !== "ok") return;
+
+    // --- 1. ข้อมูลเตียงของทั้งสองรอบ (ใช้สลับเป้าหมายได้ทันที) ---
+    if(data.beds){
+      BED_CACHE.normal = data.beds.normal || null;
+      BED_CACHE.preorder = data.beds.preorder || null;
+      applyBedData();
+    }
+
+    // --- 2. เด็กเก่า: เก็บไว้ autofill ฟอร์ม + ติดแท็กบนหัวบัตร ---
+    if(data.found && data.profile){
+      returningProfile = data.profile;
+      document.getElementById('liffTag').textContent = "ยินดีต้อนรับกลับ " + (LIFF_DISPLAY_NAME || "") + " 👋";
+      const badgeRow = document.getElementById('badgeRow');
+      if(badgeRow && !document.getElementById('returningBadge')){
+        const b = document.createElement('span');
+        b.id = 'returningBadge';
+        b.className = 'badge returning';
+        b.textContent = '👋 เด็กเก่า · จำข้อมูลไว้แล้ว';
+        badgeRow.appendChild(b);
+      }
+    }
+
+    // --- 3. ยอดค้างชำระงวดที่ 2 ---
+    if(data.pending && data.pending.pending){
+      pendingInstallmentInfo = data.pending;
+    }
+    applyPendingCardVisibility();
+
+    // --- 4. สถานะการสมัครล่าสุด (ล็อกหน้าจอตามคอลัมน์ M) ---
+    if(data.registration && data.registration.found){
+      registrationStatus = data.registration;
+      applyRegistrationStatusUI();
+    }
+    checkReady();
+  }catch(err){
+    console.warn("โหลดข้อมูลเริ่มต้นไม่สำเร็จ:", err);
+  }finally{
+    showBootLoading(false);
   }
 }
 
@@ -1250,55 +1360,9 @@ function updateStepNumbers(){
 }
 updateStepNumbers();
 
-/* ---------------- Returning-user ("เด็กเก่า") lookup by LINE userId ---------------- */
-let returningProfile = null; // เก็บข้อมูลที่เคยกรอกไว้ล่าสุด (ถ้ามี) เพื่อ autofill ฟอร์ม
-let profileApplied = false;  // กันไม่ให้ autofill ทับข้อมูลที่ผู้ใช้แก้ไขเองแล้ว
-let pendingInstallmentInfo = null; // ยอดค้างชำระงวดที่ 2 ของการสมัครครั้งก่อน (ถ้ามี)
-
-async function checkReturningUser(){
-  if(!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") === 0 || !LIFF_USER_ID) return;
-  try{
-    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=checkUser&lineUserId=" + encodeURIComponent(LIFF_USER_ID));
-    const data = await res.json();
-    if(data.status === "ok" && data.found && data.profile){
-      returningProfile = data.profile;
-      document.getElementById('liffTag').textContent = "ยินดีต้อนรับกลับ " + (LIFF_DISPLAY_NAME || "") + " 👋";
-      const badgeRow = document.getElementById('badgeRow');
-      if(badgeRow && !document.getElementById('returningBadge')){
-        const b = document.createElement('span');
-        b.id = 'returningBadge';
-        b.className = 'badge returning';
-        b.textContent = '👋 เด็กเก่า · จำข้อมูลไว้แล้ว';
-        badgeRow.appendChild(b);
-      }
-    }
-  }catch(err){
-    console.warn("เช็คสถานะเด็กเก่าไม่สำเร็จ:", err);
-  }
-}
-
-/**
- * เช็คว่ามียอดค้างชำระหรือไม่ — ครอบคลุมทั้ง "แบ่งชำระ 2 งวด" (สถานะ
- * คอลัมน์ AD = รอชำระ) และ "มัดจำ" (คอลัมน์ M = มัดจำ และยอดคงเหลือ > 0)
- */
-async function checkPendingPayment(){
-  if(!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") === 0 || !LIFF_USER_ID) return;
-  try{
-    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=checkPending&lineUserId=" + encodeURIComponent(LIFF_USER_ID));
-    const data = await res.json();
-    if(data.status === "ok" && data.pending){
-      pendingInstallmentInfo = data;
-    }
-  }catch(err){
-    console.warn("เช็คยอดค้างชำระไม่สำเร็จ:", err);
-  }
-  applyPendingCardVisibility();
-}
-
 /**
  * แสดง/ซ่อนตัวเลือก "ชำระยอดคงเหลืองวดที่ 2" ในขั้นตอนเลือกเป้าหมาย และ
- * ถ้ายอดค้างชำระนั้นเลยกำหนดชำระไปแล้ว (overdue) จะล็อกตัวเลือกอื่น
- * ("สมัครคอร์สปกติ" / "จองล่วงหน้า") ทั้งหมด บังคับให้ชำระงวด 2 ก่อนเสมอ
+ * ถ้ายอดค้างชำระนั้นเลยกำหนดชำระไปแล้ว (overdue) จะล็อกตัวเลือกอื่นทั้งหมด
  */
 function applyPendingCardVisibility(){
   const card = document.getElementById('goalInstallmentCard');
@@ -1331,7 +1395,6 @@ function applyPendingCardVisibility(){
     // ถ้าถูกล็อกไว้เพราะยังมียอดคงเหลือจาก "มัดจำ"/"แบ่งชำระ" ห้ามปลดล็อกย้อนกลับ
     const lockedByBalance = registrationStatus && registrationStatus.needSecondPayment;
     if(!lockedByBalance){
-      // เช็กสถานะการเปิด/ปิดคอร์สปกติจาก CONFIG ก่อนอนุญาตให้ปลดล็อก
       if (CONFIG.NORMAL_COURSE_OPEN) {
         normalCard.classList.remove('disabled');
         normalCard.style.pointerEvents = '';
@@ -1362,28 +1425,10 @@ document.getElementById('openInstallmentBtn').addEventListener('click', ()=>{
    ---------------------------------------------------------------------
    - คอลัมน์ M = "ชำระเต็ม" (หรือชำระครบแล้ว) → ปิดการใช้งานทุกปุ่ม
      แล้วแสดงการ์ด "จองสมบูรณ์แล้ว" พร้อมรายละเอียดคอร์ส + ตำแหน่งที่นอน
-   - คอลัมน์ M = "มัดจำ" / "แบ่งชำระ2งวด" ที่ยังมียอดคงเหลือ → ปิดกล่อง
-     "จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)" และ "สมัครคอร์สปกติ" เหลือเฉพาะ
+   - คอลัมน์ M = "มัดจำ" / "แบ่งชำระ2งวด" ที่ยังมียอดคงเหลือ → เหลือเฉพาะ
      ปุ่ม "ชำระยอดคงเหลืองวดที่ 2"
-   - ส่งสลิปงวด 2 แล้วรอแอดมินตรวจ → ล็อกทุกปุ่มเช่นกัน แต่ข้อความเปลี่ยน
-     เป็น "รอทีมงานตรวจสอบ"
+   - ส่งสลิปงวด 2 แล้วรอแอดมินตรวจ → ล็อกทุกปุ่ม ข้อความเป็น "รอทีมงานตรวจสอบ"
    ===================================================================== */
-let registrationStatus = null;
-
-async function checkRegistrationStatus(){
-  if(!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.indexOf("REPLACE_") === 0 || !LIFF_USER_ID) return;
-  try{
-    const res = await fetch(CONFIG.APPS_SCRIPT_URL + "?action=checkStatus&lineUserId=" + encodeURIComponent(LIFF_USER_ID));
-    const data = await res.json();
-    if(data.status === "ok" && data.found){
-      registrationStatus = data;
-      applyRegistrationStatusUI();
-    }
-  }catch(err){
-    console.warn("เช็คสถานะการสมัครล่าสุดไม่สำเร็จ:", err);
-  }
-}
-
 function applyRegistrationStatusUI(){
   const s = registrationStatus;
   if(!s) return;
@@ -1487,8 +1532,7 @@ function lockToInstallmentOnly(){
   document.getElementById('goalInstallmentCard').style.display = 'block';
   document.getElementById('heroStatusText').textContent = 'มียอดคงเหลือค้างชำระ';
 
-  // ถ้า checkPending ไม่ได้คืนค่ามา (เช่นแถวถูกแก้ระหว่างทาง) ใช้ข้อมูลจาก
-  // checkStatus แทน เพื่อให้ปุ่มแนบสลิปงวด 2 ยังทำงานได้
+  // ถ้า pending ไม่ได้คืนค่ามา ใช้ข้อมูลจาก registrationStatus แทน
   if(!pendingInstallmentInfo && registrationStatus){
     pendingInstallmentInfo = {
       row: registrationStatus.row,
@@ -1504,7 +1548,7 @@ function lockToInstallmentOnly(){
   setGoal('installment2');
 }
 
-/** ปลดล็อกหน้าจอหลังส่งสลิปยอดคงเหลือเรียบร้อย (ใช้หลัง pendSubmit สำเร็จ) */
+/** ปลดล็อกหน้าจอหลังส่งสลิปยอดคงเหลือเรียบร้อย */
 function clearBalanceLock(){
   if(registrationStatus){
     registrationStatus.needSecondPayment = false;
@@ -1522,6 +1566,10 @@ function showGate(message){
   document.getElementById('liffGate').classList.add('show');
 }
 async function initLiff(){
+  if(typeof liff === "undefined"){
+    showGate("ไม่สามารถโหลดไลบรารีของ LINE ได้ กรุณาเช็คอินเทอร์เน็ตแล้วเปิดใหม่อีกครั้งผ่านแอป LINE");
+    return;
+  }
   try{
     await liff.init({ liffId: CONFIG.LIFF_ID });
   }catch(err){
@@ -1530,7 +1578,6 @@ async function initLiff(){
     return;
   }
   if(!liff.isInClient()){
-    // เปิดจากเบราว์เซอร์ทั่วไป ไม่ใช่ในแอป LINE — ปิดการใช้งานตามที่ตั้งใจไว้
     showGate("หน้านี้เปิดได้เฉพาะผ่านเมนู Rich Menu หรือลิงก์ LINE ของ THE MAKE PORTFOLIO เท่านั้น กรุณาเปิดผ่านแอป LINE");
     return;
   }
@@ -1541,16 +1588,16 @@ async function initLiff(){
     LIFF_DISPLAY_NAME = profile.displayName || "";
     LIFF_PICTURE_URL = profile.pictureUrl || "";
     document.getElementById('liffTag').textContent = "สวัสดี " + profile.displayName + " 👋";
-    checkReturningUser();          // เช็ก "เด็กเก่า/เด็กใหม่" ใช้ LINE UserID เป็นตัวเชื่อมหลัก
-    await checkPendingPayment();   // เช็กยอดค้างชำระ (ต้องเสร็จก่อนล็อก UI)
-    await checkRegistrationStatus(); // ★ แล้วค่อยล็อกหน้าจอตามคอลัมน์ M
-    loadOccupiedBeds();
+    // ⚡ ยิงครั้งเดียวได้ทุกอย่าง (แทนของเดิม 4 ครั้งต่อคิวกัน)
+    bootstrapData();
   }catch(err){
     console.warn("liff.getProfile failed:", err);
     showGate("ไม่สามารถดึงข้อมูลบัญชี LINE ได้ กรุณาลองเปิดหน้านี้ใหม่อีกครั้งผ่านแอป LINE");
   }
 }
-initLiff();
+// SDK โหลดแบบ async — เริ่มทำงานทันทีที่ไฟล์พร้อม (ไม่ว่าจะพร้อมก่อนหรือหลังสคริปต์นี้)
+window.__startLiff = initLiff;
+if(window.__liffSdkReady) initLiff();
 
 /* ---------------- Application state ---------------- */
 let state = {
@@ -1583,7 +1630,7 @@ function setGoal(goal){
 
   if(goalChanged && goal !== 'installment2'){
     // แต่ละเป้าหมายมี "ช่วงวันที่สิทธิ์เตียง" ต่างกัน (ปกติ vs จองล่วงหน้า ต.ค.)
-    // ล้างเตียงที่เคยเลือกไว้ แล้วโหลดสถานะเตียงว่างใหม่ให้ตรงกับช่วงของเป้าหมายที่เพิ่งเลือก
+    // ล้างเตียงที่เคยเลือกไว้ แล้วทาสถานะเตียงของรอบใหม่ (อ่านจาก cache ทันที)
     state.dormId = ""; state.dormLabel = ""; state.dormExtra = 0;
     document.getElementById('dormSelectedNote').classList.remove('show');
     document.querySelectorAll('.seat.selected').forEach(s=>s.classList.remove('selected'));
@@ -1592,20 +1639,15 @@ function setGoal(goal){
   applyGoalMode();
 
   if(goalChanged && goal !== 'installment2'){
-    loadOccupiedBeds();
+    loadOccupiedBeds(); // ⚡ ใช้ข้อมูลใน cache — ไม่ยิงเน็ตใหม่
   }
 }
 
 /**
- * เมื่อเลือก "จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)":
- *   - ซ่อน Step 2 (รูปแบบเรียน) และ Step 3 (แพ็กเกจ) เพราะกำหนดตายตัวเป็น
- *     ติวสดเหมา 1 เดือนอยู่แล้ว (ราคาขึ้นกับรูปแบบกบดาน/ไป-กลับ — ดู
- *     updatePreorderCourseInfo())
- * เมื่อกลับไปเลือก "สมัครคอร์สปกติ": คืนค่า Step 2/3 ตามปกติ และให้เลือก
- * แพ็กเกจใหม่อีกครั้ง (เคลียร์คอร์ส/ราคาที่เคยเลือกไว้ กันข้อมูลเพี้ยน)
- *
- * เมื่อเลือก "ชำระยอดคงเหลืองวดที่ 2": ซ่อนขั้นตอนสมัครคอร์ส/ที่พัก/ชำระเงิน
- * ทั้งหมด แสดงเฉพาะกล่องสรุปยอดค้างชำระ + ปุ่มแนบสลิปงวด 2 แทน
+ * เมื่อเลือก "จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)": ซ่อน Step 2/3 เพราะกำหนด
+ * ตายตัวเป็นติวสดเหมา 1 เดือนอยู่แล้ว (ราคาขึ้นกับกบดาน/ไป-กลับ)
+ * เมื่อกลับไป "สมัครคอร์สปกติ": คืนค่า Step 2/3 ตามปกติ
+ * เมื่อเลือก "ชำระยอดคงเหลืองวดที่ 2": เหลือเฉพาะกล่องสรุป + ปุ่มแนบสลิป
  */
 function applyGoalMode(){
   const isPreorder = state.goal === 'preorder';
@@ -1628,17 +1670,15 @@ function applyGoalMode(){
   document.getElementById('package-section').classList.toggle('step-hidden', isPreorder);
   document.getElementById('stay').classList.remove('step-hidden');
   document.getElementById('payment-rules').classList.remove('step-hidden');
-  document.getElementById('stayToggleWrap').style.display = 'flex'; // แสดงปุ่มเลือกเสมอ
-  document.getElementById('preorderStayNote').style.display = 'none'; // ซ่อนข้อความเตือนล็อกเตียง
+  document.getElementById('stayToggleWrap').style.display = 'flex';
+  document.getElementById('preorderStayNote').style.display = 'none';
 
   if(isPreorder){
     state.format = 'onsite';
     state.courseMonthLabel = 'จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)';
 
-    // อ่านค่าจากสถานะปุ่มที่ถูกเลือกอยู่บน UI
     const isHold = document.getElementById('stayHold').checked;
     state.stayMode = isHold ? 'กบดาน' : 'ไป-กลับ';
-    // ราคาคอร์ส preorder ขึ้นกับรูปแบบกบดาน/ไป-กลับ (ดู PREORDER_PRICING ด้านล่าง)
     updatePreorderCourseInfo();
 
     document.getElementById('stay').classList.remove('step-hidden');
@@ -1649,7 +1689,6 @@ function applyGoalMode(){
     state.courseName = "";
     state.courseMonthLabel = 'คอร์สปกติ (เริ่มเรียนได้ทันที)';
     document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('checked'));
-    // คืนค่าการมองเห็นของ Step 4/กติกาชำระเงินตามแท็บรูปแบบเรียนที่กำลังเลือกอยู่
     const activeTab = document.querySelector('.tab-btn.active');
     setFormatMode(activeTab ? activeTab.dataset.tab : 'onsite');
   }
@@ -1661,13 +1700,11 @@ function applyGoalMode(){
 
 /**
  * เป้าหมาย "สมัครคอร์สปกติ" อนุญาตให้จองที่นอนเฉพาะบางส่วนเท่านั้น:
- *   - ซ่อนแท็บอาคาร "หอพักโคซี่" และ "สบายเพลส" ไปเลย
- *   - ในตึก 87 และ 88 ที่ยังเปิดอยู่ ให้แสดงเฉพาะห้องหลัก และซ่อนห้องเสริม:
- *       · ตึก 87: แสดงชั้น 3 (87F3) และชั้น 4 (87F4) เท่านั้น ซ่อน 87F2
- *       · ตึก 88: แสดงชั้น 4 (88F4) เท่านั้น ซ่อน 88F3
- * ส่วนเป้าหมาย "จองล่วงหน้า" ยังเลือกได้ทุกอาคาร/ทุกห้องตามปกติ
+ *   - ซ่อนแท็บอาคาร "หอพักโคซี่" และ "สบายเพลส"
+ *   - ตึก 87: แสดงชั้น 3 และชั้น 4 เท่านั้น ซ่อน 87F2
+ *   - ตึก 88: แสดงชั้น 4 เท่านั้น ซ่อน 88F3
  */
-const NORMAL_HIDDEN_ROOM_IDS = ['87F2', '88F3']; // ห้องเสริมที่ปิดตอนเป้าหมาย "สมัครคอร์สปกติ"
+const NORMAL_HIDDEN_ROOM_IDS = ['87F2', '88F3'];
 
 function updateDormAvailability(){
   const restrictToMain = state.goal === 'normal';
@@ -1680,7 +1717,6 @@ function updateDormAvailability(){
     panel.classList.toggle('goal-hidden', hide);
   });
 
-  // ซ่อนห้องเสริม (87F2 / 88F3) ในตึก 87/88 เมื่อเป้าหมายเป็น "สมัครคอร์สปกติ"
   document.querySelectorAll('.room-card').forEach(card=>{
     const roomId = card.dataset.roomId;
     const hideRoom = restrictToMain && NORMAL_HIDDEN_ROOM_IDS.indexOf(roomId) !== -1;
@@ -1693,7 +1729,6 @@ function updateDormAvailability(){
     if(firstVisible) firstVisible.click();
   }
 
-  // ถ้าเตียงที่เคยเลือกไว้อยู่ในอาคาร/ห้องที่เพิ่งถูกซ่อนไป ให้ล้างการเลือกทิ้ง
   if(state.dormId && restrictToMain){
     const isCozyBed = state.dormId.indexOf('COZY') === 0;
     const isHiddenRoomBed = NORMAL_HIDDEN_ROOM_IDS.some(roomId => state.dormId.indexOf(roomId + '-') === 0);
@@ -1705,11 +1740,7 @@ function updateDormAvailability(){
 }
 
 /**
- * ปรับข้อความกติกาการชำระเงิน (Step 5) ตามเป้าหมาย/รูปแบบเรียนที่เลือก:
- *   - จองล่วงหน้า: มัดจำ 1,000 + กำหนดชำระส่วนที่เหลือ 20 ก.ย. 69 หรือ
- *     ชำระเต็มจำนวนวันนี้รับส่วนลดพิเศษ (ราคาขึ้นกับกบดาน/ไป-กลับ)
- *   - คอร์สปกติ (ออนไลน์): ต้องชำระเต็มจำนวนเท่านั้น
- *   - คอร์สปกติ (ติวสด/Mix): เลือกชำระเต็มจำนวน หรือแบ่งชำระ 2 งวด
+ * ปรับข้อความกติกาการชำระเงิน (Step 5) ตามเป้าหมาย/รูปแบบเรียนที่เลือก
  */
 function updateRules(){
   const isPreorder = state.goal === 'preorder';
@@ -1752,7 +1783,7 @@ tabBtns.forEach(btn=>{
 
 /* ---------------- Step 3: เลือกแพ็กเกจ ---------------- */
 document.querySelectorAll('.pkg-card').forEach(card=>{
-  if(card.classList.contains('pkg-card-qty')) return; // การ์ด "รายครั้ง" มีตัวจัดการของตัวเองด้านล่าง
+  if(card.classList.contains('pkg-card-qty')) return; // การ์ด "รายครั้ง" มีตัวจัดการของตัวเอง
   card.addEventListener('click', ()=>{
     document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('checked'));
     card.classList.add('checked');
@@ -1765,15 +1796,10 @@ document.querySelectorAll('.pkg-card').forEach(card=>{
 
 /**
  * การ์ด "ติวสดรายครั้ง" / "ออนไลน์รายครั้ง" มีตัวเลือกจำนวนครั้งในตัว
- * (ปุ่ม +/- และช่องกรอกตัวเลข) จึงไม่ใช้ overlay input ครอบทั้งการ์ดแบบ
- * การ์ดอื่น เพื่อให้กดปุ่ม +/- ได้โดยไม่โดนตีความว่าคลิกเลือกการ์ดเฉยๆ
  * ราคารวม = จำนวนครั้ง × ราคาต่อครั้ง คำนวณสดทุกครั้งที่มีการเปลี่ยนจำนวน
  *
- * บั๊กที่แก้แล้ว: ช่องกรอกตัวเลขมีค่าเริ่มต้น "1" ค้างอยู่ ถ้าผู้ใช้แตะแล้ว
- * พิมพ์ทับโดยไม่เลือกข้อความเดิมก่อน (โดยเฉพาะบนมือถือ) ตัวเลขจะต่อกัน
- * เช่น พิมพ์ "1" ทับค่าเดิม "1" กลายเป็น "11" → ราคาพุ่งผิดพลาด (11×750=8,250)
- * แก้โดย select() ข้อความทั้งหมดทันทีที่แตะ/โฟกัสช่อง เพื่อให้พิมพ์ทับได้เลย
- * และคำนวณราคาจริงตอนพิมพ์เสร็จ (blur/Enter) แทนการคำนวณทุกคีย์สโตรก
+ * บั๊กที่แก้แล้ว: เลือกข้อความทั้งหมดทันทีที่แตะช่อง เพื่อให้พิมพ์ทับได้เลย
+ * (กันบั๊กเลขต่อกันเป็น "11" แล้วราคาพุ่งผิด) และคำนวณราคาจริงตอน blur/Enter
  */
 function setupQtyCard(cardId, unitPrice, nameBase){
   const card = document.getElementById(cardId);
@@ -1810,11 +1836,8 @@ function setupQtyCard(cardId, unitPrice, nameBase){
     });
   });
 
-  // ป้องกันบั๊กเลขต่อกัน: เลือกข้อความทั้งหมดทันทีที่แตะ/โฟกัสช่อง
   qtyInput.addEventListener('click', (e)=>{ e.stopPropagation(); qtyInput.select(); });
   qtyInput.addEventListener('focus', ()=> qtyInput.select());
-
-  // ระหว่างพิมพ์ ไม่ clamp/คำนวณราคาทันที (กันตัวเลขกระพริบผิดระหว่างพิมพ์หลายหลัก)
   qtyInput.addEventListener('blur', selectThisCard);
   qtyInput.addEventListener('keydown', (e)=>{
     if(e.key === 'Enter'){ qtyInput.blur(); }
@@ -1827,11 +1850,7 @@ setupQtyCard('pkgOnsitePerSession', 750, 'ติวสดรายครั้�
 setupQtyCard('pkgOnlinePerSession', 380, 'ออนไลน์รายครั้ง');
 
 /**
- * เมื่อสลับแท็บรูปแบบเรียน (ติวสด / ออนไลน์ / Mix):
- *   - ออนไลน์ล้วน: ซ่อนขั้นตอน "รูปแบบการเข้าเรียน/ที่พัก" ทั้งหมด และบังคับ
- *     ชำระเต็มจำนวนเท่านั้น (ไม่มีมัดจำ/แบ่งชำระ)
- *   - ติวสด / Mix: แสดงขั้นตอนรูปแบบการเข้าเรียนตามปกติ (กบดาน/ไป-กลับ)
- * ล้างแพ็กเกจที่เคยเลือกไว้ทุกครั้งที่สลับแท็บ กันราคา/ชื่อคอร์สเพี้ยนข้ามรูปแบบ
+ * เมื่อสลับแท็บรูปแบบเรียน (ติวสด / ออนไลน์ / Mix)
  */
 function setFormatMode(format){
   state.format = format;
@@ -1885,7 +1904,6 @@ function setStay(mode){
   document.getElementById('dormZone').classList.toggle('hidden', mode!=='กบดาน');
   if(mode!=='กบดาน'){ state.dormId=""; state.dormLabel=""; state.dormExtra=0; }
   if(state.goal === 'preorder'){
-    // สลับกบดาน/ไป-กลับ ระหว่างเป้าหมาย preorder ต้องอัปเดตราคาคอร์สใหม่ทันที
     updatePreorderCourseInfo();
     updateRules();
   }
@@ -1900,22 +1918,18 @@ function monthDurationText(){
  * ราคาคอร์ส "จองล่วงหน้า คอร์สทำพอร์ต (ต.ค.)" แยกตามรูปแบบการเข้าเรียน:
  *   - กบดาน:   ราคาปกติ 8,900 บาท   / ชำระเต็มจำนวนวันนี้ลดเหลือ 8,600 บาท
  *   - ไป-กลับ: ราคาปกติ 8,400 บาท   / ชำระเต็มจำนวนวันนี้ลดเหลือ 8,200 บาท
- * ส่วนรูปแบบ "มัดจำ 1,000 บาท" ใช้ราคาปกติ (normal) เสมอในการคำนวณยอดคงเหลือ
  */
 const PREORDER_PRICING = {
   'กบดาน':   { normal: 8900, full: 8600 },
   'ไป-กลับ': { normal: 8400, full: 8200 }
 };
-/** ราคาปกติ (ก่อนส่วนลดชำระเต็ม) ของ preorder ตามรูปแบบการเข้าเรียนที่ระบุ */
 function preorderBasePrice(stayMode){
   return (PREORDER_PRICING[stayMode] || PREORDER_PRICING['กบดาน']).normal;
 }
-/** ราคาที่ใช้จริงของ preorder ณ ขณะนี้ — ขึ้นกับรูปแบบเข้าเรียน + รูปแบบชำระเงิน */
 function preorderEffectivePrice(){
   const pricing = PREORDER_PRICING[state.stayMode] || PREORDER_PRICING['กบดาน'];
   return currentPayType() === 'ชำระเต็ม' ? pricing.full : pricing.normal;
 }
-/** อัปเดต state.coursePrice / state.courseName ของ preorder ให้ตรงกับรูปแบบการเข้าเรียนปัจจุบัน */
 function updatePreorderCourseInfo(){
   if(state.goal !== 'preorder') return;
   state.coursePrice = preorderBasePrice(state.stayMode);
@@ -1924,7 +1938,6 @@ function updatePreorderCourseInfo(){
 
 /**
  * ยอดรวมที่ต้องชำระทั้งหมด (ค่าคอร์ส + ค่าที่พักเพิ่มเติมกรณีกบดานหอโคซี่)
- * คอร์สปกติ (ไม่ใช่ preorder) ใช้ state.coursePrice ตามเดิม
  */
 function totalPrice(){
   const course = state.goal === 'preorder' ? preorderEffectivePrice() : state.coursePrice;
@@ -1974,7 +1987,8 @@ openRegBtn.addEventListener('click', async ()=>{
   }
 
   if(state.stayMode === 'กบดาน'){
-    await loadOccupiedBeds(); // เช็คสถานะเตียงล่าสุดอีกครั้งก่อนเปิดฟอร์ม
+    // ⚡ จุดเดียวที่ยังเช็คสดจากชีต — เพื่อกันเตียงชนกันตอนกดพร้อมกันหลายคน
+    await loadOccupiedBeds(true);
     if(state.dormId && occupiedBeds.has(state.dormId) && !ownBedsSet.has(state.dormId)){
       state.dormId=""; state.dormLabel=""; state.dormExtra=0;
       document.getElementById('dormSelectedNote').classList.remove('show');
@@ -1984,7 +1998,7 @@ openRegBtn.addEventListener('click', async ()=>{
     }
   }
 
-  updatePayOptions(); // ตั้งค่าตัวเลือกชำระเงินตามเป้าหมาย + reset default เป็น "ชำระเต็มจำนวน"
+  updatePayOptions(); // ตั้งค่าตัวเลือกชำระเงิน + reset default เป็น "ชำระเต็มจำนวน"
 
   const payToggleWrap = document.getElementById('payToggleWrap');
   const onlineFullPayNote = document.getElementById('onlineFullPayNote');
@@ -2036,7 +2050,6 @@ function applyReturningProfile(){
  * ตัวเลือกที่ 2 ในหน้าฟอร์มเปลี่ยนความหมายตามเป้าหมาย:
  *   - สมัครคอร์สปกติ  -> "แบ่งชำระ 2 งวด (+2%)"
  *   - จองล่วงหน้า      -> "มัดจำ 1,000 บาท" (ราคาปกติเสมอ ไม่ได้ส่วนลด)
- * ตัวเลือกแรก "ชำระเต็มจำนวน" เป็นค่า default เสมอทุกครั้งที่เปิดฟอร์ม
  */
 function updatePayOptions(){
   const isPreorder = state.goal === 'preorder';
@@ -2110,10 +2123,6 @@ payAmount.addEventListener('input', updateSubmitSummary);
 
 /**
  * อัปเดต "กล่องสรุปข้อมูลลงทะเบียน" ในฟอร์ม
- * เงื่อนไขวันครบกำหนด:
- *   - จองล่วงหน้า (มัดจำ) -> PAYMENT_DEADLINE_TEXT
- *   - แบ่งชำระคอร์สปกติ    -> วันนี้ + 15 วัน
- *   - ชำระเต็มจำนวน        -> ซ่อนแถวยอดคงเหลือ/กำหนดชำระ
  */
 function updateSubmitSummary(){
   const isPreorder = state.goal === 'preorder';
@@ -2172,7 +2181,9 @@ function updateSubmitSummary(){
   }
 }
 
-/* ---------------- Image resize + base64 helper (ใช้ร่วมกันทั้งสลิปมัดจำและสลิปงวด 2) ---------------- */
+/* ---------------- Image resize + base64 helper ----------------
+   ⚡ ลดขนาดรูปสลิปก่อนส่ง (ด้านยาวสุด 1280px, JPEG 0.82) — ยิ่งไฟล์เล็ก
+   การอัปโหลดไป Apps Script ยิ่งเร็ว ผู้ใช้รอหน้า "ยืนยันการลงทะเบียน" สั้นลง */
 function resizeImageToBase64(file, onDone){
   const reader = new FileReader();
   reader.onload = (ev)=>{
@@ -2223,7 +2234,7 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
   const phone = document.getElementById('phone').value.trim();
   const parentPhone = document.getElementById('parentPhone').value.trim();
   const address = document.getElementById('address').value.trim();
-  const startDate = document.getElementById('startDate').value; // "YYYY-MM-DD" ตรงกับ parseConfigDate_ ฝั่ง code.gs
+  const startDate = document.getElementById('startDate').value; // "YYYY-MM-DD"
   const payType = currentPayType(); // 'ชำระเต็ม' | 'มัดจำ' | 'แบ่งชำระ2งวด'
   const total = totalPrice();
   const department = deptSelect === 'อื่นๆ' ? (deptOther ? ('อื่นๆ: ' + deptOther) : '') : deptSelect;
@@ -2309,7 +2320,7 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
       setMsg("เตียงนี้เพิ่งถูกจองไปแล้ว กรุณาปิดหน้าต่างนี้แล้วเลือกเตียงใหม่");
       state.dormId=""; state.dormLabel=""; state.dormExtra=0;
       document.getElementById('dormSelectedNote').classList.remove('show');
-      loadOccupiedBeds();
+      loadOccupiedBeds(true);
       updateSummary();
       document.getElementById('submitBtn').disabled = false;
     }else{
@@ -2383,7 +2394,7 @@ document.getElementById('pendSubmitBtn').addEventListener('click', async ()=>{
       pendingInstallmentInfo = null;
       document.getElementById('overdueLockNote').style.display = 'none';
       document.getElementById('goalInstallmentCard').style.display = 'none';
-      clearBalanceLock(); // ปลดสถานะ "ต้องชำระยอดคงเหลือ" ฝั่งหน้าเว็บ
+      clearBalanceLock();
       setTimeout(()=>{
         document.getElementById('pendingOverlay').classList.remove('open');
         location.reload(); // โหลดสถานะล่าสุดจากชีตใหม่ทั้งหมด
